@@ -1,0 +1,16 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import lessons from './routes/lessons.js';
+import attempts from './routes/attempts.js';
+import teacher from './routes/teacher.js';
+const app = express();
+const allowedOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
+app.use(cors({ origin: allowedOrigin }));
+app.use(express.json({ limit: '1mb' }));
+app.get('/api/health', (_req, res) => res.json({ data: { status: 'ok' } }));
+app.use('/api/lessons', lessons);
+app.use('/api/attempts', attempts);
+app.use('/api/teacher', teacher);
+const port = Number(process.env.PORT ?? 4000);
+app.listen(port, () => console.log(`TemuKata API listening on port ${port}`));

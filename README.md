@@ -1,0 +1,190 @@
+# 🐧 TemuKata — Lab Literasi Membaca & Petualangan Bahasa Indonesia
+
+TemuKata adalah platform pembelajaran literasi membaca Bahasa Indonesia interaktif berbasis bukti teks (*evidence-based reading*), dirancang dengan antarmuka gamifikasi yang menyenangkan seperti Duolingo dan palet warna pastel yang lembut (*calming aesthetic*).
+
+Platform ini membantu murid meningkatkan pemahaman membaca mendalam melalui penemuan kalimat bukti langsung pada teks (*highlighter / stabilo*), didukung maskot pinguin TemuKata, sistem streak harian, permata (*diamonds*), papan juara (*leaderboard*), dan mode gelap/terang.
+
+---
+
+## 🌟 Fitur Utama
+
+1. **6 Modul Literasi Membaca Resmi**:
+   - 🎯 **Gagasan Pokok**: Menentukan inti dan ide utama paragraf deduktif/induktif.
+   - 🔍 **Fakta vs Opini**: Membedakan pernyataan objektif berbasis data versus opini subjektif.
+   - 💡 **Pesan Moral & Amanat**: Menggali nilai budi pekerti dan amanat cerita fabel/cerpen.
+   - ⚖️ **Hubungan Sebab-Akibat**: Menganalisis korelasi kausalitas antarperistiwa dalam teks.
+   - 🌸 **Makna Kiasan & Peribahasa**: Memahami ungkapan kontekstual dan metafora sastra.
+   - 🧠 **Membaca Kritis & Evaluasi Teks**: Menilai objektivitas teks argumentatif dan membedakan klaim valid vs hoaks.
+
+2. **Bukti Teks Interaktif (Interactive Highlighter / Stabilo)**:
+   - Setiap soal menuntut murid menyorot kalimat bukti di dalam teks sebelum menjawab.
+   - Melatih ketelitian membaca dan penalaran kritis.
+
+3. **Timer 5 Menit per Sesi**:
+   - Melatih manajemen waktu murid saat membaca teks dan menjawab soal.
+
+4. **Sistem Gamifikasi Dinamis**:
+   - 🔥 **Streak Api Harian**:
+     - **Api Abu-Abu**: Muncul saat streak mati (0 hari) atau murid **belum menyelesaikan bacaan hari ini**.
+     - **Api Oranye Menyala**: Otomatis menyala dan bergerak aktif begitu murid **selesai membaca 1 teks hari ini**.
+   - 💎 **Permata (Diamonds)**: Bonus permata setiap menyelesaikan modul latihan.
+   - 🏆 **Papan Juara (Leaderboard)**: Peringkat membaca mingguan antarmurid.
+   - 📅 **Kalender Streak Mingguan**: Pelacak konsistensi membaca 7 hari dengan *streak freeze protection*.
+
+5. **Mode Gelap (Dark Mode) & Mode Terang (Light Mode)**:
+   - Tombol toggle di navbar atas (`🌙 Gelap` / `☀️ Terang`).
+   - Warna mode gelap disesuaikan dengan *soft midnight navy & slate* agar tidak menyilaukan mata saat membaca.
+   - Preferensi tersimpan otomatis di `localStorage`.
+
+6. **Dashboard Guru & Admin**:
+   - Guru dapat membuat bacaan baru dan menyusun soal interaktif beserta kunci bukti teks.
+   - Rekap nilai dan evaluasi akurasi jawaban murid.
+   - Sinkronisasi langsung ke database Supabase.
+
+---
+
+## 🔑 Akun Bawaan (Default Credentials)
+
+| Peran (Role) | Email | Password | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **Guru / Admin** | `ijah@gmail.com` | `admin123` | Akses Dashboard Admin, Buat Bacaan, & Evaluasi Murid |
+| **Murid** | `budi@gmail.com` | `budi123` | Akses Peta Belajar, 6 Modul Literasi, & Leaderboard |
+
+> 💡 **Catatan**: Murid baru juga dapat mendaftar langsung melalui tombol **Daftar Akun Baru** di halaman login.
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan Aplikasi
+
+### 1. Prasyarat
+- **Node.js** versi 18 atau lebih baru.
+- Koneksi internet (untuk sinkronisasi Supabase).
+
+---
+
+### 2. Setup Database Supabase
+Jika database Supabase baru dibuat atau direset:
+1. Buka dashboard proyek Supabase Anda.
+2. Masuk ke menu **SQL Editor**.
+3. Buka file `supabase/full_setup.sql` di proyek ini.
+4. Salin seluruh isi file tersebut, tempelkan ke SQL Editor Supabase, lalu klik **Run**.
+5. Skrip ini akan membuat seluruh tabel (`profiles`, `lessons`, `questions`, `results`), relasi, trigger pendaftaran, serta mengisikan 6 modul resmi Bahasa Indonesia beserta 30 soal lengkap.
+
+---
+
+### 3. Konfigurasi Environment (`.env`)
+
+#### Backend (`backend/.env`):
+```env
+PORT=4000
+FRONTEND_ORIGIN=http://localhost:5173
+SUPABASE_URL=https://xcsfdufhqckzntwvgrdn.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+#### Frontend (`frontend/.env`):
+```env
+VITE_API_URL=http://localhost:4000/api
+VITE_SUPABASE_URL=https://xcsfdufhqckzntwvgrdn.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+### 4. Menjalankan Backend Server
+
+Buka terminal baru:
+```bash
+cd backend
+npm install
+npm run dev
+```
+Backend akan aktif di: **`http://localhost:4000`**
+
+---
+
+### 5. Menjalankan Frontend Web
+
+Buka terminal kedua:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Frontend akan aktif di: **`http://localhost:5173`**
+
+Buka browser dan akses **`http://localhost:5173`**.
+
+---
+
+## ☁️ Panduan Deploy ke Cloudflare (Frontend + Backend 1 Paket)
+
+Aplikasi **TemuKata** sudah dilengkapi arsitektur **Cloudflare Pages Full-Stack (Pages + Functions)**. Artinya, **Frontend (React)** dan **Backend (API Serverless)** akan dideploy bersamaan ke Cloudflare dalam **1 domain yang sama** tanpa butuh server terpisah!
+
+### Cara Deploy Lewat GitHub (Otomatis):
+1. **Push Proyek ke Repository GitHub**.
+2. Buka [dash.cloudflare.com](https://dash.cloudflare.com/) > menu **Workers & Pages** > klik **Create Application** > tab **Pages** > **Connect to Git**.
+3. Pilih repository GitHub TemuKata.
+4. Pada **Build settings**:
+   - **Framework preset**: `Vite`
+   - **Root directory**: `frontend`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+5. Pada **Environment variables**:
+   - `NODE_VERSION` = `20`
+   - `SUPABASE_URL` = `https://xcsfdufhqckzntwvgrdn.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY` = *(isi dengan Service Role Key Supabase Anda)*
+   - `VITE_SUPABASE_URL` = `https://xcsfdufhqckzntwvgrdn.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY` = *(isi dengan Anon Key Supabase Anda)*
+6. Klik **Save and Deploy**. Cloudflare akan mem-build frontend dan backend API sekaligus di domain `https://temukata.pages.dev`!
+
+---
+
+## 📁 Struktur Direktori
+
+```
+learning app/
+├── backend/                  # REST API Express & Node.js
+│   ├── src/
+│   │   ├── config/supabase.ts# Koneksi Supabase Service Role
+│   │   ├── routes/           # Endpoint auth, lessons, questions, results
+│   │   └── server.ts         # Entry point backend server
+│   ├── package.json
+│   └── .env
+│
+├── frontend/                 # Client Aplikasi React + Vite + Tailwind CSS
+│   ├── public/
+│   │   ├── streak-active.png # Ikon api menyala oranye (streak aktif)
+│   │   ├── streak-inactive.png# Ikon api abu-abu (belum main / mati)
+│   │   ├── temukata-penguin.svg
+│   │   └── temukata-penguin-clean.png
+│   ├── src/
+│   │   ├── auth/             # AuthProvider & proteksi rute
+│   │   ├── components/       # AppShell, StreakFlame, Mascot, Timer, Modal
+│   │   ├── lib/              # api.ts (Supabase + fallback), sounds, gamification
+│   │   ├── pages/            # StudentDashboard, LessonPage, TeacherDashboard, Login
+│   │   ├── style.css         # Styling kustom, 3D buttons, & dark mode theme
+│   │   └── main.tsx
+│   ├── package.json
+│   └── .env
+│
+├── supabase/
+│   ├── full_setup.sql        # Skrip skema database lengkap & seed data
+│   └── schema.sql
+│
+└── README.md                 # Dokumentasi lengkap proyek
+```
+
+---
+
+## 🛠️ Ringkasan Teknologi
+
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React, Canvas Confetti.
+- **Backend**: Express.js, TypeScript, CORS, Dotenv.
+- **Database & Auth**: Supabase (PostgreSQL, Row Level Security, Trigger Functions).
+- **Audio Engine**: Web Audio API Synthesizer (tanpa ketergantungan file audio eksternal).
+- **Gamifikasi**: LocalStorage State Management + Custom Event Dispatcher untuk sinkronisasi instan antar-komponen.
+
+---
+
+Dibuat dengan ❤️ untuk kemajuan literasi membaca anak-anak Indonesia.
