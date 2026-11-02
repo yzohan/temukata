@@ -110,12 +110,13 @@ export default function AppShell({
 
   return (
     <div className="min-h-screen bg-[#EBF4FD] dark:bg-[#111C2B] flex flex-col pb-24 md:pb-8 text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250 relative">
-      {/* Soft Cloud Shapes in Background for Light Mode */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none opacity-80 dark:opacity-0 transition-opacity">
-        <div className="absolute top-12 left-10 w-96 h-36 bg-white/60 rounded-full blur-2xl" />
-        <div className="absolute top-64 right-16 w-80 h-32 bg-white/70 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 left-1/3 w-[520px] h-44 bg-white/50 rounded-full blur-3xl" />
-      </div>
+      {/* Light Mode Scenic Desktop Wallpaper Background */}
+      <div
+        className="fixed inset-0 pointer-events-none -z-10 bg-no-repeat bg-cover bg-bottom opacity-100 dark:opacity-0 transition-opacity duration-300 select-none"
+        style={{ backgroundImage: "url('/bg-desktop-light.png')" }}
+      />
+      {/* Soft overlay wash to ensure readability and cozy pastel tone */}
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-gradient-to-b from-[#EBF4FD]/70 via-[#EBF4FD]/40 to-transparent dark:hidden select-none" />
 
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-b border-[#E2EDF8] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
