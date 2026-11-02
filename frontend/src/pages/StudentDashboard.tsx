@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Clock,
   Feather,
-  HelpCircle,
   Layers,
   Lock,
   LogOut,
@@ -75,12 +74,6 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
     } catch {}
   }, [session]);
 
-  useEffect(() => {
-    if (progress.equippedBorder) {
-      setPreviewBorder(progress.equippedBorder);
-    }
-  }, [progress.equippedBorder]);
-
   // Derived user statistics
   const completedLessonIds = useMemo(() => {
     const ids = new Set<string>();
@@ -100,7 +93,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
     return nextUncompleted || lessons[0] || null;
   }, [lessons, completedLessonIds]);
 
-  const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'];
+  const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
   const todayDayIndex = (new Date().getDay() + 6) % 7;
 
   // Level Progression Data
@@ -126,7 +119,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
       title: 'Pembaca Aktif',
       desc: 'Menemukan ide pokok dan kalimat bukti.',
       status: 'Sedang Berlangsung' as const,
-      color: '#1cb0f6',
+      color: '#8DB4D8',
       type: 'book',
     },
     {
@@ -177,25 +170,25 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
       <div className="space-y-6">
         {/* Floating Notification Toast */}
         {purchaseFeedback && (
-          <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-white dark:bg-[#182332] border-2 border-[#1cb0f6] shadow-xl text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] animate-pop flex items-center gap-2.5">
-            <Sparkles size={18} className="text-[#1cb0f6]" />
+          <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border-2 border-[#8DB4D8] dark:border-[#8DBBE8] shadow-xl text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF] animate-pop flex items-center gap-2.5">
+            <Sparkles size={18} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
             <span>{purchaseFeedback}</span>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 01: BERANDA */}
+        {/* PAGE 01: BERANDA                                         */}
         {/* ======================================================== */}
         {tab === 'beranda' && (
           <div className="space-y-6 animate-fade-in">
             {/* Hero Section */}
-            <div className="relative rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] p-6 sm:p-8 overflow-hidden shadow-xs">
+            <div className="relative rounded-3xl bg-gradient-to-r from-[#E8F2FC] via-[#E2EEFD] to-[#DCEBFA] dark:from-[#263D57] dark:via-[#21334A] dark:to-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] p-6 sm:p-8 overflow-hidden shadow-xs transition-colors duration-250">
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="max-w-lg text-center sm:text-left">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight leading-tight">
-                    Halo, {profile?.display_name || 'Nathania'}! <span className="inline-block">🌸</span>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight leading-tight">
+                    Halo, {profile?.display_name || 'mikael'}! <span className="inline-block text-[#FF8FB1] dark:text-[#ECAAB9]">🌸</span>
                   </h1>
-                  <p className="mt-2 text-sm sm:text-base font-semibold text-[#5a7394] dark:text-[#a0b8d6] leading-relaxed">
+                  <p className="mt-2 text-sm sm:text-base font-semibold text-[#526F92] dark:text-[#C0D1E5] leading-relaxed">
                     Yuk, lanjutkan petualangan membacamu hari ini!
                   </p>
 
@@ -204,17 +197,17 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                       <Link
                         to={`/student/lessons/${activeLesson.id}`}
                         onClick={() => sound.playPop()}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] font-black text-sm shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all border border-[#dcebfa] dark:border-[#2b415e]"
+                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] font-black text-sm shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all border border-[#E4E8ED] dark:border-[#34475E]"
                       >
-                        <Play size={16} className="fill-[#1cb0f6] text-[#1cb0f6]" />
+                        <Play size={16} className="fill-[#8DB4D8] text-[#8DB4D8] dark:fill-[#8DBBE8] dark:text-[#8DBBE8]" />
                         <span>Baca 1 materi hari ini!</span>
                       </Link>
                     ) : (
                       <button
                         onClick={() => navigate('/student/materi')}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] font-black text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all border border-[#dcebfa]"
+                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] font-black text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all border border-[#E4E8ED] dark:border-[#34475E]"
                       >
-                        <Play size={16} className="fill-[#1cb0f6] text-[#1cb0f6]" />
+                        <Play size={16} className="fill-[#8DB4D8] text-[#8DB4D8] dark:fill-[#8DBBE8] dark:text-[#8DBBE8]" />
                         <span>Lihat Peta Literasi</span>
                       </button>
                     )}
@@ -244,68 +237,68 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               {/* Card 1: Perjalanan Membacamu */}
               <div
                 onClick={() => navigate('/student/materi')}
-                className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a]"
+                className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8] hover:-translate-y-0.5 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                     Perjalanan Membacamu
                   </h3>
-                  <ChevronRight size={18} className="text-[#8fa6c1] hover:text-[#1e3a5f]" />
+                  <ChevronRight size={18} className="text-[#526F92] dark:text-[#C0D1E5] hover:text-[#304D70]" />
                 </div>
 
                 <div className="flex items-center gap-4 sm:gap-6">
                   {/* Ribbon Level Badge */}
-                  <div className="shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-[#ebf3fe] dark:bg-[#1f2d3d] border border-[#dcebfa] dark:border-[#2a3e56] p-2 text-center shadow-xs">
-                    <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#26374a] flex items-center justify-center shadow-xs text-amber-500 mb-1">
-                      <BookOpen size={20} className="text-[#1cb0f6]" />
+                  <div className="shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] p-2 text-center shadow-2xs">
+                    <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center shadow-xs text-amber-500 mb-1">
+                      <BookOpen size={20} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
                     </div>
-                    <span className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] leading-none">
+                    <span className="font-black text-sm text-[#304D70] dark:text-[#F0F6FF] leading-none">
                       Level 3
                     </span>
-                    <span className="text-[10px] font-bold text-[#5a7394] dark:text-[#9bb7d9] leading-tight mt-0.5">
+                    <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5] leading-tight mt-0.5">
                       Pembaca Aktif
                     </span>
                   </div>
 
                   {/* Progress Bar & Details */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] mb-2">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF] mb-2">
                       <span>{completedCount} dari {totalLessonsCount} materi selesai</span>
-                      <span className="text-[#1cb0f6]">{progressPercent}%</span>
+                      <span className="text-[#8DB4D8] dark:text-[#8DBBE8]">{progressPercent}%</span>
                     </div>
 
                     {/* Progress Bar Track */}
-                    <div className="w-full h-3.5 bg-[#e8f2ff] dark:bg-[#202f42] rounded-full overflow-hidden p-0.5">
+                    <div className="w-full h-3.5 bg-[#E8F2FC] dark:bg-[#21334A] rounded-full overflow-hidden p-0.5">
                       <div
-                        className="h-full bg-gradient-to-r from-[#1cb0f6] to-[#3b82f6] rounded-full transition-all duration-700"
+                        className="h-full bg-gradient-to-r from-[#8DB4D8] to-[#8DBBE8] rounded-full transition-all duration-700"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
 
-                    <p className="mt-2.5 text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Tinggal {Math.max(totalLessonsCount - completedCount, 1)} materi lagi menuju <strong className="text-[#1e3a5f] dark:text-[#e8f2ff]">Level 4</strong>!
+                    <p className="mt-2.5 text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5]">
+                      Tinggal {Math.max(totalLessonsCount - completedCount, 1)} materi lagi menuju <strong className="text-[#304D70] dark:text-[#F0F6FF]">Level 4</strong>!
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Card 2: Streak Membaca */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight mb-4">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
+                <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight mb-4">
                   Streak Membaca
                 </h3>
 
                 <div className="flex items-center justify-between gap-4">
                   {/* Left: Flame & Count */}
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-2xl bg-[#fff8ed] dark:bg-[#2b251d] border border-[#fde8cb] dark:border-[#3e3427] flex items-center justify-center shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-[#FFF8ED] dark:bg-[#21334A] border border-[#F8DF9B]/40 dark:border-[#F8DF9B]/20 flex items-center justify-center shrink-0">
                       <StreakFlame active={progress.streak.count > 0} size={38} />
                     </div>
                     <div>
-                      <span className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
+                      <span className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] block leading-none">
                         {progress.streak.count} Hari
                       </span>
-                      <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">
+                      <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-1 block">
                         {progress.streak.count > 0 ? 'Pertahankan apimu!' : 'Mulai membaca hari ini!'}
                       </span>
                     </div>
@@ -313,28 +306,28 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
 
                   {/* Right: Weekday Checkmarks */}
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                    {daysOfWeek.map((day, idx) => {
+                    {daysOfWeek.slice(0, 5).map((day, idx) => {
                       const isActive = progress.streak.weeklyHistory?.[idx] || (idx < 4 && progress.streak.count >= 4);
                       const isToday = idx === todayDayIndex;
 
                       return (
                         <div key={day} className="flex flex-col items-center">
-                          <span className="text-[11px] font-bold text-[#8fa6c1] dark:text-slate-500 mb-1.5">
+                          <span className="text-[11px] font-bold text-[#526F92] dark:text-[#C0D1E5] mb-1.5">
                             {day}
                           </span>
                           <div
                             className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
                               isActive
-                                ? 'bg-[#1cb0f6] text-white shadow-xs'
+                                ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] shadow-xs'
                                 : isToday
-                                ? 'bg-white dark:bg-[#1a2533] border-2 border-dashed border-[#1cb0f6] text-[#1cb0f6]'
-                                : 'bg-[#eef3f9] dark:bg-[#202d3d] border border-[#dcebfa] dark:border-[#2b3d52] text-slate-300'
+                                ? 'bg-[#FFFFFF] dark:bg-[#1C2A3C] border-2 border-dashed border-[#8DB4D8] dark:border-[#8DBBE8] text-[#8DB4D8] dark:text-[#8DBBE8]'
+                                : 'bg-[#F8F7F2] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] text-slate-400'
                             }`}
                           >
                             {isActive ? (
                               <Check size={14} strokeWidth={3} />
                             ) : isToday ? (
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#1cb0f6]" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#8DB4D8] dark:bg-[#8DBBE8]" />
                             ) : (
                               <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
                             )}
@@ -347,19 +340,19 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               </div>
             </div>
 
-            {/* Grid Row 2: Materi Hari Ini & Shortcut Toko TemuKata */}
+            {/* Grid Row 2: Materi Hari Ini & Jelajahi Materi Lain */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Materi Hari Ini */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
                 <div className="flex items-center gap-2 mb-4">
-                  <BookOpen size={18} className="text-[#1cb0f6]" />
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  <BookOpen size={18} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
+                  <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                     Materi Hari Ini
                   </h3>
                 </div>
 
                 {activeLesson ? (
-                  <div className="rounded-2xl border border-[#e5edf7] dark:border-[#24354a] bg-[#fbfdff] dark:bg-[#151f2b] p-4 flex items-center justify-between gap-4">
+                  <div className="rounded-2xl border border-[#E4E8ED] dark:border-[#34475E] bg-[#F8F7F2] dark:bg-[#21334A] p-4 flex items-center justify-between gap-4">
                     {/* Scenic Thumbnail Illustration */}
                     <div className="w-20 h-16 sm:w-28 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br from-[#cde4fd] to-[#a7d0fd] relative flex items-center justify-center">
                       <svg viewBox="0 0 100 70" className="w-full h-full object-cover">
@@ -375,13 +368,13 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e8f2ff] dark:bg-[#1f2e42] text-[10px] font-black text-[#1cb0f6] mb-1.5 uppercase tracking-wider">
+                      <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#E8F2FC] dark:bg-[#1C2A3C] text-[10px] font-black text-[#304D70] dark:text-[#8DBBE8] mb-1.5 uppercase tracking-wider">
                         {activeLesson.subject || 'Teks Eksposisi'}
                       </span>
-                      <h4 className="font-black text-sm sm:text-base text-[#1e3a5f] dark:text-[#e8f2ff] line-clamp-1 leading-snug">
+                      <h4 className="font-black text-sm sm:text-base text-[#304D70] dark:text-[#F0F6FF] line-clamp-1 leading-snug">
                         {activeLesson.title}
                       </h4>
-                      <p className="text-xs font-semibold text-[#8fa6c1] dark:text-slate-400 mt-1 line-clamp-1">
+                      <p className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-1 line-clamp-1">
                         Temukan kalimat bukti dan pahami ide pokok bacaan.
                       </p>
                     </div>
@@ -389,121 +382,92 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                     <Link
                       to={`/student/lessons/${activeLesson.id}`}
                       onClick={() => sound.playPop()}
-                      className="w-11 h-11 rounded-full bg-[#1cb0f6] hover:bg-[#0fa0eb] active:scale-95 text-white flex items-center justify-center shrink-0 shadow-sm transition-transform"
+                      className="w-11 h-11 rounded-full bg-[#8DB4D8] hover:bg-[#7fa8cc] dark:bg-[#8DBBE8] dark:hover:bg-[#7ca9d6] active:scale-95 text-white dark:text-[#111C2B] flex items-center justify-center shrink-0 shadow-sm transition-transform cursor-pointer"
                       title="Mulai Membaca"
                     >
-                      <Play size={18} className="fill-white ml-0.5" />
+                      <Play size={18} className="fill-current ml-0.5" />
                     </Link>
                   </div>
                 ) : (
-                  <p className="text-sm font-semibold text-slate-400">Tidak ada materi aktif.</p>
+                  <p className="text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5]">Tidak ada materi aktif.</p>
                 )}
               </div>
 
-              {/* Shortcut Toko TemuKata Banner */}
-              <div
-                onClick={() => navigate('/student/toko')}
-                className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a] flex items-center justify-between gap-4"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#fff8ed] dark:bg-[#272118] border border-[#fde8cb] dark:border-[#3b3223] flex items-center justify-center shrink-0 text-3xl">
-                    🏪
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                        Toko TemuKata
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] font-black text-[10px] uppercase">
-                        Baru
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Temukan border dan hiasan avatar baru untuk profilmu!
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-10 h-10 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] flex items-center justify-center text-[#1cb0f6] shrink-0">
-                  <ArrowRight size={18} />
-                </div>
-              </div>
-            </div>
-
-            {/* Jelajahi Materi Lain (4 Categories Grid) */}
-            <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                  Jelajahi Materi Lain
-                </h3>
-                <button
-                  onClick={() => {
-                    setMateriSubTab('daftar');
-                    navigate('/student/materi');
-                  }}
-                  className="text-xs font-bold text-[#1cb0f6] hover:underline inline-flex items-center gap-1"
-                >
-                  Lihat Semua <ArrowRight size={13} />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#1cb0f6]" /> },
-                ].map(cat => (
+              {/* Jelajahi Materi Lain (4 Categories Grid) */}
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
+                    Jelajahi Materi Lain
+                  </h3>
                   <button
-                    key={cat.label}
                     onClick={() => {
-                      sound.playPop();
                       setMateriSubTab('daftar');
                       navigate('/student/materi');
                     }}
-                    className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] hover:border-[#b9d7ef] hover:bg-[#eef5fc] dark:hover:bg-[#1b2737] flex flex-col items-center justify-center text-center transition-all group"
+                    className="text-xs font-bold text-[#8DB4D8] dark:text-[#8DBBE8] hover:underline inline-flex items-center gap-1 cursor-pointer"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1e2e42] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
-                      {cat.icon}
-                    </div>
-                    <span className="text-xs font-extrabold text-[#1e3a5f] dark:text-[#e8f2ff] leading-tight">
-                      {cat.label}
-                    </span>
+                    Lihat Semua <ArrowRight size={13} />
                   </button>
-                ))}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                    { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                    { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                    { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                  ].map(cat => (
+                    <button
+                      key={cat.label}
+                      onClick={() => {
+                        sound.playPop();
+                        setMateriSubTab('daftar');
+                        navigate('/student/materi');
+                      }}
+                      className="p-3.5 rounded-2xl bg-[#F8F7F2] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8] flex flex-col items-center justify-center text-center transition-all group cursor-pointer"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
+                        {cat.icon}
+                      </div>
+                      <span className="text-xs font-extrabold text-[#304D70] dark:text-[#F0F6FF] leading-tight">
+                        {cat.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 02: MATERI / PETA LITERASI */}
+        {/* PAGE 02: MATERI / PETA LITERASI                          */}
         {/* ======================================================== */}
         {tab === 'materi' && (
           <div className="space-y-6 animate-fade-in">
             {/* Header & Segmented Control */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                   Materi Pembelajaran
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
                   Tingkatkan kemampuan membacamu langkah demi langkah.
                 </p>
               </div>
 
               {/* Segmented Control Tabs */}
-              <div className="p-1 rounded-2xl bg-[#e8f2ff] dark:bg-[#192636] border border-[#dcebfa] dark:border-[#26374a] inline-flex items-center gap-1">
+              <div className="p-1 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] inline-flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => {
                     sound.playPop();
                     setMateriSubTab('peta');
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
                     materiSubTab === 'peta'
-                      ? 'bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] shadow-xs'
-                      : 'text-[#5a7394] hover:text-[#1e3a5f]'
+                      ? 'bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] shadow-xs'
+                      : 'text-[#526F92] dark:text-[#C0D1E5] hover:text-[#304D70]'
                   }`}
                 >
                   <BookOpen size={16} />
@@ -516,10 +480,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                     sound.playPop();
                     setMateriSubTab('daftar');
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
                     materiSubTab === 'daftar'
-                      ? 'bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] shadow-xs'
-                      : 'text-[#5a7394] hover:text-[#1e3a5f]'
+                      ? 'bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] shadow-xs'
+                      : 'text-[#526F92] dark:text-[#C0D1E5] hover:text-[#304D70]'
                   }`}
                 >
                   <Layers size={16} />
@@ -532,22 +496,22 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
             {materiSubTab === 'peta' && (
               <div className="space-y-4">
                 {/* Intro Banner */}
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#182332] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-between gap-4 shadow-xs">
+                <div className="p-5 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-between gap-4 shadow-xs transition-colors duration-250">
                   <div>
-                    <h2 className="text-xl font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
+                    <h2 className="text-xl font-black text-[#304D70] dark:text-[#F0F6FF]">
                       Peta Literasi
                     </h2>
-                    <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
+                    <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
                       Perjalananmu menjadi pembaca hebat!
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-[#ebf3fe] dark:bg-[#1f2d3d] flex items-center justify-center text-xl shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] flex items-center justify-center text-xl shrink-0">
                     🪵
                   </div>
                 </div>
 
                 {/* Vertical Progression Timeline */}
-                <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:border-l-2 before:border-dashed before:border-[#b9d7ef] dark:before:border-[#2b415e]">
+                <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:border-l-2 before:border-dashed before:border-[#8DB4D8] dark:before:border-[#8DBBE8]/40">
                   {levels.map((lvl) => {
                     const isCompleted = lvl.status === 'Selesai';
                     const isCurrent = lvl.status === 'Sedang Berlangsung';
@@ -561,8 +525,8 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                             isCompleted
                               ? 'bg-[#48bb78] text-white shadow-xs'
                               : isCurrent
-                              ? 'bg-[#1cb0f6] text-white ring-4 ring-[#dcebfa] dark:ring-[#1c2e44] shadow-sm animate-pulse'
-                              : 'bg-[#e2e8f0] dark:bg-[#253549] text-slate-400'
+                              ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] ring-4 ring-[#E8F2FC] dark:ring-[#263D57] shadow-sm animate-pulse'
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
                           }`}
                         >
                           {isCompleted ? (
@@ -582,18 +546,18 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                               navigate(`/student/lessons/${activeLesson.id}`);
                             }
                           }}
-                          className={`card-temukata p-5 sm:p-6 transition-all ${
+                          className={`rounded-3xl p-5 sm:p-6 transition-all ${
                             isCurrent
-                              ? 'border-2 border-[#1cb0f6] bg-[#f5faff] dark:bg-[#162334] shadow-md cursor-pointer hover:scale-[1.01]'
+                              ? 'border-2 border-[#8DB4D8] dark:border-[#8DBBE8] bg-[#E8F2FC] dark:bg-[#263D57] shadow-md cursor-pointer hover:scale-[1.01]'
                               : isCompleted
-                              ? 'border-[#e5edf7] dark:border-[#24354a] bg-white dark:bg-[#182332] cursor-pointer hover:border-[#b9d7ef]'
-                              : 'border-[#e5edf7] dark:border-[#24354a] bg-[#fafbfc] dark:bg-[#141d27] opacity-75'
+                              ? 'border border-[#E4E8ED] dark:border-[#34475E] bg-[#FFFFFF] dark:bg-[#1C2A3C] cursor-pointer hover:border-[#8DB4D8]'
+                              : 'border border-[#E4E8ED] dark:border-[#34475E] bg-[#F8F7F2] dark:bg-[#162232] opacity-75'
                           }`}
                         >
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2.5 mb-1.5">
-                                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff]">
+                                <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF]">
                                   Level {lvl.level}: {lvl.title}
                                 </h3>
                                 <span
@@ -601,21 +565,21 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                                     isCompleted
                                       ? 'bg-[#e6f7ec] text-[#22c55e] dark:bg-[#142e20]'
                                       : isCurrent
-                                      ? 'bg-[#e8f2ff] text-[#2563eb] dark:bg-[#182e4a]'
-                                      : 'bg-slate-100 text-slate-400 dark:bg-[#1f2c3d]'
+                                      ? 'bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#8DBBE8] shadow-2xs'
+                                      : 'bg-slate-100 text-slate-400 dark:bg-[#21334A]'
                                   }`}
                                 >
                                   {lvl.status}
                                 </span>
                               </div>
-                              <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                              <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5]">
                                 {lvl.desc}
                               </p>
                             </div>
 
                             {/* Decorative Illustration for Level */}
                             <div className="shrink-0 flex items-center gap-3">
-                              <div className="w-20 h-14 rounded-xl overflow-hidden bg-[#eef5fc] dark:bg-[#1f2d3d] border border-[#dcebfa] dark:border-[#273b52] flex items-center justify-center text-2xl">
+                              <div className="w-20 h-14 rounded-xl overflow-hidden bg-white dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-center text-2xl">
                                 {lvl.type === 'meadow' && '🌼'}
                                 {lvl.type === 'forest' && '🌲'}
                                 {lvl.type === 'book' && '📖✨'}
@@ -624,9 +588,9 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                               </div>
 
                               {isCurrent && (
-                                <button className="px-4 py-2 rounded-xl bg-[#1cb0f6] text-white font-black text-xs hover:bg-[#0fa0eb] shadow-xs active:scale-95 transition-transform flex items-center gap-1.5">
+                                <button className="px-4 py-2 rounded-xl bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] font-black text-xs hover:opacity-90 shadow-xs active:scale-95 transition-transform flex items-center gap-1.5 cursor-pointer">
                                   <span>Mulai</span>
-                                  <Play size={12} className="fill-white" />
+                                  <Play size={12} className="fill-current" />
                                 </button>
                               )}
                             </div>
@@ -643,15 +607,15 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
             {materiSubTab === 'daftar' && (
               <div className="space-y-4">
                 {/* Search & Filter Bar */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-[#182332] border border-[#e5edf7] dark:border-[#24354a] flex flex-col sm:flex-row items-center gap-3 shadow-xs">
+                <div className="p-4 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] flex flex-col sm:flex-row items-center gap-3 shadow-xs transition-colors duration-250">
                   <div className="relative flex-1 w-full">
-                    <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#526F92] dark:text-[#C0D1E5]" />
                     <input
                       type="text"
                       placeholder="Cari judul bacaan atau kata kunci..."
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#e5edf7] dark:border-[#24354a] bg-[#f7f9fd] dark:bg-[#141d27] text-xs sm:text-sm font-bold text-[#1e3a5f] dark:text-[#e8f2ff] focus:outline-none focus:border-[#1cb0f6]"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E4E8ED] dark:border-[#34475E] bg-[#F8F7F2] dark:bg-[#111C2B] text-xs sm:text-sm font-bold text-[#304D70] dark:text-[#F0F6FF] focus:outline-none focus:border-[#8DB4D8]"
                     />
                   </div>
 
@@ -660,10 +624,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all shrink-0 cursor-pointer ${
                           selectedCategory === cat
-                            ? 'bg-[#1cb0f6] text-white'
-                            : 'bg-[#f7f9fd] dark:bg-[#1e2e42] text-[#5a7394] hover:bg-[#e8f2ff]'
+                            ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B]'
+                            : 'bg-[#F8F7F2] dark:bg-[#21334A] text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#E8F2FC]'
                         }`}
                       >
                         {cat}
@@ -679,11 +643,11 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                     return (
                       <div
                         key={lesson.id}
-                        className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] flex flex-col justify-between gap-4"
+                        className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 flex flex-col justify-between gap-4 shadow-xs transition-colors duration-250"
                       >
                         <div>
                           <div className="flex items-center justify-between gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-md bg-[#e8f2ff] dark:bg-[#1e2e42] text-[10px] font-black text-[#1cb0f6]">
+                            <span className="px-2.5 py-0.5 rounded-md bg-[#E8F2FC] dark:bg-[#21334A] text-[10px] font-black text-[#304D70] dark:text-[#8DBBE8]">
                               {lesson.subject}
                             </span>
                             {isDone && (
@@ -692,23 +656,23 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                               </span>
                             )}
                           </div>
-                          <h3 className="font-black text-base text-[#1e3a5f] dark:text-[#e8f2ff] line-clamp-2">
+                          <h3 className="font-black text-base text-[#304D70] dark:text-[#F0F6FF] line-clamp-2">
                             {lesson.title}
                           </h3>
-                          <p className="text-xs font-semibold text-[#8fa6c1] dark:text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                          <p className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-1.5 line-clamp-2 leading-relaxed">
                             {lesson.body}
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between pt-3 border-t border-[#f0f4f9] dark:border-[#24354a]">
-                          <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                        <div className="flex items-center justify-between pt-3 border-t border-[#E4E8ED] dark:border-[#34475E]">
+                          <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] flex items-center gap-1">
                             <Clock size={13} /> {lesson.readingTimeMin || 3} menit
                           </span>
 
                           <Link
                             to={`/student/lessons/${lesson.id}`}
                             onClick={() => sound.playPop()}
-                            className="px-4 py-2 rounded-xl bg-[#e8f2ff] hover:bg-[#1cb0f6] text-[#2f4f7f] hover:text-white font-black text-xs transition-all flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-xl bg-[#E8F2FC] hover:bg-[#8DB4D8] dark:bg-[#21334A] dark:hover:bg-[#8DBBE8] text-[#304D70] hover:text-white dark:text-[#8DBBE8] dark:hover:text-[#111C2B] font-black text-xs transition-all flex items-center gap-1.5"
                           >
                             <span>{isDone ? 'Ulangi' : 'Baca'}</span>
                             <Play size={12} className="fill-current" />
@@ -724,29 +688,29 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 04: TOKO TEMUKATA */}
+        {/* PAGE 04: TOKO TEMUKATA                                   */}
         {/* ======================================================== */}
         {tab === 'toko' && (
           <div className="space-y-6 animate-fade-in">
             {/* Header Banner */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#E8F2FC] via-[#E2EEFD] to-[#DCEBFA] dark:from-[#263D57] dark:via-[#21334A] dark:to-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors duration-250">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                     Toko TemuKata
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] text-[10px] font-black uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FF8FB1] dark:bg-[#ECAAB9] text-white dark:text-[#111C2B] text-[10px] font-black uppercase">
                     Kosmetik
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5]">
                   Gunakan poinmu untuk membeli border dan hiasan avatar favoritmu!
                 </p>
               </div>
 
               {/* Diamonds Balance Pill */}
-              <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-[#1f2d3d] border border-[#dcebfa] dark:border-[#2b3e56] shadow-xs shrink-0">
-                <span className="text-xs font-bold text-slate-400">Poin Kamu:</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] shadow-xs shrink-0">
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5]">Poin Kamu:</span>
                 <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
                 <span className="font-black text-base text-[#1cb0f6]">{progress.diamonds}</span>
               </div>
@@ -761,10 +725,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                     sound.playPop();
                     setStoreCategory(cat);
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 cursor-pointer ${
                     storeCategory === cat
-                      ? 'bg-[#1cb0f6] text-white shadow-xs'
-                      : 'bg-white dark:bg-[#182332] border border-[#e5edf7] dark:border-[#24354a] text-[#5a7394] hover:bg-[#e8f2ff]'
+                      ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] shadow-xs'
+                      : 'bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#E8F2FC]'
                   }`}
                 >
                   {cat}
@@ -782,27 +746,27 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 return (
                   <div
                     key={item.id}
-                    className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center justify-between gap-3 group hover:border-[#b9d7ef]"
+                    className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 flex flex-col items-center text-center justify-between gap-3 group hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8] shadow-xs transition-colors duration-250"
                   >
                     {/* Item Avatar Frame Preview */}
-                    <div className="w-24 h-24 flex items-center justify-center p-2 rounded-2xl bg-[#fbfdff] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a]">
+                    <div className="w-24 h-24 flex items-center justify-center p-2 rounded-2xl bg-[#FFF8ED] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E]">
                       <AvatarFrame borderId={item.id} size={76} />
                     </div>
 
                     <div className="w-full">
-                      <span className="text-[10px] font-bold text-[#8fa6c1] uppercase tracking-wider block">
+                      <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5] uppercase tracking-wider block">
                         {item.rarity}
                       </span>
-                      <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mt-0.5">
+                      <h4 className="font-black text-sm text-[#304D70] dark:text-[#F0F6FF] mt-0.5">
                         {item.name}
                       </h4>
-                      <p className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9] line-clamp-1 mt-0.5">
+                      <p className="text-[11px] font-semibold text-[#526F92] dark:text-[#C0D1E5] line-clamp-1 mt-0.5">
                         {item.description}
                       </p>
                     </div>
 
                     {/* Price & Action Button */}
-                    <div className="w-full pt-2 border-t border-[#f0f4f9] dark:border-[#24354a] flex flex-col items-center gap-2">
+                    <div className="w-full pt-2 border-t border-[#E4E8ED] dark:border-[#34475E] flex flex-col items-center gap-2">
                       <div className="flex items-center gap-1.5 text-xs font-black text-[#1cb0f6]">
                         <img src="/gem-diamond.svg" alt="Gem" className="w-4 h-4 object-contain" />
                         <span>{item.price}</span>
@@ -810,13 +774,13 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
 
                       {isOwned ? (
                         isEquipped ? (
-                          <span className="w-full py-2 rounded-xl bg-[#e6f7ec] text-[#22c55e] text-xs font-black">
+                          <span className="w-full py-2 rounded-xl bg-[#e6f7ec] text-[#22c55e] dark:bg-[#142e20] text-xs font-black">
                             Dipakai ✓
                           </span>
                         ) : (
                           <button
                             onClick={() => handleEquip(item.id)}
-                            className="w-full py-2 rounded-xl bg-[#e8f2ff] hover:bg-[#1cb0f6] text-[#2f4f7f] hover:text-white text-xs font-black transition-all"
+                            className="w-full py-2 rounded-xl bg-[#E8F2FC] hover:bg-[#8DB4D8] dark:bg-[#21334A] dark:hover:bg-[#8DBBE8] text-[#304D70] hover:text-white dark:text-[#8DBBE8] dark:hover:text-[#111C2B] text-xs font-black transition-all cursor-pointer"
                           >
                             Pakai
                           </button>
@@ -825,10 +789,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                         <button
                           disabled={!canAfford}
                           onClick={() => handleBuy(item)}
-                          className={`w-full py-2 rounded-xl text-xs font-black transition-all ${
+                          className={`w-full py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                             canAfford
-                              ? 'bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white shadow-xs active:scale-95'
-                              : 'bg-slate-100 dark:bg-[#202d3d] text-slate-400 cursor-not-allowed'
+                              ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] hover:opacity-90 text-white dark:text-[#111C2B] shadow-xs active:scale-95'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                           }`}
                         >
                           {canAfford ? 'Beli' : 'Poin Kurang'}
@@ -843,24 +807,24 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 05: KOLEKSI / INVENTORY */}
+        {/* PAGE 05: KOLEKSI / INVENTORY                             */}
         {/* ======================================================== */}
         {tab === 'koleksi' && (
           <div className="space-y-6 animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                   Koleksi Saya
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
                   Semua border dan hiasan avatar yang sudah kamu miliki.
                 </p>
               </div>
 
               <button
                 onClick={() => navigate('/student/toko')}
-                className="px-4 py-2 rounded-xl bg-[#1cb0f6] text-white font-black text-xs hover:bg-[#0fa0eb] transition-all flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2 rounded-xl bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] font-black text-xs hover:opacity-90 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <ShoppingBag size={14} />
                 <span>Buka Toko</span>
@@ -870,31 +834,31 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
             {/* Layout 2 Columns: Live Preview on Left + Grid on Right */}
             <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6 items-start">
               {/* Left Column: Live Profile Preview Card */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center">
-                <span className="text-[10px] font-black uppercase text-[#8fa6c1] tracking-wider mb-4">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs flex flex-col items-center text-center transition-colors duration-250">
+                <span className="text-[10px] font-black uppercase text-[#526F92] dark:text-[#C0D1E5] tracking-wider mb-4">
                   Pratinjau Profil
                 </span>
 
-                <div className="my-3 p-4 rounded-3xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-center">
+                <div className="my-3 p-4 rounded-3xl bg-[#FFF8ED] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-center">
                   <AvatarFrame borderId={previewBorder} size={130} />
                 </div>
 
-                <h3 className="font-black text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mt-2">
+                <h3 className="font-black text-lg text-[#304D70] dark:text-[#F0F6FF] mt-2">
                   {profile?.display_name || 'Nathania'}
                 </h3>
-                <span className="text-xs font-bold text-[#5a7394] dark:text-[#9bb7d9]">
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5]">
                   Level 3: Pembaca Aktif
                 </span>
 
-                <div className="w-full mt-6 pt-4 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                <div className="w-full mt-6 pt-4 border-t border-[#E4E8ED] dark:border-[#34475E]">
                   {progress.equippedBorder === previewBorder ? (
-                    <div className="w-full py-2.5 rounded-xl bg-[#e6f7ec] text-[#22c55e] font-black text-xs">
+                    <div className="w-full py-2.5 rounded-xl bg-[#e6f7ec] text-[#22c55e] dark:bg-[#142e20] font-black text-xs">
                       Sedang Digunakan ✓
                     </div>
                   ) : (
                     <button
                       onClick={() => handleEquip(previewBorder)}
-                      className="w-full py-2.5 rounded-xl bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white font-black text-xs shadow-xs active:scale-95 transition-all"
+                      className="w-full py-2.5 rounded-xl bg-[#8DB4D8] dark:bg-[#8DBBE8] hover:opacity-90 text-white dark:text-[#111C2B] font-black text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
                     >
                       Atur di Profil
                     </button>
@@ -905,7 +869,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               {/* Right Column: Inventory Items Grid */}
               <div className="space-y-4">
                 {/* Category tabs */}
-                <div className="p-1 rounded-2xl bg-[#e8f2ff] dark:bg-[#192636] border border-[#dcebfa] dark:border-[#26374a] inline-flex items-center gap-1">
+                <div className="p-1 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] inline-flex items-center gap-1">
                   {(['Border', 'Lencana', 'Latar Profil'] as const).map(cat => (
                     <button
                       key={cat}
@@ -913,10 +877,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                         sound.playPop();
                         setKoleksiCategory(cat);
                       }}
-                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         koleksiCategory === cat
-                          ? 'bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] shadow-xs'
-                          : 'text-[#5a7394] hover:text-[#1e3a5f]'
+                          ? 'bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] shadow-xs'
+                          : 'text-[#526F92] dark:text-[#C0D1E5] hover:text-[#304D70]'
                       }`}
                     >
                       {cat}
@@ -940,34 +904,34 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                             setPreviewBorder(item.id);
                           }
                         }}
-                        className={`card-temukata p-4 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center justify-between gap-3 transition-all ${
+                        className={`bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-4 flex flex-col items-center text-center justify-between gap-3 transition-all ${
                           isOwned
-                            ? 'cursor-pointer hover:border-[#1cb0f6]'
+                            ? 'cursor-pointer hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8]'
                             : 'opacity-50 cursor-not-allowed'
-                        } ${isSelectedPreview ? 'ring-2 ring-[#1cb0f6] bg-[#f5faff] dark:bg-[#162334]' : ''}`}
+                        } ${isSelectedPreview ? 'ring-2 ring-[#8DB4D8] dark:ring-[#8DBBE8] bg-[#E8F2FC] dark:bg-[#263D57]' : ''}`}
                       >
-                        <div className="w-20 h-20 flex items-center justify-center p-1 rounded-2xl bg-[#fbfdff] dark:bg-[#151f2b] relative">
+                        <div className="w-20 h-20 flex items-center justify-center p-1 rounded-2xl bg-[#FFF8ED] dark:bg-[#21334A] relative">
                           <AvatarFrame borderId={item.id} size={64} />
                           {!isOwned && (
-                            <div className="absolute inset-0 bg-slate-900/30 rounded-2xl flex items-center justify-center text-white">
+                            <div className="absolute inset-0 bg-slate-900/40 rounded-2xl flex items-center justify-center text-white">
                               <Lock size={18} />
                             </div>
                           )}
                         </div>
 
                         <div>
-                          <h4 className="font-black text-xs sm:text-sm text-[#1e3a5f] dark:text-[#e8f2ff]">
+                          <h4 className="font-black text-xs sm:text-sm text-[#304D70] dark:text-[#F0F6FF]">
                             {item.name}
                           </h4>
-                          <span className="text-[10px] font-bold text-slate-400">
+                          <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">
                             {isOwned ? (isEquipped ? 'Digunakan' : 'Dimiliki') : 'Terkunci'}
                           </span>
                         </div>
 
-                        <div className="w-full pt-2 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                        <div className="w-full pt-2 border-t border-[#E4E8ED] dark:border-[#34475E]">
                           {isOwned ? (
                             isEquipped ? (
-                              <span className="inline-block px-3 py-1 rounded-lg bg-[#e6f7ec] text-[#22c55e] text-[10px] font-black">
+                              <span className="inline-block px-3 py-1 rounded-lg bg-[#e6f7ec] text-[#22c55e] dark:bg-[#142e20] text-[10px] font-black">
                                 Aktif
                               </span>
                             ) : (
@@ -976,7 +940,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                                   e.stopPropagation();
                                   handleEquip(item.id);
                                 }}
-                                className="w-full py-1.5 rounded-lg bg-[#e8f2ff] hover:bg-[#1cb0f6] text-[#2f4f7f] hover:text-white text-[11px] font-black transition-all"
+                                className="w-full py-1.5 rounded-lg bg-[#E8F2FC] hover:bg-[#8DB4D8] dark:bg-[#21334A] dark:hover:bg-[#8DBBE8] text-[#304D70] hover:text-white dark:text-[#8DBBE8] dark:hover:text-[#111C2B] text-[11px] font-black transition-all cursor-pointer"
                               >
                                 Pakai
                               </button>
@@ -985,7 +949,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                             <Link
                               to="/student/toko"
                               onClick={e => e.stopPropagation()}
-                              className="text-[11px] font-bold text-[#1cb0f6] hover:underline"
+                              className="text-[11px] font-bold text-[#8DB4D8] dark:text-[#8DBBE8] hover:underline"
                             >
                               Beli di Toko
                             </Link>
@@ -1001,69 +965,69 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 06: PROGRES BELAJAR & STATISTIK */}
+        {/* PAGE 06: PROGRES BELAJAR & STATISTIK                     */}
         {/* ======================================================== */}
         {tab === 'progres' && (
           <div className="space-y-6 animate-fade-in">
-            {/* Header with Penguin Writing */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] flex items-center justify-between gap-4">
+            {/* Header */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#E8F2FC] via-[#E2EEFD] to-[#DCEBFA] dark:from-[#263D57] dark:via-[#21334A] dark:to-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-between gap-4 transition-colors duration-250">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
                   Progres Belajar
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                  Lihat perkembangan petualangan membacamu di sini!
+                <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
+                  Pantau perkembangan kemampuan membaca dan pemahaman teksmu.
                 </p>
               </div>
 
-              <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center shrink-0 text-3xl shadow-xs">
+              <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center shrink-0 text-3xl shadow-xs">
                 📝
               </div>
             </div>
 
             {/* 4 Metric Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
-                <span className="text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 text-center shadow-xs transition-colors duration-250">
+                <span className="text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] block leading-none">
                   {completedCount}
                 </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Materi Selesai</span>
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-1.5 block">Materi Selesai</span>
               </div>
 
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
-                <span className="text-3xl font-black text-[#1cb0f6] block leading-none">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 text-center shadow-xs transition-colors duration-250">
+                <span className="text-3xl font-black text-[#8DB4D8] dark:text-[#8DBBE8] block leading-none">
                   85%
                 </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Akurasi Jawaban</span>
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-1.5 block">Akurasi Jawaban</span>
               </div>
 
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
-                <span className="text-3xl font-black text-[#9333ea] block leading-none">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 text-center shadow-xs transition-colors duration-250">
+                <span className="text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] block leading-none">
                   26
                 </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Kalimat Bukti</span>
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-1.5 block">Kalimat Bukti</span>
               </div>
 
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 text-center shadow-xs transition-colors duration-250">
                 <span className="text-3xl font-black text-[#ff9600] block leading-none">
                   {progress.streak.count} Hari
                 </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Streak Membaca</span>
+                <span className="text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-1.5 block">Streak Membaca</span>
               </div>
             </div>
 
             {/* 2-Column: Weekly Activity Chart + Achievements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Weekly Activity Bar Chart */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mb-1">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
+                <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] mb-1">
                   Grafik Aktivitas
                 </h3>
-                <span className="text-xs font-semibold text-[#8fa6c1] block mb-6">
+                <span className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] block mb-6">
                   Aktivitas membaca 7 hari terakhir
                 </span>
 
-                <div className="h-44 flex items-end justify-between gap-3 px-2 pt-6 pb-2 border-b border-[#e5edf7] dark:border-[#24354a]">
+                <div className="h-44 flex items-end justify-between gap-3 px-2 pt-6 pb-2 border-b border-[#E4E8ED] dark:border-[#34475E]">
                   {[
                     { day: 'Sen', height: '65%' },
                     { day: 'Sel', height: '40%' },
@@ -1078,50 +1042,54 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                         style={{ height: bar.height }}
                         className={`w-full max-w-[28px] rounded-t-xl transition-all duration-500 ${
                           i === 3
-                            ? 'bg-[#1cb0f6] shadow-sm'
-                            : 'bg-[#dcebfa] dark:bg-[#202f42] hover:bg-[#b9d7ef]'
+                            ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] shadow-sm'
+                            : 'bg-[#E8F2FC] dark:bg-[#21334A] hover:bg-[#8DB4D8]'
                         }`}
                       />
-                      <span className="text-[11px] font-bold text-[#8fa6c1]">{bar.day}</span>
+                      <span className="text-[11px] font-bold text-[#526F92] dark:text-[#C0D1E5]">{bar.day}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Pencapaian / Achievements List */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff]">
+                  <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF]">
                     Pencapaian
                   </h3>
-                  <span className="text-xs font-bold text-[#1cb0f6]">Lihat Semua &gt;</span>
+                  <span className="text-xs font-bold text-[#8DB4D8] dark:text-[#8DBBE8]">Lihat Semua &gt;</span>
                 </div>
 
                 <div className="space-y-3">
                   {[
-                    { title: 'Pembaca Konsisten', desc: 'Membaca 3 hari berturut-turut.', icon: '🔥', done: true },
-                    { title: 'Penjelajah Materi', desc: 'Menyelesaikan 10 materi bacaan.', icon: '📚', done: completedCount >= 10 },
-                    { title: 'Analis Cermat', desc: 'Akurasi jawaban di atas 80%.', icon: '⭐', done: true },
+                    { title: 'Pembaca Rajin', desc: 'Jaga streak membaca 3 hari berturut-turut.', icon: '🔥', done: progress.streak.count >= 3 },
+                    { title: 'Detektif Kalimat Bukti', desc: 'Temukan bukti teks dengan akurasi 100%.', icon: '🔍', done: true },
+                    { title: 'Penjelajah Bahasa', desc: 'Selesaikan 5 materi bacaan berbeda.', icon: '📚', done: completedCount >= 5 },
+                    { title: 'Master Kuis Literasi', desc: 'Raih skor sempurna pada level aktif.', icon: '⭐', done: false },
                   ].map(ach => (
                     <div
                       key={ach.title}
-                      className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-between gap-3"
+                      className={`p-3.5 rounded-2xl border flex items-center gap-3.5 transition-all ${
+                        ach.done
+                          ? 'bg-[#E8F2FC] dark:bg-[#21334A] border-[#8DB4D8]/30 dark:border-[#8DBBE8]/30'
+                          : 'bg-[#F8F7F2] dark:bg-[#111C2B] border-[#E4E8ED] dark:border-[#34475E] opacity-60'
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center text-xl shrink-0 shadow-2xs">
-                          {ach.icon}
-                        </div>
-                        <div>
-                          <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                            {ach.title}
-                          </b>
-                          <span className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                            {ach.desc}
-                          </span>
-                        </div>
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center text-xl shrink-0 shadow-2xs">
+                        {ach.icon}
                       </div>
-
-                      <span className="text-xs font-black text-[#22c55e]">✓ Selesai</span>
+                      <div className="flex-1 min-w-0">
+                        <b className="text-xs font-black text-[#304D70] dark:text-[#F0F6FF] block">
+                          {ach.title}
+                        </b>
+                        <span className="text-[11px] font-semibold text-[#526F92] dark:text-[#C0D1E5] line-clamp-1">
+                          {ach.desc}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase text-[#8DB4D8] dark:text-[#8DBBE8]">
+                        {ach.done ? 'Terbuka' : 'Terkunci'}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1131,136 +1099,140 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* PAGE 07: PROFIL / AKUN */}
+        {/* PAGE 07: AKUN SAYA & PENGATURAN                          */}
         {/* ======================================================== */}
         {tab === 'akun' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                Profil Saya
+              <h1 className="text-2xl sm:text-3xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
+                Akun Saya
               </h1>
-              <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                Kelola profil, hiasan avatar, dan preferensimu di TemuKata.
+              <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
+                Kelola profil, hiasan avatar, dan preferensi belajarmu di TemuKata.
               </p>
             </div>
 
             {/* Profile Card with Equipped Border */}
-            <div className="card-temukata p-6 sm:p-8 dark:bg-[#182332] dark:border-[#24354a] text-center sm:text-left flex flex-col sm:flex-row items-center gap-6">
-              <div className="p-2 rounded-3xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-center shrink-0 shadow-xs">
-                <AvatarFrame borderId={progress.equippedBorder || 'ice-dream'} size={96} />
+            <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 sm:p-8 text-center sm:text-left flex flex-col sm:flex-row items-center gap-6 shadow-xs transition-colors duration-250">
+              <div className="w-28 h-28 rounded-3xl bg-[#FFF8ED] dark:bg-[#21334A] border-2 border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-center shrink-0 shadow-xs relative">
+                <AvatarFrame
+                  borderId={progress.equippedBorder || 'ice-dream'}
+                  size={100}
+                />
               </div>
 
               <div className="flex-1">
-                <span className="inline-block px-3 py-1 rounded-full bg-[#ebf3fe] dark:bg-[#1f2e42] text-[10px] font-black text-[#1cb0f6] uppercase tracking-wider mb-2">
-                  Level 3: Pembaca Aktif
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
-                  {profile?.display_name || 'Nathania'}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                  <span className="inline-block px-3 py-1 rounded-full bg-[#E8F2FC] dark:bg-[#21334A] text-[10px] font-black text-[#304D70] dark:text-[#8DBBE8] uppercase tracking-wider">
+                    Level 3: Pembaca Aktif
+                  </span>
+                  <Link
+                    to="/student/koleksi"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF8ED] dark:bg-[#263D57] text-[10px] font-black text-amber-700 dark:text-[#F8DF9B] hover:scale-105 transition-transform"
+                  >
+                    <Palette size={11} /> Ganti Border
+                  </Link>
+                </div>
+
+                <h2 className="text-xl sm:text-2xl font-black text-[#304D70] dark:text-[#F0F6FF]">
+                  {profile?.display_name || 'Mikael Siswa'}
                 </h2>
-                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                  {user?.email || 'nathania@temukata.id'}
+                <p className="text-xs sm:text-sm font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-0.5">
+                  {user?.email || 'mikael@temukata.id'}
                 </p>
 
                 {/* Mini Stats Row */}
-                <div className="mt-4 pt-4 border-t border-[#f0f4f9] dark:border-[#24354a] flex items-center justify-center sm:justify-start gap-6 text-center">
-                  <div className="flex items-center gap-1.5">
-                    <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
-                    <span className="text-base font-black text-[#1cb0f6]">{progress.diamonds} Poin</span>
+                <div className="mt-4 pt-4 border-t border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-center sm:justify-start gap-6 text-center">
+                  <div>
+                    <span className="text-base font-black text-[#1cb0f6] block">{progress.diamonds}</span>
+                    <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Permata</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <BookOpen size={17} className="text-[#3b82f6]" />
-                    <span className="text-base font-black text-[#1e3a5f] dark:text-[#e8f2ff]">{completedCount} Materi</span>
+                  <div>
+                    <span className="text-base font-black text-[#ff9600] block">{progress.streak.count} Hari</span>
+                    <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Streak</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <StreakFlame active={progress.streak.count > 0} size={20} />
-                    <span className="text-base font-black text-[#ff9600]">{progress.streak.count} Streak</span>
+                  <div>
+                    <span className="text-base font-black text-[#48bb78] block">{completedCount}</span>
+                    <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Materi</span>
+                  </div>
+                  <div>
+                    <span className="text-base font-black text-[#8DB4D8] dark:text-[#8DBBE8] block">
+                      {progress.inventory?.length || 1}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Koleksi</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Menu List */}
-            <div className="card-temukata p-4 dark:bg-[#182332] dark:border-[#24354a] space-y-1.5">
-              <button
-                type="button"
-                onClick={() => navigate('/student/koleksi')}
-                className="w-full p-4 rounded-2xl hover:bg-[#f7f9fd] dark:hover:bg-[#151f2b] transition-all flex items-center justify-between text-left group"
+            {/* Quick Link to Store & Collection */}
+            <div className="grid grid-cols-2 gap-4">
+              <Link
+                to="/student/toko"
+                onClick={() => sound.playPop()}
+                className="p-4 rounded-3xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#8DB4D8]/30 dark:border-[#8DBBE8]/30 flex items-center gap-3 hover:scale-[1.02] active:scale-95 transition-all"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#ebf3fe] text-[#1cb0f6] flex items-center justify-center">
-                    <Palette size={20} />
-                  </div>
-                  <div>
-                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                      Koleksi Saya
-                    </b>
-                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Lihat border dan hiasan avatar yang kamu miliki
-                    </span>
-                  </div>
+                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center text-xl shadow-xs">
+                  🛍️
                 </div>
-                <ChevronRight size={18} className="text-slate-400 group-hover:text-[#1cb0f6]" />
-              </button>
+                <div>
+                  <b className="text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF] block">
+                    Toko Kosmetik
+                  </b>
+                  <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Beli border baru</span>
+                </div>
+              </Link>
 
-              <button
-                type="button"
-                onClick={() => navigate('/student/toko')}
-                className="w-full p-4 rounded-2xl hover:bg-[#f7f9fd] dark:hover:bg-[#151f2b] transition-all flex items-center justify-between text-left group"
+              <Link
+                to="/student/koleksi"
+                onClick={() => sound.playPop()}
+                className="p-4 rounded-3xl bg-[#FFF8ED] dark:bg-[#263D57] border border-[#F8DF9B]/30 dark:border-[#F8DF9B]/30 flex items-center gap-3 hover:scale-[1.02] active:scale-95 transition-all"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#fff8ed] text-amber-500 flex items-center justify-center">
-                    <ShoppingBag size={20} />
-                  </div>
-                  <div>
-                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                      Toko TemuKata
-                    </b>
-                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Beli border dan kosmetik avatar baru dengan poin
-                    </span>
-                  </div>
+                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center text-xl shadow-xs">
+                  🎨
                 </div>
-                <ChevronRight size={18} className="text-slate-400 group-hover:text-[#1cb0f6]" />
-              </button>
+                <div>
+                  <b className="text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF] block">
+                    Koleksi Saya
+                  </b>
+                  <span className="text-[10px] font-bold text-[#526F92] dark:text-[#C0D1E5]">Atur border avatar</span>
+                </div>
+              </Link>
+            </div>
 
-              <div className="w-full p-4 rounded-2xl flex items-center justify-between text-left">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#f0f5fc] text-[#3b82f6] flex items-center justify-center">
-                    <Settings size={20} />
-                  </div>
-                  <div>
-                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                      Pengaturan Akun
-                    </b>
-                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Atur preferensi suara dan profil belajar
-                    </span>
-                  </div>
+            {/* Pengaturan & Logout */}
+            <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 space-y-3 shadow-xs transition-colors duration-250">
+              <h3 className="font-black text-sm uppercase tracking-wider text-[#526F92] dark:text-[#C0D1E5] mb-2 flex items-center gap-1.5">
+                <Settings size={15} />
+                <span>Pengaturan Aplikasi</span>
+              </h3>
+
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F8F7F2] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E]">
+                <div className="flex items-center gap-3">
+                  <Volume2 size={18} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
+                  <span className="text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF]">
+                    Efek Suara Interaktif
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => sound.toggle()}
-                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#1e2e42] border border-[#e5edf7] text-xs font-black text-[#2f4f7f]"
+                  className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] text-xs font-black text-[#304D70] dark:text-[#8DBBE8] hover:bg-[#E8F2FC] transition-all cursor-pointer"
                 >
-                  <Volume2 size={16} />
+                  Ubah
                 </button>
               </div>
 
-              <div className="w-full p-4 rounded-2xl flex items-center justify-between text-left">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#e6f7ec] text-[#22c55e] flex items-center justify-center">
-                    <HelpCircle size={20} />
-                  </div>
-                  <div>
-                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                      Bantuan & Panduan
-                    </b>
-                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Pusat bantuan dan panduan membaca literasi
-                    </span>
-                  </div>
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F8F7F2] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E]">
+                <div className="flex items-center gap-3">
+                  <Palette size={18} className="text-[#FF8FB1] dark:text-[#ECAAB9]" />
+                  <span className="text-xs sm:text-sm font-black text-[#304D70] dark:text-[#F0F6FF]">
+                    Tema Visual
+                  </span>
                 </div>
-                <ChevronRight size={18} className="text-slate-400" />
+                <span className="text-xs font-black text-[#526F92] dark:text-[#C0D1E5]">
+                  Dukungan Dual-Theme Aktif
+                </span>
               </div>
 
               <button
@@ -1269,22 +1241,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                   sound.playPop();
                   void signOut();
                 }}
-                className="w-full p-4 rounded-2xl hover:bg-rose-50 text-rose-600 transition-all flex items-center justify-between text-left group"
+                className="w-full mt-4 p-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-rose-100/70 text-rose-600 flex items-center justify-center">
-                    <LogOut size={20} />
-                  </div>
-                  <div>
-                    <b className="text-sm font-black text-rose-600 block">
-                      Keluar
-                    </b>
-                    <span className="text-xs font-semibold text-rose-400">
-                      Keluar dari akun TemuKata
-                    </span>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-rose-400" />
+                <LogOut size={16} />
+                <span>Keluar dari Akun</span>
               </button>
             </div>
           </div>

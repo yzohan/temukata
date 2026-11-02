@@ -2,10 +2,44 @@
 
 :root {
   font-family: 'Poppins', 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #2f4f7f;
-  background-color: #f7f9fd;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  /* ======================================================== */
+  /* LIGHT MODE TOKENS (Clean, bright, cozy, dan playful)     */
+  /* ======================================================== */
+  --bg-app: #F8F7F2;
+  --surface-primary: #FFFFFF;
+  --surface-secondary: #FFF8ED;
+  --surface-hero: #E8F2FC;
+  --color-ice-blue: #E8F2FC;
+  --color-soft-blue: #8DB4D8;
+  --color-primary-blue: #8DB4D8;
+  --text-main: #304D70;
+  --text-secondary: #526F92;
+  --border-main: #E4E8ED;
+  --accent-pink: #FF8FB1;
+  --accent-yellow: #F5A65B;
+  --card-shadow: 0 4px 20px -2px rgba(48, 77, 112, 0.07);
+}
+
+.dark {
+  /* ======================================================== */
+  /* DARK MODE TOKENS (Calm, cozy, modern, malam hari)        */
+  /* ======================================================== */
+  --bg-app: #111C2B;
+  --surface-primary: #1C2A3C;
+  --surface-secondary: #21334A;
+  --surface-hero: #263D57;
+  --color-ice-blue: #21334A;
+  --color-soft-blue: #8DBBE8;
+  --color-primary-blue: #8DBBE8;
+  --text-main: #F0F6FF;
+  --text-secondary: #C0D1E5;
+  --border-main: #34475E;
+  --accent-pink: #ECAAB9;
+  --accent-yellow: #F8DF9B;
+  --card-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.45);
 }
 
 * {
@@ -15,24 +49,42 @@
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #f7f9fd;
-  color: #2f4f7f;
+  background-color: var(--bg-app);
+  color: var(--text-main);
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* TemuKata Playful Minimalist Cards */
+/* ======================================================== */
+/* SEMANTIC THEME CARD CLASSES                              */
+/* ======================================================== */
+
 .card-temukata {
-  background-color: #ffffff;
+  background-color: var(--surface-primary);
   border-radius: 1.5rem; /* 24px */
-  border: 1.5px solid #e5edf7;
-  box-shadow: 0 4px 20px -2px rgba(200, 215, 235, 0.25);
+  border: 1.5px solid var(--border-main);
+  box-shadow: var(--card-shadow);
+  color: var(--text-main);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-temukata-secondary {
+  background-color: var(--surface-secondary);
+  border-radius: 1.5rem;
+  border: 1.5px solid var(--border-main);
+  box-shadow: var(--card-shadow);
+  color: var(--text-main);
 }
 
 .card-temukata-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(180, 205, 230, 0.35);
-  border-color: #cfe0f5;
+  box-shadow: 0 8px 24px -4px rgba(48, 77, 112, 0.12);
+  border-color: var(--color-soft-blue);
+}
+
+.dark .card-temukata-hover:hover {
+  box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.5);
+  border-color: var(--color-soft-blue);
 }
 
 /* Custom Soft Scrollbars */
@@ -41,27 +93,31 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--bg-app);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--border-main);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-soft-blue);
 }
 
-/* Pinterest Soft Pastel Blue & Cream Tactile Buttons */
+/* Tactile Soft Buttons */
 .btn-3d-blue, .btn-3d-pastel {
-  background-color: #92b4d2;
-  border-bottom: 4px solid #7396b5;
+  background-color: var(--color-soft-blue);
+  border-bottom: 4px solid #6b9ec7;
   color: #ffffff;
   font-weight: 800;
   transition: all 0.08s ease;
   user-select: none;
 }
+.dark .btn-3d-blue, .dark .btn-3d-pastel {
+  background-color: var(--color-soft-blue);
+  border-bottom: 4px solid #4a7aa6;
+}
 .btn-3d-blue:hover:not(:disabled), .btn-3d-pastel:hover:not(:disabled) {
-  background-color: #9ebfdc;
+  opacity: 0.95;
 }
 .btn-3d-blue:active:not(:disabled), .btn-3d-pastel:active:not(:disabled) {
   transform: translateY(3px);
@@ -70,16 +126,16 @@ body {
 }
 
 .btn-3d-white, .btn-3d-cream {
-  background-color: #ffffff;
-  border: 2px solid #e7e2d8;
-  border-bottom: 4px solid #d5cec2;
-  color: #3b495b;
+  background-color: var(--surface-primary);
+  border: 2px solid var(--border-main);
+  border-bottom: 4px solid var(--border-main);
+  color: var(--text-main);
   font-weight: 800;
   transition: all 0.08s ease;
   user-select: none;
 }
 .btn-3d-white:hover:not(:disabled), .btn-3d-cream:hover:not(:disabled) {
-  background-color: #faf8f4;
+  background-color: var(--surface-secondary);
 }
 .btn-3d-white:active:not(:disabled), .btn-3d-cream:active:not(:disabled) {
   transform: translateY(2px);
@@ -87,371 +143,19 @@ body {
   margin-bottom: 2px;
 }
 
-.btn-3d-amber {
-  background-color: #f5a65b;
-  border-bottom: 4px solid #db8a3d;
-  color: #ffffff;
-  font-weight: 800;
-  transition: all 0.08s ease;
-  user-select: none;
-}
-.btn-3d-amber:hover:not(:disabled) {
-  background-color: #fbb572;
-}
-.btn-3d-amber:active:not(:disabled) {
-  transform: translateY(3px);
-  border-bottom-width: 1px;
-  margin-bottom: 3px;
-}
-
-.btn-3d-mint {
-  background-color: #8bcfa4;
-  border-bottom: 4px solid #6eb388;
-  color: #ffffff;
-  font-weight: 800;
-  transition: all 0.08s ease;
-  user-select: none;
-}
-.btn-3d-mint:hover:not(:disabled) {
-  background-color: #99dbb1;
-}
-.btn-3d-mint:active:not(:disabled) {
-  transform: translateY(3px);
-  border-bottom-width: 1px;
-  margin-bottom: 3px;
-}
-
-.btn-3d-purple {
-  background-color: #92b4d2;
-  border-bottom: 4px solid #7396b5;
-  color: #ffffff;
-  font-weight: 800;
-  transition: all 0.08s ease;
-  user-select: none;
-}
-.btn-3d-purple:hover:not(:disabled) {
-  background-color: #9ebfdc;
-}
-.btn-3d-purple:active:not(:disabled) {
-  transform: translateY(3px);
-  border-bottom-width: 1px;
-  margin-bottom: 3px;
-}
-
-/* Warm Aesthetic Cards */
-.card-duo {
-  background-color: #ffffff;
-  border: 2px solid #e7e2d8;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 0 0 #ded8cc;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.card-duo-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #d5cec2;
-}
-
-/* Highlighter Styles - Soft Pastel */
-.mark-correct {
-  background-color: #cce9d6 !important;
-  color: #215934 !important;
-  border-radius: 6px;
-  padding: 2px 4px;
-  font-weight: 800;
-  box-shadow: 0 2px 0 0 #a9d9b7;
-}
-
-.mark-wrong {
-  background-color: #fcdbd8 !important;
-  color: #913430 !important;
-  border-radius: 6px;
-  padding: 2px 4px;
-  font-weight: 800;
-  box-shadow: 0 2px 0 0 #f5b8b2;
-}
-
-/* Form Styles */
-.auth-input {
-  display: block;
-  width: 100%;
-  border: 2px solid #e5e0d6;
-  border-radius: 16px;
-  padding: 13px 16px;
-  outline: none;
-  color: #2d3748;
-  background: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.auth-input:focus {
-  border-color: #92b4d2;
-  box-shadow: 0 0 0 4px rgba(146, 180, 210, 0.25);
-}
-
-.field-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-  color: #4a5568;
-  margin: 14px 0 6px;
-}
-
-.form-field {
-  display: block;
-  width: 100%;
-  border: 2px solid #e5e0d6;
-  border-radius: 16px;
-  padding: 12px 15px;
-  font-size: 13px;
-  font-weight: 600;
-  background: #ffffff;
-  color: #2d3748;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-.form-field:focus {
-  border-color: #92b4d2;
-}
-
 /* Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-7px); }
-}
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
 @keyframes pop {
-  0% { transform: scale(0.9); opacity: 0; }
-  60% { transform: scale(1.04); }
+  0% { transform: scale(0.96); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 .animate-pop {
-  animation: pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.animate-wiggle {
-  animation: wiggle 0.6s ease-in-out infinite;
-}
-
-/* Custom Soft Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #f1ede5;
-}
-::-webkit-scrollbar-thumb {
-  background: #c9c3b8;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #aba497;
-}
-
-/* TemuKata Penguin Mascot Motion (Official User Styles) */
-.temukata-mascot {
-  display: inline-block;
-  width: var(--mascot-size, clamp(112px, 22vw, 320px));
-  aspect-ratio: 1323 / 1189;
-  line-height: 0;
-  transform-origin: 50% 88%;
-  animation: temukata-float 3.4s ease-in-out infinite;
-  will-change: transform;
-}
-
-.temukata-mascot img,
-.temukata-mascot svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.temukata-mascot:hover {
-  animation: temukata-hop 620ms cubic-bezier(.2,.8,.2,1) both;
-}
-
-@keyframes temukata-float {
-  0%, 100% { transform: translateY(0) rotate(-0.7deg); }
-  50%      { transform: translateY(-8px) rotate(0.7deg); }
-}
-
-@keyframes temukata-hop {
-  0%   { transform: translateY(0) rotate(0); }
-  35%  { transform: translateY(-13px) rotate(-3deg); }
-  65%  { transform: translateY(-5px) rotate(2deg); }
-  100% { transform: translateY(0) rotate(0); }
-}
-
-@keyframes temukata-blink {
-  0%, 88%, 94%, 100% {
-    opacity: 0;
-    transform: scaleY(0.2);
-  }
-  90%, 92% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-}
-
-.temukata-blink-layer {
-  animation: temukata-blink 3.8s infinite ease-in-out;
-  transform-origin: 50% 38%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .temukata-mascot,
-  .temukata-mascot:hover,
-  .temukata-blink-layer {
-    animation: none;
-    transition: none;
-  }
-}
-
-/* =========================================================================
-   DARK MODE STYLES (Soft Slate & Midnight Navy Theme)
-   ========================================================================= */
-html.dark {
-  color-scheme: dark;
-}
-
-html.dark body {
-  background-color: #171f2a !important;
-  color: #e2ecf8 !important;
-}
-
-html.dark .card-duo {
-  background-color: #202b39 !important;
-  border-color: #2f3e52 !important;
-  box-shadow: 0 4px 0 0 #131b24 !important;
-  color: #e2ecf8 !important;
-}
-
-html.dark .card-duo-hover:hover {
-  box-shadow: 0 6px 0 0 #131b24 !important;
-}
-
-html.dark header,
-html.dark nav {
-  background-color: #202b39 !important;
-  border-color: #2f3e52 !important;
-}
-
-html.dark .bg-white {
-  background-color: #202b39 !important;
-}
-
-html.dark .bg-\[\#fdfcf9\],
-html.dark .bg-\[\#fdfcf9\]\/95 {
-  background-color: #202b39 !important;
-}
-
-html.dark .bg-\[\#f6f3ed\] {
-  background-color: #171f2a !important;
-}
-
-html.dark .bg-\[\#faf8f4\] {
-  background-color: #1b2431 !important;
-}
-
-html.dark .bg-\[\#edf5fc\] {
-  background-color: #253344 !important;
-}
-
-html.dark .bg-amber-50 {
-  background-color: #332819 !important;
-}
-
-html.dark .border-amber-200 {
-  border-color: #5d4422 !important;
-}
-
-html.dark .text-amber-800,
-html.dark .text-amber-700 {
-  color: #fbd38d !important;
-}
-
-html.dark .border-\[\#e7e2d8\] {
-  border-color: #2f3e52 !important;
-}
-
-html.dark .border-\[\#d3e5f5\] {
-  border-color: #384c64 !important;
-}
-
-html.dark .border-slate-100,
-html.dark .border-slate-200,
-html.dark .divide-slate-100,
-html.dark .divide-slate-200 {
-  border-color: #2f3e52 !important;
-}
-
-html.dark .text-\[\#2c3848\] {
-  color: #e2ecf8 !important;
-}
-
-html.dark .text-\[\#4a6b8c\] {
-  color: #a4c4e2 !important;
-}
-
-html.dark .text-slate-900,
-html.dark .text-slate-800 {
-  color: #f1f6fd !important;
-}
-
-html.dark .text-slate-600,
-html.dark .text-slate-500,
-html.dark .text-slate-700 {
-  color: #9cb1c9 !important;
-}
-
-html.dark .text-slate-400 {
-  color: #7d93ac !important;
-}
-
-html.dark input,
-html.dark textarea,
-html.dark select {
-  background-color: #1a2330 !important;
-  color: #e2ecf8 !important;
-  border-color: #2f3e52 !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #647b97 !important;
-}
-
-html.dark .btn-3d-white,
-html.dark .btn-3d-cream {
-  background-color: #263344 !important;
-  border-color: #384c64 !important;
-  border-bottom-color: #1c2734 !important;
-  color: #e2ecf8 !important;
-}
-
-html.dark .btn-3d-white:hover:not(:disabled),
-html.dark .btn-3d-cream:hover:not(:disabled) {
-  background-color: #2d3d52 !important;
-}
-
-html.dark ::-webkit-scrollbar-track {
-  background: #171f2a;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #384c64;
-}
-
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4a6382;
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
 }

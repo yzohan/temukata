@@ -88,141 +88,172 @@ export default function StudentLessonPage() {
   // Render text with soft pastel highlights
   const highlightedText = useMemo(() => {
     if (!lesson) return null;
-    const sorted = [...highlights].sort((a, b) => a.start - b.start);
-    const parts: ReactNode[] = [];
-    let cursor = 0;
+    const body = lesson.body;
+    const spans: Array<{ start: number; end: number; className: string; key: string }> = [];
 
-    sorted.forEach((h, i) => {
-      if (h.start < cursor || h.end > lesson.body.length || h.start >= h.end) return;
-      if (h.start > cursor) parts.push(lesson.body.slice(cursor, h.start));
-      parts.push(
-        <mark
-          key={`${h.questionId}-${i}`}
-          className={`cursor-pointer transition-all rounded-sm px-0.5 ${
-            h.correct
-              ? 'bg-[#bbf7d0] text-[#14532d] underline decoration-[#22c55e]'
-              : 'bg-[#fecaca] text-[#7f1d1d] underline decoration-[#ef4444]'
-          }`}
-          title={h.correct ? 'Kunci Jawaban Benar! ✨' : 'Jawaban Belum Sesuai ❌'}
-        >
-          {lesson.body.slice(h.start, h.end)}
-        </mark>
-      );
-      cursor = h.end;
+    // Permanent confirmed highlights
+    highlights.forEach((h, i) => {
+      spans.push({
+        start: h.start,
+        end: h.end,
+        className: h.correct
+          ? 'bg-[#bbf7d0] dark:bg-[#1c4b2f] text-[#14532d] dark:text-[#86efac] font-bold rounded-sm px-0.5 border-b-2 border-[#22c55e]'
+          : 'bg-[#fecaca] dark:bg-[#521c1c] text-[#7f1d1d] dark:text-[#fca5a5] rounded-sm px-0.5',
+        key: `hl-${i}`,
+      });
     });
 
-    if (cursor < lesson.body.length) {
-      parts.push(lesson.body.slice(cursor));
+    // Current unsubmitted selection
+    if (selection) {
+      spans.push({
+        start: selection.start,
+        end: selection.end,
+        className:
+          'bg-[#fde68a] dark:bg-[#4d3810] text-[#78350f] dark:text-[#fde68a] font-bold rounded-sm px-0.5 border-b-2 border-amber-400 animate-pulse',
+        key: 'current-sel',
+      });
     }
-    return parts;
-  }, [lesson, highlights]);
 
-  // Capture text selection from the reading passage
-  const captureSelection = useCallback(() => {
-    const selected = window.getSelection();
-    const root = articleRef.current;
-    if (!selected || selected.isCollapsed || !root) return;
-    const range = selected.getRangeAt(0);
-    if (!root.contains(range.startContainer) || !root.contains(range.endContainer)) return;
+    spans.sort((a, b) => a.start - b.start);
 
-    const pre = range.cloneRange();
-    pre.selectNodeContents(root);
-    pre.setEnd(range.startContainer, range.startOffset);
-    const start = pre.toString().length;
-    const text = selected.toString().trim();
+    // Merge spans and plain text
+    const elements: ReactNode[] = [];
+    let cursor = 0;
 
-    if (text.length > 0) {
+    spans.forEach(s => {
+      if (s.start > cursor) {
+        elements.push(body.slice(cursor, s.start));
+      }
+      if (s.end > cursor) {
+        const actualStart = Math.max(cursor, s.start);
+        elements.push(
+          <mark key={s.key} className={s.className}>
+            {body.slice(actualStart, s.end)}
+          </mark>
+        );
+        cursor = Math.max(cursor, s.end);
+      }
+    });
+
+    if (cursor < body.length) {
+      elements.push(body.slice(cursor));
+    }
+
+    return elements;
+  }, [lesson, highlights, selection]);
+
+  // Handle text selection from reader
+  const handleMouseUp = useCallback(() => {
+    if (isCorrect !== null) return; // Locked once answered
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !articleRef.current) return;
+
+    const range = sel.getRangeAt(0);
+    if (!articleRef.current.contains(range.commonAncestorContainer)) return;
+
+    const fullText = lesson?.body || '';
+    const selectedText = sel.toString().trim();
+    if (selectedText.length < 3) return;
+
+    // Locate offset in full article body
+    let start = fullText.indexOf(selectedText);
+    if (start === -1) {
+      const normalizedFull = fullText.replace(/\s+/g, ' ');
+      const normalizedSel = selectedText.replace(/\s+/g, ' ');
+      start = normalizedFull.indexOf(normalizedSel);
+    }
+
+    if (start >= 0 && question) {
       sound.playPop();
       setSelection({
-        questionId: question?.id ?? '',
+        questionId: question.id,
         start,
-        end: start + selected.toString().length,
+        end: start + selectedText.length,
       });
-      setFeedback('');
-      setIsCorrect(null);
     }
-  }, [question]);
+  }, [lesson, question, isCorrect]);
 
-  // Check the selected answer
+  // Instant Check Answer
   async function check() {
-    if (!session || !question || !selection) {
-      sound.playError();
-      setFeedback('Pilih dulu kalimat di dalam bacaan dengan stabilo (drag/sorot teks)!');
-      return;
-    }
+    if (!selection || !question || !lesson || !session) return;
     setBusy(true);
-    setFeedback('');
+
     try {
-      const result = await api<{ correct: boolean }>('/attempts/check', session.access_token, {
+      const res = await api<{ correct: boolean }>('/attempts/check', session.access_token, {
         method: 'POST',
         body: JSON.stringify({
-          lessonId: id,
+          lessonId: lesson.id,
           questionId: question.id,
           start: selection.start,
           end: selection.end,
         }),
       });
 
-      setIsCorrect(result.correct);
+      setIsCorrect(res.correct);
       setAnswers(prev => ({ ...prev, [question.id]: selection }));
-      setHighlights(prev => [
-        ...prev.filter(h => h.questionId !== question.id),
-        { ...selection, correct: result.correct },
-      ]);
+      setHighlights(prev => [...prev, { ...selection, correct: res.correct }]);
 
-      if (result.correct) {
+      if (res.correct) {
         sound.playSuccess();
-        launchConfetti({ particleCount: 50, durationMs: 2000 });
-        setFeedback('Tepat sekali! Pilihan kalimatmu membuktikan jawaban dengan sempurna.');
+        launchConfetti();
+        setFeedback('Luar biasa! Kalimat bukti yang kamu temukan sangat tepat.');
       } else {
         sound.playError();
-        setFeedback('Belum tepat. Coba teliti kembali kalimat bukti yang paling sesuai.');
+        setFeedback('Belum tepat. Coba perhatikan kata kunci pada pertanyaan dan baca paragraf terkait sekali lagi.');
       }
-    } catch (e) {
+    } catch {
       sound.playError();
-      setFeedback(e instanceof Error ? e.message : 'Jawaban gagal diperiksa.');
+      setFeedback('Gagal memeriksa jawaban. Silakan coba kembali.');
     } finally {
       setBusy(false);
     }
   }
 
-  // Go to next question
+  // Next question
   function next() {
     sound.playPop();
-    if (index < 4) {
-      setIndex(index + 1);
-      setSelection(null);
-      setFeedback('');
-      setIsCorrect(null);
-      window.getSelection()?.removeAllRanges();
-    }
+    setSelection(null);
+    setIsCorrect(null);
+    setFeedback('');
+    setIndex(prev => prev + 1);
   }
 
-  // Submit entire attempt
+  // Clear current selection
+  function clearSelection() {
+    sound.playPop();
+    setSelection(null);
+    const sel = window.getSelection();
+    if (sel) sel.removeAllRanges();
+  }
+
+  // Final Submit
   async function submit() {
-    if (!session || !lesson) return;
-    const payload = lesson.questions.map(q => answers[q.id]).filter(Boolean);
-    if (payload.length !== 5) {
-      sound.playError();
-      setFeedback('Selesaikan dan periksa kelima soal sebelum mengirim hasil latihan.');
-      return;
-    }
+    if (!lesson || !session) return;
     setBusy(true);
+
+    const payload = {
+      lessonId: lesson.id,
+      answers: Object.values(answers),
+    };
+
     try {
       const result = await api<{ score: number; total: number }>('/attempts', session.access_token, {
         method: 'POST',
-        body: JSON.stringify({ lessonId: id, answers: payload }),
+        body: JSON.stringify(payload),
       });
 
-      awardDiamonds(5);
-      recordDailyLessonCompletion();
-      setSubmitted(true);
       setFinalScore(result);
+      setSubmitted(true);
       sound.playCheer();
-      launchConfetti({ particleCount: 90, durationMs: 3200 });
+      launchConfetti();
+
+      // Award +5 Diamonds
+      awardDiamonds(5);
+
+      // Advance Streak
+      recordDailyLessonCompletion();
     } catch (e) {
-      sound.playError();
-      setFeedback(e instanceof Error ? e.message : 'Latihan gagal dikirim.');
+      setError(e instanceof Error ? e.message : 'Gagal mengirim hasil latihan.');
     } finally {
       setBusy(false);
     }
@@ -231,26 +262,26 @@ export default function StudentLessonPage() {
   const progressPercent = Math.round(((index + (isCorrect !== null ? 1 : 0)) / 5) * 100);
 
   return (
-    <div className="min-h-screen bg-[#f7f9fd] dark:bg-[#131b26] flex flex-col justify-between text-[#2f4f7f] dark:text-[#d3e3f8] antialiased">
+    <div className="min-h-screen bg-[#F8F7F2] dark:bg-[#111C2B] flex flex-col justify-between text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250">
       {/* Top Header & Breadcrumbs */}
-      <header className="sticky top-0 z-40 bg-[#f7f9fd]/95 dark:bg-[#131b26]/95 backdrop-blur-md border-b border-[#e5edf7] dark:border-[#223044] px-4 py-3 sm:px-8">
+      <header className="sticky top-0 z-40 bg-[#F8F7F2]/95 dark:bg-[#111C2B]/95 backdrop-blur-md border-b border-[#E4E8ED] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
         <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
           {/* Breadcrumb Navigation */}
           <Link
             to="/student/materi"
             onClick={() => sound.playPop()}
-            className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#5a7394] hover:text-[#1cb0f6] transition-colors"
+            className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#526F92] dark:text-[#C0D1E5] hover:text-[#8DB4D8] dark:hover:text-[#8DBBE8] transition-colors"
           >
             <ArrowLeft size={16} />
             <span className="hidden sm:inline">Materi &gt; </span>
-            <span className="text-[#1e3a5f] dark:text-[#e8f2ff]">Detail Bacaan</span>
+            <span className="text-[#304D70] dark:text-[#F0F6FF]">Detail Bacaan</span>
           </Link>
 
           {/* Progress bar and Timer */}
           <div className="flex items-center gap-3 sm:gap-6 flex-1 max-w-md justify-end">
-            <div className="w-full max-w-[180px] sm:max-w-xs h-3 bg-[#e8f2ff] dark:bg-[#1f2e42] rounded-full overflow-hidden p-0.5">
+            <div className="w-full max-w-[180px] sm:max-w-xs h-3 bg-[#E8F2FC] dark:bg-[#21334A] rounded-full overflow-hidden p-0.5">
               <div
-                className="h-full bg-gradient-to-r from-[#1cb0f6] to-[#3b82f6] rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-[#8DB4D8] to-[#8DBBE8] rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.max(10, progressPercent))}%` }}
               />
             </div>
@@ -259,7 +290,7 @@ export default function StudentLessonPage() {
               className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black select-none ${
                 timeLeft < 60
                   ? 'bg-rose-50 text-rose-500 animate-pulse'
-                  : 'bg-white dark:bg-[#1e2e42] border border-[#e5edf7] dark:border-[#2b3e56] text-[#2f4f7f] dark:text-[#a5c7f2]'
+                  : 'bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] text-[#304D70] dark:text-[#8DBBE8]'
               }`}
             >
               <Clock size={14} />
@@ -269,7 +300,7 @@ export default function StudentLessonPage() {
             <Link
               to="/student"
               onClick={() => sound.playPop()}
-              className="w-8 h-8 rounded-xl bg-white dark:bg-[#1e2e42] border border-[#e5edf7] dark:border-[#2b3e56] flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+              className="w-8 h-8 rounded-xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-center text-[#526F92] dark:text-[#C0D1E5] hover:text-[#304D70] dark:hover:text-white transition-colors"
               title="Keluar"
             >
               <X size={16} />
@@ -282,15 +313,15 @@ export default function StudentLessonPage() {
       <main className="mx-auto max-w-6xl w-full flex-1 px-4 sm:px-8 py-6 pb-36">
         {loading ? (
           <div className="py-24 text-center">
-            <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#dcebfa] border-t-[#1cb0f6] animate-spin mb-4" />
-            <p className="text-sm font-black text-[#5a7394]">Menyiapkan bacaan dan modul latihan...</p>
+            <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#E8F2FC] border-t-[#8DB4D8] dark:border-[#21334A] dark:border-t-[#8DBBE8] animate-spin mb-4" />
+            <p className="text-sm font-black text-[#526F92] dark:text-[#C0D1E5]">Menyiapkan bacaan dan modul latihan...</p>
           </div>
         ) : error ? (
           <div className="card-temukata p-6 text-center max-w-md mx-auto">
             <p className="text-sm font-bold text-rose-500">{error}</p>
             <Link
               to="/student"
-              className="mt-4 px-4 py-2 rounded-xl bg-[#1cb0f6] text-white text-xs font-black inline-block"
+              className="mt-4 px-4 py-2 rounded-xl bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] text-xs font-black inline-block"
             >
               Kembali ke Beranda
             </Link>
@@ -298,7 +329,7 @@ export default function StudentLessonPage() {
         ) : lesson && question ? (
           <div className="space-y-6">
             {/* Scenic Nature Meadow Banner */}
-            <div className="w-full h-32 sm:h-44 rounded-3xl overflow-hidden relative shadow-xs border border-[#e5edf7] dark:border-[#24354a]">
+            <div className="w-full h-32 sm:h-44 rounded-3xl overflow-hidden relative shadow-xs border border-[#E4E8ED] dark:border-[#34475E]">
               <svg viewBox="0 0 800 240" className="w-full h-full object-cover">
                 <rect width="800" height="240" fill="#cde4fd" />
                 {/* Fluffy clouds */}
@@ -323,18 +354,18 @@ export default function StudentLessonPage() {
               {/* Left Column: Reading Content & Questions */}
               <div className="space-y-5">
                 {/* Meta Header */}
-                <div className="card-temukata p-5 sm:p-6 dark:bg-[#182332] dark:border-[#24354a]">
+                <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 sm:p-6 shadow-xs transition-colors duration-250">
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                    <span className="px-3 py-1 rounded-full bg-[#e8f2ff] dark:bg-[#1e2e42] text-[10px] font-black text-[#1cb0f6] uppercase tracking-wider">
+                    <span className="px-3 py-1 rounded-full bg-[#E8F2FC] dark:bg-[#21334A] text-[10px] font-black text-[#304D70] dark:text-[#8DBBE8] uppercase tracking-wider">
                       {lesson.subject || 'Teks Eksposisi'}
                     </span>
 
                     {/* Font Size Selector */}
-                    <div className="flex items-center gap-1 bg-[#f7f9fd] dark:bg-[#151f2b] p-1 rounded-xl border border-[#e5edf7] dark:border-[#24354a]">
+                    <div className="flex items-center gap-1 bg-[#F8F7F2] dark:bg-[#21334A] p-1 rounded-xl border border-[#E4E8ED] dark:border-[#34475E]">
                       <button
                         onClick={() => setFontSize('sm')}
                         className={`px-2 py-0.5 rounded-lg text-xs font-black ${
-                          fontSize === 'sm' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                          fontSize === 'sm' ? 'bg-[#8DB4D8] text-white' : 'text-[#526F92] dark:text-[#C0D1E5]'
                         }`}
                       >
                         A-
@@ -342,7 +373,7 @@ export default function StudentLessonPage() {
                       <button
                         onClick={() => setFontSize('base')}
                         className={`px-2 py-0.5 rounded-lg text-xs font-black ${
-                          fontSize === 'base' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                          fontSize === 'base' ? 'bg-[#8DB4D8] text-white' : 'text-[#526F92] dark:text-[#C0D1E5]'
                         }`}
                       >
                         A
@@ -350,7 +381,7 @@ export default function StudentLessonPage() {
                       <button
                         onClick={() => setFontSize('lg')}
                         className={`px-2 py-0.5 rounded-lg text-xs font-black ${
-                          fontSize === 'lg' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                          fontSize === 'lg' ? 'bg-[#8DB4D8] text-white' : 'text-[#526F92] dark:text-[#C0D1E5]'
                         }`}
                       >
                         A+
@@ -358,11 +389,11 @@ export default function StudentLessonPage() {
                     </div>
                   </div>
 
-                  <h1 className="text-xl sm:text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] leading-snug">
+                  <h1 className="text-xl sm:text-2xl font-black text-[#304D70] dark:text-[#F0F6FF] leading-snug">
                     {lesson.title}
                   </h1>
 
-                  <div className="flex items-center gap-4 text-xs font-bold text-[#8fa6c1] mt-2 pt-2 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                  <div className="flex items-center gap-4 text-xs font-bold text-[#526F92] dark:text-[#C0D1E5] mt-2 pt-2 border-t border-[#E4E8ED] dark:border-[#34475E]">
                     <span>⏱ {lesson.readingTimeMin || 5} menit</span>
                     <span>❓ 5 soal</span>
                     <span>⭐ Level 3</span>
@@ -370,123 +401,99 @@ export default function StudentLessonPage() {
                 </div>
 
                 {/* Question Prompt Card */}
-                <div className="card-temukata p-5 bg-white dark:bg-[#182332] dark:border-[#24354a] border-l-4 border-l-[#1cb0f6]">
+                <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 border-l-4 border-l-[#8DB4D8] dark:border-l-[#8DBBE8] shadow-xs transition-colors duration-250">
                   <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[11px] font-black uppercase text-[#1cb0f6]">
+                    <span className="text-[11px] font-black uppercase text-[#304D70] dark:text-[#8DBBE8]">
                       Soal {index + 1} dari 5
                     </span>
-                    <span className="text-[11px] font-bold text-slate-400">
+                    <span className="text-[11px] font-bold text-[#526F92] dark:text-[#C0D1E5]">
                       Sorot bukti di teks bacaan
                     </span>
                   </div>
-                  <h3 className="text-base sm:text-lg font-black text-[#1e3a5f] dark:text-[#e8f2ff] leading-relaxed">
+                  <h3 className="text-base sm:text-lg font-black text-[#304D70] dark:text-[#F0F6FF] leading-relaxed">
                     {question.prompt}
                   </h3>
                 </div>
 
                 {/* Reading Passage Body with Interactive Sentence Highlighter */}
-                <div className="card-temukata p-6 sm:p-8 dark:bg-[#182332] dark:border-[#24354a] relative">
-                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#e5edf7] dark:border-[#24354a]">
+                <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 sm:p-8 shadow-xs relative transition-colors duration-250">
+                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E4E8ED] dark:border-[#34475E]">
                     <div className="flex items-center gap-2">
-                      <BookOpen size={18} className="text-[#1cb0f6]" />
-                      <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff]">
+                      <BookOpen size={18} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
+                      <h4 className="font-black text-sm text-[#304D70] dark:text-[#F0F6FF]">
                         Teks Bacaan (Stabilo Digital)
                       </h4>
                     </div>
-                    <span className="text-[11px] font-bold text-[#48bb78] bg-[#e6f7ec] px-2.5 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold text-[#22c55e] bg-[#e6f7ec] dark:bg-[#142e20] px-2.5 py-0.5 rounded-full">
                       Stabilo Aktif ✨
                     </span>
                   </div>
 
+                  {/* Text Container with Selection Listener */}
                   <div
                     ref={articleRef}
-                    onMouseUp={captureSelection}
-                    onTouchEnd={() => setTimeout(captureSelection, 60)}
-                    className={`select-text leading-loose text-[#304d70] dark:text-[#c4d8ef] font-medium cursor-text rounded-xl transition-all ${
-                      fontSize === 'sm'
-                        ? 'text-sm'
-                        : fontSize === 'lg'
-                        ? 'text-lg leading-loose'
-                        : 'text-base'
+                    onMouseUp={handleMouseUp}
+                    className={`leading-loose select-text cursor-text font-normal text-[#304D70] dark:text-[#F0F6FF] ${
+                      fontSize === 'sm' ? 'text-sm' : fontSize === 'lg' ? 'text-lg' : 'text-base'
                     }`}
                   >
                     {highlightedText}
                   </div>
 
-                  {/* Active Selection Pill */}
+                  {/* Floating Selection Tooltip/Action */}
                   {selection && isCorrect === null && (
-                    <div className="mt-4 p-3.5 rounded-2xl bg-[#e8f2ff] dark:bg-[#1a293d] border border-[#dcebfa] dark:border-[#2a3e56] flex items-center justify-between gap-3 animate-pop">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-base">🖍️</span>
-                        <p className="text-xs font-bold text-[#1e3a5f] dark:text-[#e8f2ff] italic truncate">
+                    <div className="mt-4 pt-3 border-t border-[#E4E8ED] dark:border-[#34475E] flex items-center justify-between bg-[#FFF8ED] dark:bg-[#21334A] p-3 rounded-2xl animate-pop">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#304D70] dark:text-[#F0F6FF]">
+                        <span>Bukti terpilih:</span>
+                        <span className="italic line-clamp-1 max-w-[200px] sm:max-w-xs font-semibold">
                           "{lesson.body.slice(selection.start, selection.end)}"
-                        </p>
+                        </span>
                       </div>
                       <button
-                        onClick={() => {
-                          sound.playPop();
-                          setSelection(null);
-                          window.getSelection()?.removeAllRanges();
-                        }}
-                        className="text-xs font-black text-slate-500 hover:text-rose-500 flex items-center gap-1 shrink-0"
+                        onClick={clearSelection}
+                        className="text-xs font-bold text-rose-500 hover:underline flex items-center gap-1 shrink-0 ml-2"
                       >
-                        <Eraser size={14} />
-                        <span>Hapus</span>
+                        <Eraser size={14} /> Hapus
                       </button>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Right Column: Learning Goals & Instructions (Desktop) */}
-              <div className="space-y-5 sticky top-24">
-                {/* Mascot Mood Box */}
-                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] flex items-center gap-4">
-                  <div className="w-18 h-18 shrink-0 flex items-center justify-center">
-                    <Mascot mood={isCorrect === true ? 'happy' : isCorrect === false ? 'wrong' : 'thinking'} size={72} />
-                  </div>
-                  <div>
-                    <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                      {isCorrect === true ? 'Jawaban Hebat!' : isCorrect === false ? 'Ayo Coba Lagi!' : 'Temukan Bukti!'}
-                    </b>
-                    <p className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9] leading-snug mt-0.5">
-                      {isCorrect === true
-                        ? 'Analisis kalimatmu sangat tepat dan membuktikan jawaban.'
-                        : isCorrect === false
-                        ? 'Teliti kembali kalimat pendukung di dalam teks bacaan.'
-                        : 'Tarik stabilo pada kalimat yang menjadi bukti jawaban.'}
-                    </p>
-                  </div>
+              {/* Right Column: Reading Goal, Mascot Hints, & Instructions */}
+              <div className="space-y-5">
+                {/* Mascot Coach Hint */}
+                <div className="bg-[#FFF8ED] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 shadow-xs transition-colors duration-250">
+                  <Mascot
+                    mood={isCorrect === true ? 'cheering' : isCorrect === false ? 'thinking' : 'happy'}
+                    message={
+                      <span className="text-xs font-bold text-[#304D70] dark:text-[#F0F6FF]">
+                        {feedback || 'Tarik kursor untuk menstabilo kalimat yang membuktikan jawabanmu! 🐧'}
+                      </span>
+                    }
+                    size={84}
+                  />
                 </div>
 
-                {/* Tujuan Pembelajaran Card */}
-                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                  <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mb-3">
-                    Tujuan Pembelajaran
+                {/* Reading Target Card */}
+                <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 shadow-xs transition-colors duration-250">
+                  <h4 className="font-black text-sm text-[#304D70] dark:text-[#F0F6FF] mb-2 flex items-center gap-1.5">
+                    <span>🎯 Target Pembelajaran</span>
                   </h4>
-                  <ul className="space-y-2 text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#22c55e] font-black">✓</span>
-                      <span>Mengidentifikasi gagasan pokok paragraf.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#22c55e] font-black">✓</span>
-                      <span>Menemukan kalimat bukti pendukung.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#22c55e] font-black">✓</span>
-                      <span>Menyimpulkan isi bacaan secara kritis.</span>
-                    </li>
+                  <ul className="space-y-1.5 text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5]">
+                    <li>• Menemukan kalimat bukti tersurat.</li>
+                    <li>• Membedakan fakta utama dan penjelas.</li>
+                    <li>• Menyimpulkan gagasan pokok teks.</li>
                   </ul>
                 </div>
 
                 {/* Petunjuk Latihan Card */}
-                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                  <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mb-2 flex items-center gap-1.5">
-                    <HelpCircle size={16} className="text-[#1cb0f6]" />
+                <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-5 shadow-xs transition-colors duration-250">
+                  <h4 className="font-black text-sm text-[#304D70] dark:text-[#F0F6FF] mb-2 flex items-center gap-1.5">
+                    <HelpCircle size={16} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
                     <span>Petunjuk Latihan</span>
                   </h4>
-                  <p className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9] leading-relaxed">
+                  <p className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] leading-relaxed">
                     Siswa tidak perlu mengetik. Cukup sorot (stabilo) kalimat bukti langsung pada teks bacaan, lalu klik Periksa Jawaban.
                   </p>
                 </div>
@@ -498,38 +505,38 @@ export default function StudentLessonPage() {
 
       {/* Sticky Bottom Action Bar */}
       <footer
-        className={`fixed bottom-0 left-0 right-0 z-40 border-t transition-all duration-200 px-4 py-4 sm:px-8 ${
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t transition-all duration-250 px-4 py-4 sm:px-8 ${
           isCorrect === true
-            ? 'bg-[#e6f7ec] border-[#bbf7d0]'
+            ? 'bg-[#e6f7ec] dark:bg-[#142e20] border-[#bbf7d0] dark:border-[#22c55e]/30'
             : isCorrect === false
-            ? 'bg-[#fef2f2] border-[#fecaca]'
-            : 'bg-white/95 dark:bg-[#182332]/95 backdrop-blur-md border-[#e5edf7] dark:border-[#24354a]'
+            ? 'bg-[#fef2f2] dark:bg-[#381a1a] border-[#fecaca] dark:border-[#ef4444]/30'
+            : 'bg-[#FFFFFF]/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-[#E4E8ED] dark:border-[#34475E]'
         }`}
       >
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {isCorrect === true ? (
-              <div className="flex items-center gap-2.5 text-[#14532d]">
-                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-xs">
+              <div className="flex items-center gap-2.5 text-[#14532d] dark:text-[#86efac]">
+                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center font-black shadow-xs">
                   <CheckCircle2 size={24} className="text-[#22c55e]" />
                 </div>
                 <div>
                   <span className="text-sm font-black block">Jawaban Tepat!</span>
-                  <span className="text-xs font-bold text-[#14532d]/80">Bukti kalimatmu akurat.</span>
+                  <span className="text-xs font-bold opacity-80">Bukti kalimatmu akurat.</span>
                 </div>
               </div>
             ) : isCorrect === false ? (
-              <div className="flex items-center gap-2.5 text-[#7f1d1d]">
-                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-xs">
+              <div className="flex items-center gap-2.5 text-[#7f1d1d] dark:text-[#fca5a5]">
+                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center font-black shadow-xs">
                   <X size={24} className="text-[#ef4444]" />
                 </div>
                 <div>
                   <span className="text-sm font-black block">Belum Tepat!</span>
-                  <span className="text-xs font-bold text-[#7f1d1d]/80">{feedback || 'Sorot kalimat bukti yang lebih sesuai.'}</span>
+                  <span className="text-xs font-bold opacity-80">{feedback || 'Sorot kalimat bukti yang lebih sesuai.'}</span>
                 </div>
               </div>
             ) : (
-              <div className="text-xs sm:text-sm font-bold text-[#5a7394]">
+              <div className="text-xs sm:text-sm font-bold text-[#526F92] dark:text-[#C0D1E5]">
                 {selection
                   ? 'Kalimat siap diperiksa! Klik tombol di samping kanan.'
                   : 'Sorot kalimat bukti pada bacaan untuk menjawab soal.'}
@@ -543,10 +550,10 @@ export default function StudentLessonPage() {
               <button
                 onClick={() => void check()}
                 disabled={busy || !selection}
-                className={`w-full sm:w-auto px-8 py-3 rounded-2xl font-black text-sm transition-all ${
+                className={`w-full sm:w-auto px-8 py-3 rounded-2xl font-black text-sm transition-all cursor-pointer ${
                   selection
-                    ? 'bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white shadow-xs active:scale-95'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+                    ? 'bg-[#8DB4D8] dark:bg-[#8DBBE8] hover:opacity-90 text-white dark:text-[#111C2B] shadow-xs active:scale-95'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                 }`}
               >
                 {busy ? 'Memeriksa...' : 'Periksa Jawaban'}
@@ -554,7 +561,7 @@ export default function StudentLessonPage() {
             ) : index < 4 ? (
               <button
                 onClick={next}
-                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all"
+                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#8DB4D8] dark:bg-[#8DBBE8] hover:opacity-90 text-white dark:text-[#111C2B] font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer"
               >
                 <span>Soal Berikutnya</span>
                 <ArrowRight size={18} />
@@ -563,7 +570,7 @@ export default function StudentLessonPage() {
               <button
                 onClick={() => void submit()}
                 disabled={busy || submitted}
-                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#ff9600] hover:bg-[#e07800] text-white font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all"
+                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#F5A65B] dark:bg-[#F8DF9B] hover:opacity-90 text-white dark:text-[#111C2B] font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer"
               >
                 <span>Kirim Hasil Latihan</span>
                 <Send size={16} />
@@ -575,29 +582,29 @@ export default function StudentLessonPage() {
 
       {/* Completion Modal */}
       {submitted && finalScore && (
-        <div className="fixed inset-0 z-50 bg-[#1e3a5f]/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="card-temukata p-6 sm:p-8 bg-white dark:bg-[#182332] max-w-md w-full text-center space-y-5 animate-pop">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#ebf3fe] flex items-center justify-center text-4xl shadow-xs">
+        <div className="fixed inset-0 z-50 bg-[#111C2B]/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border-2 border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 animate-pop shadow-2xl transition-colors duration-250">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#E8F2FC] dark:bg-[#21334A] flex items-center justify-center text-4xl shadow-xs">
               🎉
             </div>
 
             <div>
-              <h2 className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
+              <h2 className="text-2xl font-black text-[#304D70] dark:text-[#F0F6FF]">
                 Latihan Selesai!
               </h2>
-              <p className="text-xs font-semibold text-[#5a7394] mt-1">
+              <p className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-1">
                 Kamu telah menyelesaikan 5 soal pemahaman teks.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-[#ebf3fe] border border-[#dcebfa]">
-                <span className="text-[10px] font-black uppercase text-[#1cb0f6]">Skor Akurasi</span>
-                <span className="text-2xl font-black text-[#1e3a5f] block mt-0.5">
+              <div className="p-4 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E]">
+                <span className="text-[10px] font-black uppercase text-[#304D70] dark:text-[#8DBBE8]">Skor Akurasi</span>
+                <span className="text-2xl font-black text-[#304D70] dark:text-[#F0F6FF] block mt-0.5">
                   {finalScore.score} / {finalScore.total}
                 </span>
               </div>
-              <div className="p-4 rounded-2xl bg-[#e6f7ec] border border-[#bbf7d0]">
+              <div className="p-4 rounded-2xl bg-[#e6f7ec] dark:bg-[#142e20] border border-[#bbf7d0] dark:border-[#22c55e]/30">
                 <span className="text-[10px] font-black uppercase text-[#22c55e]">Hadiah Poin</span>
                 <span className="text-2xl font-black text-[#22c55e] flex items-center justify-center gap-1 mt-0.5">
                   <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
@@ -611,7 +618,7 @@ export default function StudentLessonPage() {
                 sound.playPop();
                 navigate('/student');
               }}
-              className="w-full py-3.5 rounded-2xl bg-[#1cb0f6] text-white font-black text-sm shadow-xs hover:bg-[#0fa0eb] active:scale-95 transition-all"
+              className="w-full py-3.5 rounded-2xl bg-[#8DB4D8] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] font-black text-sm shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer"
             >
               Kembali ke Beranda
             </button>
