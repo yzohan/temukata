@@ -57,7 +57,20 @@ export interface StreakData {
   freezeCount: number;
 }
 
+export interface StoreItem {
+  id: string;
+  name: string;
+  category: 'border' | 'badge' | 'background';
+  price: number;
+  description: string;
+  rarity?: 'Biasa' | 'Langka' | 'Epik' | 'Legendaris';
+  previewColor?: string;
+  svgType: string;
+}
+
 export interface UserProgress {
   diamonds: number;
   streak: StreakData;
+  equippedBorder?: string;
+  inventory?: string[];
 }

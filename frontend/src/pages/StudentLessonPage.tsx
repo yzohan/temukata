@@ -1,24 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ArrowLeft,
   ArrowRight,
+  BookOpen,
   CheckCircle2,
   Clock,
   Eraser,
+  HelpCircle,
   Send,
-  Sparkles,
-  Trophy,
   X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Mascot from '../components/Mascot';
-import StreakFlame from '../components/StreakFlame';
 import { useAuth } from '../auth/AuthProvider';
 import { api } from '../lib/api';
 import { sound } from '../lib/sounds';
 import { launchConfetti } from '../lib/confetti';
 import {
   awardDiamonds,
-  getRandomQuote,
   recordDailyLessonCompletion,
 } from '../lib/gamification';
 import type { AnswerSelection, Lesson } from '../types';
@@ -44,8 +43,8 @@ export default function StudentLessonPage() {
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [finalScore, setFinalScore] = useState<{ score: number; total: number } | null>(null);
-  const [motivationalQuote, setMotivationalQuote] = useState(getRandomQuote());
-  const [timeLeft, setTimeLeft] = useState(300); // 5 menit = 300 detik
+  const [timeLeft, setTimeLeft] = useState(300); // 5 menit
+  const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
 
   // 5-minute countdown timer per lesson
   useEffect(() => {
@@ -99,8 +98,10 @@ export default function StudentLessonPage() {
       parts.push(
         <mark
           key={`${h.questionId}-${i}`}
-          className={`cursor-pointer transition-all ${
-            h.correct ? 'mark-correct' : 'mark-wrong'
+          className={`cursor-pointer transition-all rounded-sm px-0.5 ${
+            h.correct
+              ? 'bg-[#bbf7d0] text-[#14532d] underline decoration-[#22c55e]'
+              : 'bg-[#fecaca] text-[#7f1d1d] underline decoration-[#ef4444]'
           }`}
           title={h.correct ? 'Kunci Jawaban Benar! ✨' : 'Jawaban Belum Sesuai ❌'}
         >
@@ -213,15 +214,8 @@ export default function StudentLessonPage() {
         body: JSON.stringify({ lessonId: id, answers: payload }),
       });
 
-      // Award +5 Diamonds
       awardDiamonds(5);
-
-      // Advance Streak
       recordDailyLessonCompletion();
-
-      // Pick fresh quote
-      setMotivationalQuote(getRandomQuote());
-
       setSubmitted(true);
       setFinalScore(result);
       sound.playCheer();
@@ -237,142 +231,266 @@ export default function StudentLessonPage() {
   const progressPercent = Math.round(((index + (isCorrect !== null ? 1 : 0)) / 5) * 100);
 
   return (
-    <div className="min-h-screen bg-[#f6f3ed] flex flex-col justify-between text-[#2c3848]">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#fdfcf9]/95 backdrop-blur-md border-b-2 border-[#e7e2d8] px-4 py-3 sm:px-8">
-        <div className="mx-auto max-w-4xl flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-[#f7f9fd] dark:bg-[#131b26] flex flex-col justify-between text-[#2f4f7f] dark:text-[#d3e3f8] antialiased">
+      {/* Top Header & Breadcrumbs */}
+      <header className="sticky top-0 z-40 bg-[#f7f9fd]/95 dark:bg-[#131b26]/95 backdrop-blur-md border-b border-[#e5edf7] dark:border-[#223044] px-4 py-3 sm:px-8">
+        <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
+          {/* Breadcrumb Navigation */}
           <Link
-            to="/student"
+            to="/student/materi"
             onClick={() => sound.playPop()}
-            title="Keluar dari Latihan"
-            className="p-2 rounded-2xl text-slate-400 hover:text-slate-700 hover:bg-[#faf8f4] transition-colors"
+            className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#5a7394] hover:text-[#1cb0f6] transition-colors"
           >
-            <X size={24} />
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline">Materi &gt; </span>
+            <span className="text-[#1e3a5f] dark:text-[#e8f2ff]">Detail Bacaan</span>
           </Link>
 
-          {/* Chunky Pastel Progress Bar */}
-          <div className="flex-1 max-w-xl">
-            <div className="h-4 sm:h-5 rounded-full bg-[#e7e2d8] p-0.5 overflow-hidden shadow-inner relative">
+          {/* Progress bar and Timer */}
+          <div className="flex items-center gap-3 sm:gap-6 flex-1 max-w-md justify-end">
+            <div className="w-full max-w-[180px] sm:max-w-xs h-3 bg-[#e8f2ff] dark:bg-[#1f2e42] rounded-full overflow-hidden p-0.5">
               <div
-                className="h-full rounded-full bg-[#92b4d2] transition-all duration-500 ease-out relative"
-                style={{ width: `${Math.min(100, Math.max(8, progressPercent))}%` }}
-              >
-                <div className="absolute top-1 left-2 right-2 h-1 rounded-full bg-white/40" />
-              </div>
+                className="h-full bg-gradient-to-r from-[#1cb0f6] to-[#3b82f6] rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(10, progressPercent))}%` }}
+              />
             </div>
-          </div>
 
-          {/* 5-Minute Countdown Timer */}
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border-2 font-black text-xs sm:text-sm select-none transition-colors ${
-              timeLeft < 60
-                ? 'bg-rose-50 border-rose-200 text-rose-500 animate-pulse'
-                : 'bg-[#edf5fc] border-[#d3e5f5] text-[#4a6b8c]'
-            }`}
-            title="Waktu Mengerjakan Materi (5 Menit)"
-          >
-            <Clock size={17} className={timeLeft < 60 ? 'text-rose-500' : 'text-[#4a6b8c]'} />
-            <span className="tabular-nums tracking-wide">{formatTime(timeLeft)}</span>
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black select-none ${
+                timeLeft < 60
+                  ? 'bg-rose-50 text-rose-500 animate-pulse'
+                  : 'bg-white dark:bg-[#1e2e42] border border-[#e5edf7] dark:border-[#2b3e56] text-[#2f4f7f] dark:text-[#a5c7f2]'
+              }`}
+            >
+              <Clock size={14} />
+              <span className="tabular-nums">{formatTime(timeLeft)}</span>
+            </div>
+
+            <Link
+              to="/student"
+              onClick={() => sound.playPop()}
+              className="w-8 h-8 rounded-xl bg-white dark:bg-[#1e2e42] border border-[#e5edf7] dark:border-[#2b3e56] flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+              title="Keluar"
+            >
+              <X size={16} />
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Reading & Quiz Area */}
-      <main className="mx-auto max-w-4xl w-full flex-1 px-4 sm:px-6 py-6 pb-36">
+      {/* Main Container */}
+      <main className="mx-auto max-w-6xl w-full flex-1 px-4 sm:px-8 py-6 pb-36">
         {loading ? (
           <div className="py-24 text-center">
-            <div className="w-14 h-14 mx-auto rounded-full border-4 border-[#e7e2d8] border-t-[#92b4d2] animate-spin mb-4" />
-            <p className="text-base font-black text-slate-500">Menyiapkan bacaan & kuis stabilo...</p>
+            <div className="w-12 h-12 mx-auto rounded-full border-4 border-[#dcebfa] border-t-[#1cb0f6] animate-spin mb-4" />
+            <p className="text-sm font-black text-[#5a7394]">Menyiapkan bacaan dan modul latihan...</p>
           </div>
         ) : error ? (
-          <div className="card-duo p-6 bg-rose-50 border-rose-200 text-rose-700 text-center max-w-md mx-auto">
-            <p className="text-base font-bold">{error}</p>
-            <Link to="/student" className="btn-3d-pastel mt-4 px-4 py-2 rounded-xl inline-block text-xs font-black">
-              Kembali ke Peta Petualangan
+          <div className="card-temukata p-6 text-center max-w-md mx-auto">
+            <p className="text-sm font-bold text-rose-500">{error}</p>
+            <Link
+              to="/student"
+              className="mt-4 px-4 py-2 rounded-xl bg-[#1cb0f6] text-white text-xs font-black inline-block"
+            >
+              Kembali ke Beranda
             </Link>
           </div>
         ) : lesson && question ? (
           <div className="space-y-6">
-            {/* Question Card */}
-            <div className="card-duo p-5 bg-white flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              {isCorrect !== null && (
-                <div className="animate-pop shrink-0">
-                  <Mascot
-                    mood={isCorrect ? 'happy' : 'wrong'}
-                    size={85}
-                  />
-                </div>
-              )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#edf5fc] text-[#4a6b8c] text-[10px] font-black uppercase tracking-wider">
-                    Soal {index + 1} dari 5
-                  </span>
-                  <span className="text-xs font-black text-slate-400">
-                    {lesson.subject}
-                  </span>
-                </div>
-                <h1 className="text-lg sm:text-xl font-black text-[#2c3848] leading-snug">
-                  {question.prompt}
-                </h1>
-                <p className="mt-1 text-xs font-bold text-slate-400">
-                  Sorot kalimat pada teks bacaan di bawah ini yang menjadi bukti jawabanmu.
-                </p>
-              </div>
+            {/* Scenic Nature Meadow Banner */}
+            <div className="w-full h-32 sm:h-44 rounded-3xl overflow-hidden relative shadow-xs border border-[#e5edf7] dark:border-[#24354a]">
+              <svg viewBox="0 0 800 240" className="w-full h-full object-cover">
+                <rect width="800" height="240" fill="#cde4fd" />
+                {/* Fluffy clouds */}
+                <ellipse cx="120" cy="50" rx="45" ry="25" fill="#ffffff" opacity="0.85" />
+                <ellipse cx="150" cy="45" rx="35" ry="20" fill="#ffffff" opacity="0.85" />
+                <ellipse cx="680" cy="65" rx="50" ry="28" fill="#ffffff" opacity="0.8" />
+                {/* Rolling Green Hills */}
+                <path d="M0,170 Q200,120 400,155 T800,135 L800,240 L0,240 Z" fill="#75ba75" />
+                <path d="M0,195 Q250,155 500,185 T800,170 L800,240 L0,240 Z" fill="#5ea85e" />
+                {/* Daisies */}
+                {[50, 110, 180, 240, 320, 420, 500, 600, 710, 770].map((cx, i) => (
+                  <g key={i}>
+                    <circle cx={cx} cy={205 + (i % 3) * 6} r="4" fill="#ffffff" />
+                    <circle cx={cx} cy={205 + (i % 3) * 6} r="1.8" fill="#f59e0b" />
+                  </g>
+                ))}
+              </svg>
             </div>
 
-            {/* Reading Passage Card */}
-            <div className="card-duo p-5 sm:p-8 bg-white relative">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-[#f1ede5]">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">📖</span>
-                  <h2 className="text-base sm:text-lg font-black text-[#2c3848]">
-                    {lesson.title}
-                  </h2>
-                </div>
-                <span className="px-2.5 py-1 rounded-xl bg-[#edf5fc] text-[#4a6b8c] text-xs font-black">
-                  Stabilo Aktif ✨
-                </span>
-              </div>
+            {/* Desktop 2-Column Grid: Left (Reading & Highlighting) + Right (Goals & Instructions) */}
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+              {/* Left Column: Reading Content & Questions */}
+              <div className="space-y-5">
+                {/* Meta Header */}
+                <div className="card-temukata p-5 sm:p-6 dark:bg-[#182332] dark:border-[#24354a]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                    <span className="px-3 py-1 rounded-full bg-[#e8f2ff] dark:bg-[#1e2e42] text-[10px] font-black text-[#1cb0f6] uppercase tracking-wider">
+                      {lesson.subject || 'Teks Eksposisi'}
+                    </span>
 
-              {/* Text Body */}
-              <div
-                ref={articleRef}
-                onMouseUp={captureSelection}
-                onTouchEnd={() => setTimeout(captureSelection, 60)}
-                className="select-text text-base sm:text-lg leading-relaxed text-[#3b495b] font-semibold tracking-normal cursor-text p-2 rounded-xl hover:bg-[#faf8f4] transition-colors"
-                style={{ lineHeight: '2.1' }}
-              >
-                {highlightedText}
-              </div>
-
-              {/* Selection Notification Pill */}
-              {selection && isCorrect === null && (
-                <div className="mt-4 p-3.5 rounded-2xl bg-[#edf5fc] border-2 border-[#d3e5f5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pop">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🖍️</span>
-                    <div>
-                      <span className="text-[11px] font-black text-[#4a6b8c] uppercase tracking-wider block">
-                        Kalimat Terpilih:
-                      </span>
-                      <p className="text-xs font-bold text-[#2c3848] italic line-clamp-1">
-                        "{lesson.body.slice(selection.start, selection.end)}"
-                      </p>
+                    {/* Font Size Selector */}
+                    <div className="flex items-center gap-1 bg-[#f7f9fd] dark:bg-[#151f2b] p-1 rounded-xl border border-[#e5edf7] dark:border-[#24354a]">
+                      <button
+                        onClick={() => setFontSize('sm')}
+                        className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                          fontSize === 'sm' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                        }`}
+                      >
+                        A-
+                      </button>
+                      <button
+                        onClick={() => setFontSize('base')}
+                        className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                          fontSize === 'base' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                        }`}
+                      >
+                        A
+                      </button>
+                      <button
+                        onClick={() => setFontSize('lg')}
+                        className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                          fontSize === 'lg' ? 'bg-[#1cb0f6] text-white' : 'text-slate-400'
+                        }`}
+                      >
+                        A+
+                      </button>
                     </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      sound.playPop();
-                      setSelection(null);
-                      window.getSelection()?.removeAllRanges();
-                    }}
-                    className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1 shrink-0"
-                  >
-                    <Eraser size={14} />
-                    <span>Hapus Pilihan</span>
-                  </button>
+
+                  <h1 className="text-xl sm:text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] leading-snug">
+                    {lesson.title}
+                  </h1>
+
+                  <div className="flex items-center gap-4 text-xs font-bold text-[#8fa6c1] mt-2 pt-2 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                    <span>⏱ {lesson.readingTimeMin || 5} menit</span>
+                    <span>❓ 5 soal</span>
+                    <span>⭐ Level 3</span>
+                  </div>
                 </div>
-              )}
+
+                {/* Question Prompt Card */}
+                <div className="card-temukata p-5 bg-white dark:bg-[#182332] dark:border-[#24354a] border-l-4 border-l-[#1cb0f6]">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[11px] font-black uppercase text-[#1cb0f6]">
+                      Soal {index + 1} dari 5
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-400">
+                      Sorot bukti di teks bacaan
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-[#1e3a5f] dark:text-[#e8f2ff] leading-relaxed">
+                    {question.prompt}
+                  </h3>
+                </div>
+
+                {/* Reading Passage Body with Interactive Sentence Highlighter */}
+                <div className="card-temukata p-6 sm:p-8 dark:bg-[#182332] dark:border-[#24354a] relative">
+                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#e5edf7] dark:border-[#24354a]">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={18} className="text-[#1cb0f6]" />
+                      <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff]">
+                        Teks Bacaan (Stabilo Digital)
+                      </h4>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#48bb78] bg-[#e6f7ec] px-2.5 py-0.5 rounded-full">
+                      Stabilo Aktif ✨
+                    </span>
+                  </div>
+
+                  <div
+                    ref={articleRef}
+                    onMouseUp={captureSelection}
+                    onTouchEnd={() => setTimeout(captureSelection, 60)}
+                    className={`select-text leading-loose text-[#304d70] dark:text-[#c4d8ef] font-medium cursor-text rounded-xl transition-all ${
+                      fontSize === 'sm'
+                        ? 'text-sm'
+                        : fontSize === 'lg'
+                        ? 'text-lg leading-loose'
+                        : 'text-base'
+                    }`}
+                  >
+                    {highlightedText}
+                  </div>
+
+                  {/* Active Selection Pill */}
+                  {selection && isCorrect === null && (
+                    <div className="mt-4 p-3.5 rounded-2xl bg-[#e8f2ff] dark:bg-[#1a293d] border border-[#dcebfa] dark:border-[#2a3e56] flex items-center justify-between gap-3 animate-pop">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-base">🖍️</span>
+                        <p className="text-xs font-bold text-[#1e3a5f] dark:text-[#e8f2ff] italic truncate">
+                          "{lesson.body.slice(selection.start, selection.end)}"
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          sound.playPop();
+                          setSelection(null);
+                          window.getSelection()?.removeAllRanges();
+                        }}
+                        className="text-xs font-black text-slate-500 hover:text-rose-500 flex items-center gap-1 shrink-0"
+                      >
+                        <Eraser size={14} />
+                        <span>Hapus</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Learning Goals & Instructions (Desktop) */}
+              <div className="space-y-5 sticky top-24">
+                {/* Mascot Mood Box */}
+                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] flex items-center gap-4">
+                  <div className="w-18 h-18 shrink-0 flex items-center justify-center">
+                    <Mascot mood={isCorrect === true ? 'happy' : isCorrect === false ? 'wrong' : 'thinking'} size={72} />
+                  </div>
+                  <div>
+                    <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                      {isCorrect === true ? 'Jawaban Hebat!' : isCorrect === false ? 'Ayo Coba Lagi!' : 'Temukan Bukti!'}
+                    </b>
+                    <p className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9] leading-snug mt-0.5">
+                      {isCorrect === true
+                        ? 'Analisis kalimatmu sangat tepat dan membuktikan jawaban.'
+                        : isCorrect === false
+                        ? 'Teliti kembali kalimat pendukung di dalam teks bacaan.'
+                        : 'Tarik stabilo pada kalimat yang menjadi bukti jawaban.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tujuan Pembelajaran Card */}
+                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
+                  <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mb-3">
+                    Tujuan Pembelajaran
+                  </h4>
+                  <ul className="space-y-2 text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#22c55e] font-black">✓</span>
+                      <span>Mengidentifikasi gagasan pokok paragraf.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#22c55e] font-black">✓</span>
+                      <span>Menemukan kalimat bukti pendukung.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#22c55e] font-black">✓</span>
+                      <span>Menyimpulkan isi bacaan secara kritis.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Petunjuk Latihan Card */}
+                <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
+                  <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mb-2 flex items-center gap-1.5">
+                    <HelpCircle size={16} className="text-[#1cb0f6]" />
+                    <span>Petunjuk Latihan</span>
+                  </h4>
+                  <p className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9] leading-relaxed">
+                    Siswa tidak perlu mengetik. Cukup sorot (stabilo) kalimat bukti langsung pada teks bacaan, lalu klik Periksa Jawaban.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         ) : null}
@@ -380,42 +498,41 @@ export default function StudentLessonPage() {
 
       {/* Sticky Bottom Action Bar */}
       <footer
-        className={`fixed bottom-0 left-0 right-0 z-40 border-t-2 transition-all duration-200 px-4 py-4 sm:px-8 ${
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t transition-all duration-200 px-4 py-4 sm:px-8 ${
           isCorrect === true
-            ? 'bg-[#e5f5eb] border-[#c0e6ce]'
+            ? 'bg-[#e6f7ec] border-[#bbf7d0]'
             : isCorrect === false
-            ? 'bg-[#fdedeb] border-[#fad2cd]'
-            : 'bg-white border-[#e7e2d8]'
+            ? 'bg-[#fef2f2] border-[#fecaca]'
+            : 'bg-white/95 dark:bg-[#182332]/95 backdrop-blur-md border-[#e5edf7] dark:border-[#24354a]'
         }`}
       >
-        <div className="mx-auto max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Feedback message */}
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {isCorrect === true ? (
-              <div className="flex items-center gap-2.5 text-[#215934]">
-                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-sm">
-                  <CheckCircle2 size={24} className="text-[#8bcfa4]" />
+              <div className="flex items-center gap-2.5 text-[#14532d]">
+                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-xs">
+                  <CheckCircle2 size={24} className="text-[#22c55e]" />
                 </div>
                 <div>
-                  <span className="text-sm sm:text-base font-black block">Jawaban Tepat!</span>
-                  <span className="text-xs font-bold text-[#215934]/80">Bukti bacaanmu sangat akurat.</span>
+                  <span className="text-sm font-black block">Jawaban Tepat!</span>
+                  <span className="text-xs font-bold text-[#14532d]/80">Bukti kalimatmu akurat.</span>
                 </div>
               </div>
             ) : isCorrect === false ? (
-              <div className="flex items-center gap-2.5 text-[#913430]">
-                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-sm">
-                  <X size={24} className="text-[#f5a39d]" />
+              <div className="flex items-center gap-2.5 text-[#7f1d1d]">
+                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center font-black shadow-xs">
+                  <X size={24} className="text-[#ef4444]" />
                 </div>
                 <div>
-                  <span className="text-sm sm:text-base font-black block">Coba Lagi!</span>
-                  <span className="text-xs font-bold text-[#913430]/80">{feedback || 'Sorot kembali bagian bukti teks.'}</span>
+                  <span className="text-sm font-black block">Belum Tepat!</span>
+                  <span className="text-xs font-bold text-[#7f1d1d]/80">{feedback || 'Sorot kalimat bukti yang lebih sesuai.'}</span>
                 </div>
               </div>
             ) : (
-              <div className="text-xs sm:text-sm font-bold text-slate-500">
+              <div className="text-xs sm:text-sm font-bold text-[#5a7394]">
                 {selection
-                  ? 'Siap memeriksa! Klik tombol di samping kanan.'
-                  : 'Sorot kalimat dengan mouse atau sentuh layar untuk memilih jawaban.'}
+                  ? 'Kalimat siap diperiksa! Klik tombol di samping kanan.'
+                  : 'Sorot kalimat bukti pada bacaan untuk menjawab soal.'}
               </div>
             )}
           </div>
@@ -426,10 +543,10 @@ export default function StudentLessonPage() {
               <button
                 onClick={() => void check()}
                 disabled={busy || !selection}
-                className={`w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-sm transition-all ${
+                className={`w-full sm:w-auto px-8 py-3 rounded-2xl font-black text-sm transition-all ${
                   selection
-                    ? 'btn-3d-pastel'
-                    : 'bg-[#e7e2d8] text-slate-400 border-b-4 border-[#d5cec2] cursor-not-allowed'
+                    ? 'bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white shadow-xs active:scale-95'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
                 }`}
               >
                 {busy ? 'Memeriksa...' : 'Periksa Jawaban'}
@@ -437,7 +554,7 @@ export default function StudentLessonPage() {
             ) : index < 4 ? (
               <button
                 onClick={next}
-                className="w-full sm:w-auto btn-3d-pastel px-8 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all"
               >
                 <span>Soal Berikutnya</span>
                 <ArrowRight size={18} />
@@ -446,7 +563,7 @@ export default function StudentLessonPage() {
               <button
                 onClick={() => void submit()}
                 disabled={busy || submitted}
-                className="w-full sm:w-auto btn-3d-amber px-8 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#ff9600] hover:bg-[#e07800] text-white font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all"
               >
                 <span>Kirim Hasil Latihan</span>
                 <Send size={16} />
@@ -456,62 +573,35 @@ export default function StudentLessonPage() {
         </div>
       </footer>
 
-      {/* Motivational Celebration Modal on Level Completion */}
+      {/* Completion Modal */}
       {submitted && finalScore && (
-        <div className="fixed inset-0 z-50 bg-[#2c3848]/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="card-duo p-6 sm:p-8 bg-white max-w-lg w-full text-center animate-pop border-2 border-[#e7e2d8] shadow-2xl my-6">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Mascot mood="happy" size={90} />
-              <div className="w-16 h-16 rounded-2xl bg-amber-100 border-b-4 border-amber-300 flex items-center justify-center text-amber-600 shadow-sm">
-                <Trophy size={36} className="animate-bounce" />
-              </div>
+        <div className="fixed inset-0 z-50 bg-[#1e3a5f]/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="card-temukata p-6 sm:p-8 bg-white dark:bg-[#182332] max-w-md w-full text-center space-y-5 animate-pop">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#ebf3fe] flex items-center justify-center text-4xl shadow-xs">
+              🎉
             </div>
 
-            <span className="px-3 py-1 rounded-full bg-[#edf5fc] text-[#4a6b8c] text-xs font-black uppercase tracking-wider">
-              Level Selesai! 🎉
-            </span>
-
-            <h2 className="mt-3 text-2xl sm:text-3xl font-black text-[#2c3848]">
-              Pencapaian Hebat!
-            </h2>
-
-            {/* Motivational Quotes Box */}
-            <div className="mt-4 p-4 rounded-2xl bg-[#faf8f4] border-2 border-[#e7e2d8] text-left relative overflow-hidden">
-              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#92b4d2] mb-1">
-                <Sparkles size={13} className="text-[#92b4d2]" />
-                <span>Kata Motivasi Hari Ini · {motivationalQuote.tag}</span>
-              </div>
-              <p className="text-xs sm:text-sm font-extrabold text-[#2c3848] italic leading-relaxed">
-                "{motivationalQuote.quote}"
+            <div>
+              <h2 className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
+                Latihan Selesai!
+              </h2>
+              <p className="text-xs font-semibold text-[#5a7394] mt-1">
+                Kamu telah menyelesaikan 5 soal pemahaman teks.
               </p>
-              <span className="block mt-1 text-[11px] font-black text-[#92b4d2] text-right">
-                — {motivationalQuote.author}
-              </span>
             </div>
 
-            {/* Reward Box: 5 Diamonds + Score */}
-            <div className="my-5 grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-2xl bg-[#edf5fc] border-2 border-[#d3e5f5] flex flex-col items-center">
-                <span className="text-[10px] font-black uppercase text-[#4a6b8c] tracking-wider">
-                  Hadiah Level
-                </span>
-                <strong className="text-xl sm:text-2xl font-black text-[#1cb0f6] flex items-center gap-1.5 mt-0.5">
-                  <img src="/gem-diamond.svg" alt="Permata" className="w-6 h-6 object-contain inline-block" draggable={false} />
-                  +5
-                </strong>
-                <span className="text-[10px] font-bold text-slate-500 mt-0.5">Permata Didapatkan!</span>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-[#e5f5eb] border-2 border-[#c0e6ce] flex flex-col items-center">
-                <span className="text-[10px] font-black uppercase text-[#215934] tracking-wider">
-                  Skor Akurasi
-                </span>
-                <strong className="text-xl sm:text-2xl font-black text-[#215934] mt-0.5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-4 rounded-2xl bg-[#ebf3fe] border border-[#dcebfa]">
+                <span className="text-[10px] font-black uppercase text-[#1cb0f6]">Skor Akurasi</span>
+                <span className="text-2xl font-black text-[#1e3a5f] block mt-0.5">
                   {finalScore.score} / {finalScore.total}
-                </strong>
-                <span className="text-[10px] font-bold text-[#215934]/80 mt-0.5 flex items-center gap-1.5">
-                  <StreakFlame active={true} size={20} />
-                  Streak Menyala!
+                </span>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#e6f7ec] border border-[#bbf7d0]">
+                <span className="text-[10px] font-black uppercase text-[#22c55e]">Hadiah Poin</span>
+                <span className="text-2xl font-black text-[#22c55e] flex items-center justify-center gap-1 mt-0.5">
+                  <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
+                  +5
                 </span>
               </div>
             </div>
@@ -521,9 +611,9 @@ export default function StudentLessonPage() {
                 sound.playPop();
                 navigate('/student');
               }}
-              className="w-full btn-3d-pastel py-3.5 rounded-2xl font-black text-sm shadow-sm"
+              className="w-full py-3.5 rounded-2xl bg-[#1cb0f6] text-white font-black text-sm shadow-xs hover:bg-[#0fa0eb] active:scale-95 transition-all"
             >
-              Kembali ke Peta Petualangan
+              Kembali ke Beranda
             </button>
           </div>
         </div>

@@ -1,4 +1,87 @@
-import type { UserProgress } from '../types';
+import type { StoreItem, UserProgress } from '../types';
+
+export const STORE_ITEMS: StoreItem[] = [
+  {
+    id: 'ice-dream',
+    name: 'Ice Dream',
+    category: 'border',
+    price: 15,
+    description: 'Bingkai kristal es lembut dengan mutiara salju.',
+    rarity: 'Biasa',
+    previewColor: '#8DB4D8',
+    svgType: 'ice-dream',
+  },
+  {
+    id: 'flower-garden',
+    name: 'Flower Garden',
+    category: 'border',
+    price: 20,
+    description: 'Rangkaian bunga sakura musim semi yang mekar ceria.',
+    rarity: 'Langka',
+    previewColor: '#F5B9C4',
+    svgType: 'flower-garden',
+  },
+  {
+    id: 'midnight-blue',
+    name: 'Midnight Blue',
+    category: 'border',
+    price: 25,
+    description: 'Pesona langit malam berbintang emas nan menawan.',
+    rarity: 'Langka',
+    previewColor: '#304D70',
+    svgType: 'midnight-blue',
+  },
+  {
+    id: 'golden-star',
+    name: 'Golden Star',
+    category: 'border',
+    price: 35,
+    description: 'Kilauan bintang emas berkilau untuk pembaca hebat.',
+    rarity: 'Epik',
+    previewColor: '#FFE8A8',
+    svgType: 'golden-star',
+  },
+  {
+    id: 'aurora-night',
+    name: 'Aurora Night',
+    category: 'border',
+    price: 40,
+    description: 'Pendaran cahaya aurora ungu yang misterius dan anggun.',
+    rarity: 'Epik',
+    previewColor: '#B088F9',
+    svgType: 'aurora-night',
+  },
+  {
+    id: 'cherry-blossom',
+    name: 'Cherry Blossom',
+    category: 'border',
+    price: 45,
+    description: 'Kelopak bunga sakura lembut beraroma manis.',
+    rarity: 'Epik',
+    previewColor: '#FF94B8',
+    svgType: 'cherry-blossom',
+  },
+  {
+    id: 'moonlight',
+    name: 'Moonlight',
+    category: 'border',
+    price: 50,
+    description: 'Sinar rembulan perak dengan mutiara bercahaya lembut.',
+    rarity: 'Legendaris',
+    previewColor: '#7090C0',
+    svgType: 'moonlight',
+  },
+  {
+    id: 'ocean-pulse',
+    name: 'Ocean Pulse',
+    category: 'border',
+    price: 50,
+    description: 'Deburan ombak samudra biru berhias kerang mutiara.',
+    rarity: 'Legendaris',
+    previewColor: '#38BDF8',
+    svgType: 'ocean-pulse',
+  },
+];
 
 export const MOTIVATIONAL_QUOTES = [
   {
@@ -42,13 +125,15 @@ function getTodayString(): string {
 
 function getDefaultProgress(): UserProgress {
   return {
-    diamonds: 0,
+    diamonds: 45,
     streak: {
       count: 0,
       lastActiveDate: '',
       weeklyHistory: [false, false, false, false, false, false, false],
       freezeCount: 1,
     },
+    equippedBorder: 'ice-dream',
+    inventory: ['ice-dream'],
   };
 }
 
@@ -58,6 +143,17 @@ export function getUserProgress(): UserProgress {
     if (raw) {
       const parsed = JSON.parse(raw) as UserProgress;
       if (parsed?.streak) {
+        // Ensure inventory and equippedBorder are set
+        if (!parsed.inventory || parsed.inventory.length === 0) {
+          parsed.inventory = ['ice-dream'];
+        }
+        if (!parsed.equippedBorder) {
+          parsed.equippedBorder = 'ice-dream';
+        }
+        if (typeof parsed.diamonds !== 'number' || parsed.diamonds < 45) {
+          parsed.diamonds = 45;
+        }
+
         // Auto-migrate legacy 3-day demo dummy data to authentic 0-day start
         if (
           parsed.streak.count === 3 &&
@@ -68,7 +164,6 @@ export function getUserProgress(): UserProgress {
           parsed.streak.count = 0;
           parsed.streak.lastActiveDate = '';
           parsed.streak.weeklyHistory = [false, false, false, false, false, false, false];
-          parsed.diamonds = 0;
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
           } catch {}
@@ -154,4 +249,26 @@ export function recordDailyLessonCompletion(): { currentStreak: number; isFirstT
 
 export function getRandomQuote() {
   return MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+}
+
+export function buyStoreItem(item: StoreItem): { success: boolean; message: string } {
+  const current = getUserProgress();
+  if (current.inventory?.includes(item.id)) {
+    return { success: false, message: 'Item ini sudah kamu miliki!' };
+  }
+  if ((current.diamonds || 0) < item.price) {
+    return { success: false, message: 'Permata tidak cukup! Selesaikan modul membaca untuk menambah permata.' };
+  }
+  current.diamonds = (current.diamonds || 0) - item.price;
+  if (!current.inventory) current.inventory = [];
+  current.inventory.push(item.id);
+  current.equippedBorder = item.id;
+  saveUserProgress(current);
+  return { success: true, message: `Berhasil membeli dan memakai border ${item.name}! ✨` };
+}
+
+export function equipBorder(borderId: string): void {
+  const current = getUserProgress();
+  current.equippedBorder = borderId;
+  saveUserProgress(current);
 }

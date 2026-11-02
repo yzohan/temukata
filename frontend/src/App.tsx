@@ -30,6 +30,8 @@ export default function App() {
       <Route element={<RequireRole role="student" />}>
         <Route path="/student" element={<StudentDashboard tab="beranda" />} />
         <Route path="/student/materi" element={<StudentDashboard tab="materi" />} />
+        <Route path="/student/toko" element={<StudentDashboard tab="toko" />} />
+        <Route path="/student/koleksi" element={<StudentDashboard tab="koleksi" />} />
         <Route path="/student/progres" element={<StudentDashboard tab="progres" />} />
         <Route path="/student/akun" element={<StudentDashboard tab="akun" />} />
         <Route path="/student/lessons/:id" element={<StudentLessonPage />} />

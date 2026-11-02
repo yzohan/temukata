@@ -7,6 +7,7 @@ import {
   LogOut,
   Moon,
   Plus,
+  ShoppingBag,
   Sun,
   User,
   Users,
@@ -17,6 +18,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import StreakModal from './StreakModal';
 import StreakFlame, { isStreakActiveToday } from './StreakFlame';
 import { MascotIcon } from './Mascot';
+import AvatarFrame from './AvatarFrame';
 import { useAuth } from '../auth/AuthProvider';
 import { getUserProgress, subscribeProgress } from '../lib/gamification';
 import { sound } from '../lib/sounds';
@@ -74,6 +76,7 @@ export default function AppShell({
   const studentNav = [
     { to: '/student', label: 'Beranda', icon: <Home size={20} strokeWidth={2.2} />, end: true },
     { to: '/student/materi', label: 'Materi', icon: <BookOpen size={20} strokeWidth={2.2} /> },
+    { to: '/student/toko', label: 'Toko', icon: <ShoppingBag size={20} strokeWidth={2.2} />, badge: 'Baru' },
     { to: '/student/progres', label: 'Progres', icon: <BarChart2 size={20} strokeWidth={2.2} /> },
     { to: '/student/akun', label: 'Akun', icon: <User size={20} strokeWidth={2.2} /> },
   ];
@@ -187,9 +190,13 @@ export default function AppShell({
                 <NavLink
                   to={teacher ? '/teacher' : '/student/akun'}
                   title={profile?.display_name || 'Akun'}
-                  className="w-9 h-9 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] border border-[#dcebfa] dark:border-[#2b415e] text-[#2f4f7f] dark:text-[#9bc2f2] font-black text-sm flex items-center justify-center shadow-xs select-none hover:scale-105 active:scale-95 transition-transform"
+                  className="hover:scale-105 active:scale-95 transition-transform"
                 >
-                  {(profile?.display_name || 'U').slice(0, 1).toUpperCase()}
+                  <AvatarFrame
+                    borderId={progress.equippedBorder || 'ice-dream'}
+                    size={38}
+                    initial={(profile?.display_name || 'U').slice(0, 1).toUpperCase()}
+                  />
                 </NavLink>
 
                 {teacher && (
@@ -223,16 +230,23 @@ export default function AppShell({
                   key={item.to}
                   to={item.to}
                   onClick={() => sound.playPop()}
-                  className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
                     active
                       ? 'bg-[#e8f2ff] dark:bg-[#1e2e42] text-[#2f4f7f] dark:text-[#a5c7f2] font-black'
                       : 'text-[#5a7394] dark:text-slate-400 hover:bg-[#f7f9fd] dark:hover:bg-[#1c293c] hover:text-[#2f4f7f]'
                   }`}
                 >
-                  <span className={active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-[#8fa6c1] dark:text-slate-500'}>
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-3.5">
+                    <span className={active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-[#8fa6c1] dark:text-slate-500'}>
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                  {'badge' in item && (item as any).badge && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] font-black text-[10px] uppercase tracking-wider">
+                      {(item as any).badge}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}

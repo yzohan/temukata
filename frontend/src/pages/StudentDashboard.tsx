@@ -1,32 +1,41 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
-  Award,
   BookOpen,
   Check,
   CheckCircle2,
   ChevronRight,
   Clock,
   Feather,
+  HelpCircle,
   Layers,
   Lock,
   LogOut,
+  Palette,
   Play,
   Search,
-  Shield,
+  Settings,
+  ShoppingBag,
+  Sparkles,
   Volume2,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppShell from '../components/AppShell';
 import StreakFlame from '../components/StreakFlame';
+import AvatarFrame from '../components/AvatarFrame';
 import { useAuth } from '../auth/AuthProvider';
 import { api } from '../lib/api';
 import { sound } from '../lib/sounds';
-import { getUserProgress } from '../lib/gamification';
+import {
+  STORE_ITEMS,
+  buyStoreItem,
+  equipBorder,
+  getUserProgress,
+} from '../lib/gamification';
 import type { Lesson, StudentAttempt } from '../types';
 
 interface StudentDashboardProps {
-  tab?: 'beranda' | 'materi' | 'progres' | 'akun';
+  tab?: 'beranda' | 'materi' | 'toko' | 'koleksi' | 'progres' | 'akun';
 }
 
 export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardProps) {
@@ -36,9 +45,17 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [attempts, setAttempts] = useState<StudentAttempt[]>([]);
   const [, setLoading] = useState(true);
+
+  // Local tab sub-states
   const [materiSubTab, setMateriSubTab] = useState<'peta' | 'daftar'>('peta');
+  const [storeCategory, setStoreCategory] = useState<'Semua' | 'Border' | 'Lencana' | 'Latar Profil'>('Semua');
+  const [koleksiCategory, setKoleksiCategory] = useState<'Border' | 'Lencana' | 'Latar Profil'>('Border');
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
+
+  // Preview border in Koleksi
+  const [previewBorder, setPreviewBorder] = useState<string>('ice-dream');
+  const [purchaseFeedback, setPurchaseFeedback] = useState<string>('');
 
   const progress = getUserProgress();
 
@@ -57,6 +74,12 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
       }
     } catch {}
   }, [session]);
+
+  useEffect(() => {
+    if (progress.equippedBorder) {
+      setPreviewBorder(progress.equippedBorder);
+    }
+  }, [progress.equippedBorder]);
 
   // Derived user statistics
   const completedLessonIds = useMemo(() => {
@@ -77,7 +100,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
     return nextUncompleted || lessons[0] || null;
   }, [lessons, completedLessonIds]);
 
-  const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'];
   const todayDayIndex = (new Date().getDay() + 6) % 7;
 
   // Level Progression Data
@@ -133,11 +156,35 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
     });
   }, [lessons, selectedCategory, search]);
 
+  // Handle Buy Store Item
+  function handleBuy(item: (typeof STORE_ITEMS)[0]) {
+    sound.playPop();
+    const res = buyStoreItem(item);
+    setPurchaseFeedback(res.message);
+    setTimeout(() => setPurchaseFeedback(''), 4000);
+  }
+
+  // Handle Equip Border
+  function handleEquip(borderId: string) {
+    sound.playPop();
+    equipBorder(borderId);
+    setPurchaseFeedback('Berhasil memakai border baru pada profilmu! ✨');
+    setTimeout(() => setPurchaseFeedback(''), 4000);
+  }
+
   return (
     <AppShell mode="student">
       <div className="space-y-6">
+        {/* Floating Notification Toast */}
+        {purchaseFeedback && (
+          <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-white dark:bg-[#182332] border-2 border-[#1cb0f6] shadow-xl text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] animate-pop flex items-center gap-2.5">
+            <Sparkles size={18} className="text-[#1cb0f6]" />
+            <span>{purchaseFeedback}</span>
+          </div>
+        )}
+
         {/* ======================================================== */}
-        {/* A. HALAMAN BERANDA */}
+        {/* PAGE 01: BERANDA */}
         {/* ======================================================== */}
         {tab === 'beranda' && (
           <div className="space-y-6 animate-fade-in">
@@ -146,7 +193,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="max-w-lg text-center sm:text-left">
                   <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight leading-tight">
-                    Halo, {profile?.display_name || 'mikael'}! <span className="inline-block">🌸</span>
+                    Halo, {profile?.display_name || 'Nathania'}! <span className="inline-block">🌸</span>
                   </h1>
                   <p className="mt-2 text-sm sm:text-base font-semibold text-[#5a7394] dark:text-[#a0b8d6] leading-relaxed">
                     Yuk, lanjutkan petualangan membacamu hari ini!
@@ -266,7 +313,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
 
                   {/* Right: Weekday Checkmarks */}
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                    {daysOfWeek.slice(0, 5).map((day, idx) => {
+                    {daysOfWeek.map((day, idx) => {
                       const isActive = progress.streak.weeklyHistory?.[idx] || (idx < 4 && progress.streak.count >= 4);
                       const isToday = idx === todayDayIndex;
 
@@ -300,7 +347,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               </div>
             </div>
 
-            {/* Grid Row 2: Materi Hari Ini & Jelajahi Materi Lain */}
+            {/* Grid Row 2: Materi Hari Ini & Shortcut Toko TemuKata */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Materi Hari Ini */}
               <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
@@ -353,55 +400,84 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 )}
               </div>
 
-              {/* Jelajahi Materi Lain (4 Categories Grid) */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                    Jelajahi Materi Lain
-                  </h3>
+              {/* Shortcut Toko TemuKata Banner */}
+              <div
+                onClick={() => navigate('/student/toko')}
+                className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a] flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-[#fff8ed] dark:bg-[#272118] border border-[#fde8cb] dark:border-[#3b3223] flex items-center justify-center shrink-0 text-3xl">
+                    🏪
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                        Toko TemuKata
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] font-black text-[10px] uppercase">
+                        Baru
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                      Temukan border dan hiasan avatar baru untuk profilmu!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="w-10 h-10 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] flex items-center justify-center text-[#1cb0f6] shrink-0">
+                  <ArrowRight size={18} />
+                </div>
+              </div>
+            </div>
+
+            {/* Jelajahi Materi Lain (4 Categories Grid) */}
+            <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  Jelajahi Materi Lain
+                </h3>
+                <button
+                  onClick={() => {
+                    setMateriSubTab('daftar');
+                    navigate('/student/materi');
+                  }}
+                  className="text-xs font-bold text-[#1cb0f6] hover:underline inline-flex items-center gap-1"
+                >
+                  Lihat Semua <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#1cb0f6]" /> },
+                  { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#1cb0f6]" /> },
+                  { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#1cb0f6]" /> },
+                  { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#1cb0f6]" /> },
+                ].map(cat => (
                   <button
+                    key={cat.label}
                     onClick={() => {
+                      sound.playPop();
                       setMateriSubTab('daftar');
                       navigate('/student/materi');
                     }}
-                    className="text-xs font-bold text-[#1cb0f6] hover:underline inline-flex items-center gap-1"
+                    className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] hover:border-[#b9d7ef] hover:bg-[#eef5fc] dark:hover:bg-[#1b2737] flex flex-col items-center justify-center text-center transition-all group"
                   >
-                    Lihat Semua <ArrowRight size={13} />
+                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1e2e42] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
+                      {cat.icon}
+                    </div>
+                    <span className="text-xs font-extrabold text-[#1e3a5f] dark:text-[#e8f2ff] leading-tight">
+                      {cat.label}
+                    </span>
                   </button>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#1cb0f6]" /> },
-                    { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#1cb0f6]" /> },
-                    { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#1cb0f6]" /> },
-                    { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#1cb0f6]" /> },
-                  ].map(cat => (
-                    <button
-                      key={cat.label}
-                      onClick={() => {
-                        sound.playPop();
-                        setMateriSubTab('daftar');
-                        navigate('/student/materi');
-                      }}
-                      className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] hover:border-[#b9d7ef] hover:bg-[#eef5fc] dark:hover:bg-[#1b2737] flex flex-col items-center justify-center text-center transition-all group"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1e2e42] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
-                        {cat.icon}
-                      </div>
-                      <span className="text-xs font-extrabold text-[#1e3a5f] dark:text-[#e8f2ff] leading-tight">
-                        {cat.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* B. HALAMAN MATERI (PETA LITERASI & DAFTAR BACAAN) */}
+        {/* PAGE 02: MATERI / PETA LITERASI */}
         {/* ======================================================== */}
         {tab === 'materi' && (
           <div className="space-y-6 animate-fade-in">
@@ -465,7 +541,6 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                       Perjalananmu menjadi pembaca hebat!
                     </p>
                   </div>
-                  {/* Cute Wooden Signpost Icon */}
                   <div className="w-12 h-12 rounded-2xl bg-[#ebf3fe] dark:bg-[#1f2d3d] flex items-center justify-center text-xl shrink-0">
                     🪵
                   </div>
@@ -649,145 +724,404 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* C. HALAMAN PROGRES (STATISTIK BELAJAR) */}
+        {/* PAGE 04: TOKO TEMUKATA */}
         {/* ======================================================== */}
-        {tab === 'progres' && (
+        {tab === 'toko' && (
           <div className="space-y-6 animate-fade-in">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                Progres Belajar
-              </h1>
-              <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                Pantau perkembangan kemampuan membaca dan pemahaman teksmu.
-              </p>
-            </div>
-
-            {/* 4 Metric Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                <div className="w-10 h-10 rounded-xl bg-[#e6f7ec] text-[#22c55e] flex items-center justify-center mb-3">
-                  <CheckCircle2 size={20} />
+            {/* Header Banner */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                    Toko TemuKata
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] text-[10px] font-black uppercase">
+                    Kosmetik
+                  </span>
                 </div>
-                <span className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
-                  {completedCount}
-                </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">Materi Selesai</span>
+                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                  Gunakan poinmu untuk membeli border dan hiasan avatar favoritmu!
+                </p>
               </div>
 
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                <div className="w-10 h-10 rounded-xl bg-[#e8f2ff] text-[#1cb0f6] flex items-center justify-center mb-3">
-                  <Award size={20} />
-                </div>
-                <span className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
-                  92%
-                </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">Akurasi Jawaban</span>
-              </div>
-
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                <div className="w-10 h-10 rounded-xl bg-[#f0f5fc] text-[#3b82f6] flex items-center justify-center mb-3">
-                  <Search size={20} />
-                </div>
-                <span className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
-                  48
-                </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">Kalimat Bukti</span>
-              </div>
-
-              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a]">
-                <div className="w-10 h-10 rounded-xl bg-[#fff8ed] text-amber-500 flex items-center justify-center mb-3">
-                  <StreakFlame active={progress.streak.count > 0} size={24} />
-                </div>
-                <span className="text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
-                  {progress.streak.count} Hari
-                </span>
-                <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">Streak Membaca</span>
+              {/* Diamonds Balance Pill */}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-[#1f2d3d] border border-[#dcebfa] dark:border-[#2b3e56] shadow-xs shrink-0">
+                <span className="text-xs font-bold text-slate-400">Poin Kamu:</span>
+                <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
+                <span className="font-black text-base text-[#1cb0f6]">{progress.diamonds}</span>
               </div>
             </div>
 
-            {/* Riwayat Aktivitas & Pencapaian */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Riwayat Aktivitas */}
-              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mb-4">
-                  Riwayat Aktivitas
-                </h3>
+            {/* Category Filter Chips */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {(['Semua', 'Border', 'Lencana', 'Latar Profil'] as const).map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    sound.playPop();
+                    setStoreCategory(cat);
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+                    storeCategory === cat
+                      ? 'bg-[#1cb0f6] text-white shadow-xs'
+                      : 'bg-white dark:bg-[#182332] border border-[#e5edf7] dark:border-[#24354a] text-[#5a7394] hover:bg-[#e8f2ff]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-                <div className="space-y-3">
-                  {attempts.slice(0, 4).map((att, i) => (
-                    <div
-                      key={att.id || i}
-                      className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center text-xs font-black text-[#1cb0f6]">
-                          ✓
-                        </div>
-                        <div>
-                          <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] line-clamp-1">
-                            {att.lessons?.title || 'Latihan Membaca Pemahaman'}
-                          </b>
-                          <span className="text-[10px] font-semibold text-slate-400">
-                            {new Date(att.submitted_at).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </span>
-                        </div>
-                      </div>
+            {/* Store Products Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {STORE_ITEMS.map(item => {
+                const isOwned = progress.inventory?.includes(item.id);
+                const isEquipped = progress.equippedBorder === item.id;
+                const canAfford = progress.diamonds >= item.price;
 
-                      <div className="text-right shrink-0">
-                        <span className="text-xs font-black text-[#48bb78]">
-                          {att.score} / {att.total}
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-400 block">Skor</span>
-                      </div>
+                return (
+                  <div
+                    key={item.id}
+                    className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center justify-between gap-3 group hover:border-[#b9d7ef]"
+                  >
+                    {/* Item Avatar Frame Preview */}
+                    <div className="w-24 h-24 flex items-center justify-center p-2 rounded-2xl bg-[#fbfdff] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a]">
+                      <AvatarFrame borderId={item.id} size={76} />
                     </div>
-                  ))}
 
-                  {attempts.length === 0 && (
-                    <p className="text-xs font-semibold text-slate-400 py-4 text-center">
-                      Belum ada riwayat pengerjaan. Yuk mulai membaca!
-                    </p>
+                    <div className="w-full">
+                      <span className="text-[10px] font-bold text-[#8fa6c1] uppercase tracking-wider block">
+                        {item.rarity}
+                      </span>
+                      <h4 className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] mt-0.5">
+                        {item.name}
+                      </h4>
+                      <p className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9] line-clamp-1 mt-0.5">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    {/* Price & Action Button */}
+                    <div className="w-full pt-2 border-t border-[#f0f4f9] dark:border-[#24354a] flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-[#1cb0f6]">
+                        <img src="/gem-diamond.svg" alt="Gem" className="w-4 h-4 object-contain" />
+                        <span>{item.price}</span>
+                      </div>
+
+                      {isOwned ? (
+                        isEquipped ? (
+                          <span className="w-full py-2 rounded-xl bg-[#e6f7ec] text-[#22c55e] text-xs font-black">
+                            Dipakai ✓
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleEquip(item.id)}
+                            className="w-full py-2 rounded-xl bg-[#e8f2ff] hover:bg-[#1cb0f6] text-[#2f4f7f] hover:text-white text-xs font-black transition-all"
+                          >
+                            Pakai
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          disabled={!canAfford}
+                          onClick={() => handleBuy(item)}
+                          className={`w-full py-2 rounded-xl text-xs font-black transition-all ${
+                            canAfford
+                              ? 'bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white shadow-xs active:scale-95'
+                              : 'bg-slate-100 dark:bg-[#202d3d] text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {canAfford ? 'Beli' : 'Poin Kurang'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* PAGE 05: KOLEKSI / INVENTORY */}
+        {/* ======================================================== */}
+        {tab === 'koleksi' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  Koleksi Saya
+                </h1>
+                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
+                  Semua border dan hiasan avatar yang sudah kamu miliki.
+                </p>
+              </div>
+
+              <button
+                onClick={() => navigate('/student/toko')}
+                className="px-4 py-2 rounded-xl bg-[#1cb0f6] text-white font-black text-xs hover:bg-[#0fa0eb] transition-all flex items-center gap-1.5 shadow-xs"
+              >
+                <ShoppingBag size={14} />
+                <span>Buka Toko</span>
+              </button>
+            </div>
+
+            {/* Layout 2 Columns: Live Preview on Left + Grid on Right */}
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6 items-start">
+              {/* Left Column: Live Profile Preview Card */}
+              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center">
+                <span className="text-[10px] font-black uppercase text-[#8fa6c1] tracking-wider mb-4">
+                  Pratinjau Profil
+                </span>
+
+                <div className="my-3 p-4 rounded-3xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-center">
+                  <AvatarFrame borderId={previewBorder} size={130} />
+                </div>
+
+                <h3 className="font-black text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mt-2">
+                  {profile?.display_name || 'Nathania'}
+                </h3>
+                <span className="text-xs font-bold text-[#5a7394] dark:text-[#9bb7d9]">
+                  Level 3: Pembaca Aktif
+                </span>
+
+                <div className="w-full mt-6 pt-4 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                  {progress.equippedBorder === previewBorder ? (
+                    <div className="w-full py-2.5 rounded-xl bg-[#e6f7ec] text-[#22c55e] font-black text-xs">
+                      Sedang Digunakan ✓
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleEquip(previewBorder)}
+                      className="w-full py-2.5 rounded-xl bg-[#1cb0f6] hover:bg-[#0fa0eb] text-white font-black text-xs shadow-xs active:scale-95 transition-all"
+                    >
+                      Atur di Profil
+                    </button>
                   )}
                 </div>
               </div>
 
-              {/* Koleksi Pencapaian */}
+              {/* Right Column: Inventory Items Grid */}
+              <div className="space-y-4">
+                {/* Category tabs */}
+                <div className="p-1 rounded-2xl bg-[#e8f2ff] dark:bg-[#192636] border border-[#dcebfa] dark:border-[#26374a] inline-flex items-center gap-1">
+                  {(['Border', 'Lencana', 'Latar Profil'] as const).map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        sound.playPop();
+                        setKoleksiCategory(cat);
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                        koleksiCategory === cat
+                          ? 'bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] shadow-xs'
+                          : 'text-[#5a7394] hover:text-[#1e3a5f]'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Grid of Items */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {STORE_ITEMS.map(item => {
+                    const isOwned = progress.inventory?.includes(item.id);
+                    const isEquipped = progress.equippedBorder === item.id;
+                    const isSelectedPreview = previewBorder === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (isOwned) {
+                            sound.playPop();
+                            setPreviewBorder(item.id);
+                          }
+                        }}
+                        className={`card-temukata p-4 dark:bg-[#182332] dark:border-[#24354a] flex flex-col items-center text-center justify-between gap-3 transition-all ${
+                          isOwned
+                            ? 'cursor-pointer hover:border-[#1cb0f6]'
+                            : 'opacity-50 cursor-not-allowed'
+                        } ${isSelectedPreview ? 'ring-2 ring-[#1cb0f6] bg-[#f5faff] dark:bg-[#162334]' : ''}`}
+                      >
+                        <div className="w-20 h-20 flex items-center justify-center p-1 rounded-2xl bg-[#fbfdff] dark:bg-[#151f2b] relative">
+                          <AvatarFrame borderId={item.id} size={64} />
+                          {!isOwned && (
+                            <div className="absolute inset-0 bg-slate-900/30 rounded-2xl flex items-center justify-center text-white">
+                              <Lock size={18} />
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="font-black text-xs sm:text-sm text-[#1e3a5f] dark:text-[#e8f2ff]">
+                            {item.name}
+                          </h4>
+                          <span className="text-[10px] font-bold text-slate-400">
+                            {isOwned ? (isEquipped ? 'Digunakan' : 'Dimiliki') : 'Terkunci'}
+                          </span>
+                        </div>
+
+                        <div className="w-full pt-2 border-t border-[#f0f4f9] dark:border-[#24354a]">
+                          {isOwned ? (
+                            isEquipped ? (
+                              <span className="inline-block px-3 py-1 rounded-lg bg-[#e6f7ec] text-[#22c55e] text-[10px] font-black">
+                                Aktif
+                              </span>
+                            ) : (
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleEquip(item.id);
+                                }}
+                                className="w-full py-1.5 rounded-lg bg-[#e8f2ff] hover:bg-[#1cb0f6] text-[#2f4f7f] hover:text-white text-[11px] font-black transition-all"
+                              >
+                                Pakai
+                              </button>
+                            )
+                          ) : (
+                            <Link
+                              to="/student/toko"
+                              onClick={e => e.stopPropagation()}
+                              className="text-[11px] font-bold text-[#1cb0f6] hover:underline"
+                            >
+                              Beli di Toko
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* PAGE 06: PROGRES BELAJAR & STATISTIK */}
+        {/* ======================================================== */}
+        {tab === 'progres' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header with Penguin Writing */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] flex items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  Progres Belajar
+                </h1>
+                <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
+                  Lihat perkembangan petualangan membacamu di sini!
+                </p>
+              </div>
+
+              <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center shrink-0 text-3xl shadow-xs">
+                📝
+              </div>
+            </div>
+
+            {/* 4 Metric Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
+                <span className="text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
+                  {completedCount}
+                </span>
+                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Materi Selesai</span>
+              </div>
+
+              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
+                <span className="text-3xl font-black text-[#1cb0f6] block leading-none">
+                  85%
+                </span>
+                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Akurasi Jawaban</span>
+              </div>
+
+              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
+                <span className="text-3xl font-black text-[#9333ea] block leading-none">
+                  26
+                </span>
+                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Kalimat Bukti</span>
+              </div>
+
+              <div className="card-temukata p-5 dark:bg-[#182332] dark:border-[#24354a] text-center">
+                <span className="text-3xl font-black text-[#ff9600] block leading-none">
+                  {progress.streak.count} Hari
+                </span>
+                <span className="text-xs font-bold text-[#8fa6c1] mt-1.5 block">Streak Membaca</span>
+              </div>
+            </div>
+
+            {/* 2-Column: Weekly Activity Chart + Achievements */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Weekly Activity Bar Chart */}
               <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mb-4">
-                  Koleksi Pencapaian
+                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] mb-1">
+                  Grafik Aktivitas
                 </h3>
+                <span className="text-xs font-semibold text-[#8fa6c1] block mb-6">
+                  Aktivitas membaca 7 hari terakhir
+                </span>
+
+                <div className="h-44 flex items-end justify-between gap-3 px-2 pt-6 pb-2 border-b border-[#e5edf7] dark:border-[#24354a]">
+                  {[
+                    { day: 'Sen', height: '65%' },
+                    { day: 'Sel', height: '40%' },
+                    { day: 'Rab', height: '80%' },
+                    { day: 'Kam', height: '95%' },
+                    { day: 'Jum', height: '70%' },
+                    { day: 'Sab', height: '30%' },
+                    { day: 'Min', height: '85%' },
+                  ].map((bar, i) => (
+                    <div key={bar.day} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                      <div
+                        style={{ height: bar.height }}
+                        className={`w-full max-w-[28px] rounded-t-xl transition-all duration-500 ${
+                          i === 3
+                            ? 'bg-[#1cb0f6] shadow-sm'
+                            : 'bg-[#dcebfa] dark:bg-[#202f42] hover:bg-[#b9d7ef]'
+                        }`}
+                      />
+                      <span className="text-[11px] font-bold text-[#8fa6c1]">{bar.day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pencapaian / Achievements List */}
+              <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff]">
+                    Pencapaian
+                  </h3>
+                  <span className="text-xs font-bold text-[#1cb0f6]">Lihat Semua &gt;</span>
+                </div>
 
                 <div className="space-y-3">
                   {[
-                    { title: 'Pembaca Rajin', desc: 'Jaga streak membaca 3 hari berturut-turut.', icon: '🔥', done: progress.streak.count >= 3 },
-                    { title: 'Detektif Kalimat Bukti', desc: 'Temukan bukti teks dengan akurasi 100%.', icon: '🔍', done: true },
-                    { title: 'Penjelajah Bahasa', desc: 'Selesaikan 5 materi bacaan berbeda.', icon: '📚', done: completedCount >= 5 },
-                    { title: 'Master Kuis Literasi', desc: 'Raih skor sempurna pada level aktif.', icon: '⭐', done: false },
+                    { title: 'Pembaca Konsisten', desc: 'Membaca 3 hari berturut-turut.', icon: '🔥', done: true },
+                    { title: 'Penjelajah Materi', desc: 'Menyelesaikan 10 materi bacaan.', icon: '📚', done: completedCount >= 10 },
+                    { title: 'Analis Cermat', desc: 'Akurasi jawaban di atas 80%.', icon: '⭐', done: true },
                   ].map(ach => (
                     <div
                       key={ach.title}
-                      className={`p-3.5 rounded-2xl border flex items-center gap-3.5 transition-all ${
-                        ach.done
-                          ? 'bg-[#ebf3fe] dark:bg-[#172535] border-[#dcebfa] dark:border-[#273c54]'
-                          : 'bg-[#fafbfc] dark:bg-[#141d27] border-[#e5edf7] dark:border-[#24354a] opacity-60'
-                      }`}
+                      className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-between gap-3"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center text-xl shrink-0 shadow-2xs">
-                        {ach.icon}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center text-xl shrink-0 shadow-2xs">
+                          {ach.icon}
+                        </div>
+                        <div>
+                          <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                            {ach.title}
+                          </b>
+                          <span className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                            {ach.desc}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <b className="text-xs font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
-                          {ach.title}
-                        </b>
-                        <span className="text-[11px] font-semibold text-[#5a7394] dark:text-[#9bb7d9] line-clamp-1">
-                          {ach.desc}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-black uppercase text-[#1cb0f6]">
-                        {ach.done ? 'Terbuka' : 'Terkunci'}
-                      </span>
+
+                      <span className="text-xs font-black text-[#22c55e]">✓ Selesai</span>
                     </div>
                   ))}
                 </div>
@@ -797,28 +1131,23 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         )}
 
         {/* ======================================================== */}
-        {/* D. HALAMAN AKUN (PROFIL & PENGATURAN) */}
+        {/* PAGE 07: PROFIL / AKUN */}
         {/* ======================================================== */}
         {tab === 'akun' && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                Akun Saya
+                Profil Saya
               </h1>
               <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                Kelola profil dan preferensi belajarmu di TemuKata.
+                Kelola profil, hiasan avatar, dan preferensimu di TemuKata.
               </p>
             </div>
 
-            {/* Profile Card */}
+            {/* Profile Card with Equipped Border */}
             <div className="card-temukata p-6 sm:p-8 dark:bg-[#182332] dark:border-[#24354a] text-center sm:text-left flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-24 h-24 rounded-3xl bg-[#ebf3fe] dark:bg-[#1f2d3d] border-2 border-[#dcebfa] dark:border-[#273c54] flex items-center justify-center shrink-0 shadow-xs relative">
-                <img
-                  src="/temukata-penguin.svg"
-                  alt="Avatar Penguin"
-                  className="w-18 h-18 object-contain pointer-events-none select-none"
-                  draggable={false}
-                />
+              <div className="p-2 rounded-3xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] flex items-center justify-center shrink-0 shadow-xs">
+                <AvatarFrame borderId={progress.equippedBorder || 'ice-dream'} size={96} />
               </div>
 
               <div className="flex-1">
@@ -826,62 +1155,112 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                   Level 3: Pembaca Aktif
                 </span>
                 <h2 className="text-xl sm:text-2xl font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
-                  {profile?.display_name || 'Mikael Siswa'}
+                  {profile?.display_name || 'Nathania'}
                 </h2>
                 <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
-                  {user?.email || 'mikael@temukata.id'}
+                  {user?.email || 'nathania@temukata.id'}
                 </p>
 
                 {/* Mini Stats Row */}
                 <div className="mt-4 pt-4 border-t border-[#f0f4f9] dark:border-[#24354a] flex items-center justify-center sm:justify-start gap-6 text-center">
-                  <div>
-                    <span className="text-base font-black text-[#1cb0f6] block">{progress.diamonds}</span>
-                    <span className="text-[10px] font-bold text-slate-400">Permata</span>
+                  <div className="flex items-center gap-1.5">
+                    <img src="/gem-diamond.svg" alt="Gem" className="w-5 h-5 object-contain" />
+                    <span className="text-base font-black text-[#1cb0f6]">{progress.diamonds} Poin</span>
                   </div>
-                  <div>
-                    <span className="text-base font-black text-[#ff9600] block">{progress.streak.count} Hari</span>
-                    <span className="text-[10px] font-bold text-slate-400">Streak</span>
+                  <div className="flex items-center gap-1.5">
+                    <BookOpen size={17} className="text-[#3b82f6]" />
+                    <span className="text-base font-black text-[#1e3a5f] dark:text-[#e8f2ff]">{completedCount} Materi</span>
                   </div>
-                  <div>
-                    <span className="text-base font-black text-[#48bb78] block">{completedCount}</span>
-                    <span className="text-[10px] font-bold text-slate-400">Materi</span>
+                  <div className="flex items-center gap-1.5">
+                    <StreakFlame active={progress.streak.count > 0} size={20} />
+                    <span className="text-base font-black text-[#ff9600]">{progress.streak.count} Streak</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Pengaturan & Logout */}
-            <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a] space-y-3">
-              <h3 className="font-black text-sm uppercase tracking-wider text-slate-400 mb-2">
-                Pengaturan
-              </h3>
+            {/* Menu List */}
+            <div className="card-temukata p-4 dark:bg-[#182332] dark:border-[#24354a] space-y-1.5">
+              <button
+                type="button"
+                onClick={() => navigate('/student/koleksi')}
+                className="w-full p-4 rounded-2xl hover:bg-[#f7f9fd] dark:hover:bg-[#151f2b] transition-all flex items-center justify-between text-left group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-[#ebf3fe] text-[#1cb0f6] flex items-center justify-center">
+                    <Palette size={20} />
+                  </div>
+                  <div>
+                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                      Koleksi Saya
+                    </b>
+                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                      Lihat border dan hiasan avatar yang kamu miliki
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight size={18} className="text-slate-400 group-hover:text-[#1cb0f6]" />
+              </button>
 
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a]">
-                <div className="flex items-center gap-3">
-                  <Volume2 size={18} className="text-[#1cb0f6]" />
-                  <span className="text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
-                    Efek Suara Interaktif
-                  </span>
+              <button
+                type="button"
+                onClick={() => navigate('/student/toko')}
+                className="w-full p-4 rounded-2xl hover:bg-[#f7f9fd] dark:hover:bg-[#151f2b] transition-all flex items-center justify-between text-left group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-[#fff8ed] text-amber-500 flex items-center justify-center">
+                    <ShoppingBag size={20} />
+                  </div>
+                  <div>
+                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                      Toko TemuKata
+                    </b>
+                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                      Beli border dan kosmetik avatar baru dengan poin
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight size={18} className="text-slate-400 group-hover:text-[#1cb0f6]" />
+              </button>
+
+              <div className="w-full p-4 rounded-2xl flex items-center justify-between text-left">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-[#f0f5fc] text-[#3b82f6] flex items-center justify-center">
+                    <Settings size={20} />
+                  </div>
+                  <div>
+                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                      Pengaturan Akun
+                    </b>
+                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                      Atur preferensi suara dan profil belajar
+                    </span>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => sound.toggle()}
-                  className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#202f42] border border-[#dcebfa] dark:border-[#2b415e] text-xs font-black text-[#2f4f7f] dark:text-[#a5c7f2] hover:bg-[#e8f2ff] transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#1e2e42] border border-[#e5edf7] text-xs font-black text-[#2f4f7f]"
                 >
-                  Ubah
+                  <Volume2 size={16} />
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a]">
-                <div className="flex items-center gap-3">
-                  <Shield size={18} className="text-[#48bb78]" />
-                  <span className="text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff]">
-                    Perlindungan Streak (Streak Freeze)
-                  </span>
+              <div className="w-full p-4 rounded-2xl flex items-center justify-between text-left">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-[#e6f7ec] text-[#22c55e] flex items-center justify-center">
+                    <HelpCircle size={20} />
+                  </div>
+                  <div>
+                    <b className="text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] block">
+                      Bantuan & Panduan
+                    </b>
+                    <span className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
+                      Pusat bantuan dan panduan membaca literasi
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs font-black text-[#48bb78]">
-                  {progress.streak.freezeCount}x Aktif
-                </span>
+                <ChevronRight size={18} className="text-slate-400" />
               </div>
 
               <button
@@ -890,10 +1269,22 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                   sound.playPop();
                   void signOut();
                 }}
-                className="w-full mt-4 p-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all active:scale-95"
+                className="w-full p-4 rounded-2xl hover:bg-rose-50 text-rose-600 transition-all flex items-center justify-between text-left group"
               >
-                <LogOut size={16} />
-                <span>Keluar dari Akun</span>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-rose-100/70 text-rose-600 flex items-center justify-center">
+                    <LogOut size={20} />
+                  </div>
+                  <div>
+                    <b className="text-sm font-black text-rose-600 block">
+                      Keluar
+                    </b>
+                    <span className="text-xs font-semibold text-rose-400">
+                      Keluar dari akun TemuKata
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight size={18} className="text-rose-400" />
               </button>
             </div>
           </div>
