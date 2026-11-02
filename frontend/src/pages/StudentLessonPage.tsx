@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Mascot from '../components/Mascot';
+import StreakFlame from '../components/StreakFlame';
 import { useAuth } from '../auth/AuthProvider';
 import { api } from '../lib/api';
 import { sound } from '../lib/sounds';
@@ -508,8 +509,8 @@ export default function StudentLessonPage() {
                 <strong className="text-xl sm:text-2xl font-black text-[#215934] mt-0.5">
                   {finalScore.score} / {finalScore.total}
                 </strong>
-                <span className="text-[10px] font-bold text-[#215934]/80 mt-0.5 flex items-center gap-1">
-                  <img src="/streak-active.png" alt="Streak" className="w-3.5 h-3.5 object-contain" />
+                <span className="text-[10px] font-bold text-[#215934]/80 mt-0.5 flex items-center gap-1.5">
+                  <StreakFlame active={true} size={15} />
                   Streak Menyala!
                 </span>
               </div>

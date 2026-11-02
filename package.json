@@ -1,0 +1,11 @@
+{
+  "name": "temukata-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TemuKata - Gamified Reading Comprehension Platform",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && npm run dev"
+  }
+}

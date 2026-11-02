@@ -40,19 +40,13 @@ function getTodayString(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getYesterdayString(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
 function getDefaultProgress(): UserProgress {
   return {
-    diamonds: 25,
+    diamonds: 0,
     streak: {
-      count: 3,
-      lastActiveDate: getYesterdayString(),
-      weeklyHistory: [true, true, false, false, false, false, false],
+      count: 0,
+      lastActiveDate: '',
+      weeklyHistory: [false, false, false, false, false, false, false],
       freezeCount: 1,
     },
   };
@@ -60,10 +54,27 @@ function getDefaultProgress(): UserProgress {
 
 export function getUserProgress(): UserProgress {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('eduvista_user_progress');
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as UserProgress;
-      return parsed;
+      if (parsed?.streak) {
+        // Auto-migrate legacy 3-day demo dummy data to authentic 0-day start
+        if (
+          parsed.streak.count === 3 &&
+          parsed.streak.weeklyHistory?.[0] === true &&
+          parsed.streak.weeklyHistory?.[1] === true &&
+          parsed.streak.weeklyHistory?.[2] === false
+        ) {
+          parsed.streak.count = 0;
+          parsed.streak.lastActiveDate = '';
+          parsed.streak.weeklyHistory = [false, false, false, false, false, false, false];
+          parsed.diamonds = 0;
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          } catch {}
+        }
+        return parsed;
+      }
     }
   } catch {}
 

@@ -91,9 +91,6 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
               <span className="text-lg md:text-xl font-black tracking-tight text-[#2c3848] block leading-none">
                 TemuKata
               </span>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#92b4d2] block mt-0.5">
-                Reading Lab ✨
-              </span>
             </div>
           </NavLink>
 
