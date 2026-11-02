@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
-  Award,
+  BarChart2,
   BookOpen,
+  Home,
   LayoutDashboard,
   LogOut,
-  MapPin,
   Moon,
   Plus,
   Sun,
+  User,
   Users,
   Volume2,
   VolumeX,
@@ -21,7 +22,13 @@ import { getUserProgress, subscribeProgress } from '../lib/gamification';
 import { sound } from '../lib/sounds';
 import type { ReactNode } from 'react';
 
-export default function AppShell({ mode, children }: { mode: 'student' | 'teacher'; children: ReactNode }) {
+export default function AppShell({
+  mode,
+  children,
+}: {
+  mode: 'student' | 'teacher';
+  children: ReactNode;
+}) {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const teacher = mode === 'teacher';
@@ -59,111 +66,109 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
   }
 
   const teacherNav = [
-    { to: '/teacher', label: 'Dashboard Admin', icon: <LayoutDashboard size={20} />, end: true },
-    { to: '/teacher/lessons/new', label: 'Buat Bacaan & Soal', icon: <Plus size={20} /> },
-    { to: '/teacher/results', label: 'Nilai & Evaluasi Murid', icon: <Users size={20} /> },
+    { to: '/teacher', label: 'Dashboard Admin', icon: <LayoutDashboard size={20} strokeWidth={2.2} />, end: true },
+    { to: '/teacher/lessons/new', label: 'Buat Bacaan & Soal', icon: <Plus size={20} strokeWidth={2.2} /> },
+    { to: '/teacher/results', label: 'Nilai & Evaluasi Murid', icon: <Users size={20} strokeWidth={2.2} /> },
   ];
 
   const studentNav = [
-    { to: '/student', label: 'Peta Belajar', icon: <MapPin size={20} />, end: true },
-    { to: '/student?tab=library', label: 'Daftar Bacaan', icon: <BookOpen size={20} /> },
-    { to: '/student?tab=leaderboard', label: 'Papan Juara', icon: <Award size={20} /> },
+    { to: '/student', label: 'Beranda', icon: <Home size={20} strokeWidth={2.2} />, end: true },
+    { to: '/student/materi', label: 'Materi', icon: <BookOpen size={20} strokeWidth={2.2} /> },
+    { to: '/student/progres', label: 'Progres', icon: <BarChart2 size={20} strokeWidth={2.2} /> },
+    { to: '/student/akun', label: 'Akun', icon: <User size={20} strokeWidth={2.2} /> },
   ];
 
   const nav = teacher ? teacherNav : studentNav;
 
+  // Active check helper
+  function isItemActive(itemTo: string, isEnd?: boolean) {
+    if (isEnd) {
+      return location.pathname === itemTo && !location.search;
+    }
+    return location.pathname.startsWith(itemTo);
+  }
+
   return (
-    <div className="min-h-screen bg-[#f6f3ed] flex flex-col pb-20 md:pb-6 text-[#2c3848]">
-      {/* Top Navbar in Warm Cream & Pastel Blue Accent */}
-      <header className="sticky top-0 z-40 bg-[#fdfcf9]/95 backdrop-blur-md border-b-2 border-[#e7e2d8] px-4 py-2.5 sm:px-6">
-        <div className="mx-auto max-w-7xl flex items-center justify-between gap-3">
-          {/* Logo & Kawaii Pastel Mascot */}
+    <div className="min-h-screen bg-[#f7f9fd] dark:bg-[#131b26] flex flex-col pb-24 md:pb-8 text-[#2f4f7f] dark:text-[#d3e3f8] antialiased">
+      {/* Top Header Bar */}
+      <header className="sticky top-0 z-40 bg-[#f7f9fd]/90 dark:bg-[#131b26]/90 backdrop-blur-md border-b border-[#e5edf7] dark:border-[#223044] px-4 py-3 sm:px-8">
+        <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
+          {/* Logo on Mobile or Teacher (On desktop, sidebar also has it) */}
           <NavLink
             to={teacher ? '/teacher' : '/student'}
             onClick={() => sound.playPop()}
             className="flex items-center gap-2.5 group select-none"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white border-2 border-[#e7e2d8] overflow-hidden flex items-center justify-center shadow-sm transition-transform group-hover:scale-105 group-active:scale-95">
-              <MascotIcon size={42} />
+            <div className="w-10 h-10 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] border border-[#dcebfa] dark:border-[#2b415e] overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 group-active:scale-95">
+              <MascotIcon size={34} />
             </div>
             <div>
-              <span className="text-lg md:text-xl font-black tracking-tight text-[#2c3848] block leading-none">
+              <span className="text-xl font-black tracking-tight text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
                 TemuKata
               </span>
             </div>
           </NavLink>
 
-          {/* Gamified HUD: Streak & Diamonds (Duolingo Style: Clean, Borderless, Aligned) */}
-          {!teacher && (
-            <div className="flex items-center gap-4 sm:gap-6">
-              {/* Streak Tracker Button */}
-              {(() => {
-                const streakActive = isStreakActiveToday(progress.streak);
-                return (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sound.playPop();
-                      setShowStreakModal(true);
-                    }}
-                    title={
-                      streakActive
-                        ? `Streak aktif: ${progress.streak.count} hari berturut-turut!`
-                        : 'Streak belum aktif hari ini (selesaikan 1 bacaan untuk menyalakan api)'
-                    }
-                    className="flex items-center gap-2 p-1 rounded-xl transition-transform hover:opacity-85 active:scale-95 cursor-pointer select-none"
-                  >
-                    <StreakFlame active={streakActive} size={28} />
-                    <span
-                      className={`font-black text-base sm:text-lg leading-none tracking-tight ${
-                        streakActive ? 'text-[#ff9600]' : 'text-slate-400 dark:text-slate-500'
-                      }`}
+          {/* Gamified HUD: Streak, Diamonds, & Theme Toggle */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            {!teacher && (
+              <>
+                {/* Streak Counter Button */}
+                {(() => {
+                  const streakActive = isStreakActiveToday(progress.streak);
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sound.playPop();
+                        setShowStreakModal(true);
+                      }}
+                      title={
+                        streakActive
+                          ? `Streak aktif: ${progress.streak.count} hari berturut-turut!`
+                          : 'Streak belum aktif hari ini (selesaikan 1 bacaan untuk menyalakan api)'
+                      }
+                      className="flex items-center gap-2 p-1 rounded-xl transition-transform hover:opacity-85 active:scale-95 cursor-pointer select-none"
                     >
-                      {progress.streak.count}
-                    </span>
-                  </button>
-                );
-              })()}
+                      <StreakFlame active={streakActive} size={28} />
+                      <span
+                        className={`font-black text-base sm:text-lg leading-none tracking-tight ${
+                          streakActive ? 'text-[#ff9600]' : 'text-slate-400 dark:text-slate-500'
+                        }`}
+                      >
+                        {progress.streak.count}
+                      </span>
+                    </button>
+                  );
+                })()}
 
-              {/* Diamonds Balance */}
-              <div
-                title={`${progress.diamonds} Permata Membaca`}
-                className="flex items-center gap-2 p-1 select-none"
-              >
-                <img
-                  src="/gem-diamond.svg"
-                  alt="Permata"
-                  style={{ width: 28, height: 28 }}
-                  className="object-contain inline-block shrink-0 select-none"
-                  draggable={false}
-                />
-                <span className="font-black text-base sm:text-lg leading-none tracking-tight text-[#1cb0f6]">
-                  {progress.diamonds}
-                </span>
-              </div>
-            </div>
-          )}
+                {/* Diamonds Counter */}
+                <div
+                  title={`${progress.diamonds} Permata Membaca`}
+                  className="flex items-center gap-2 p-1 select-none"
+                >
+                  <img
+                    src="/gem-diamond.svg"
+                    alt="Permata"
+                    style={{ width: 28, height: 28 }}
+                    className="object-contain inline-block shrink-0 select-none"
+                    draggable={false}
+                  />
+                  <span className="font-black text-base sm:text-lg leading-none tracking-tight text-[#1cb0f6]">
+                    {progress.diamonds}
+                  </span>
+                </div>
+              </>
+            )}
 
-          {/* Right Controls: Dark/Light Mode, Sound, & User Avatar */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Dark / Light Mode Toggle Button */}
+            {/* Dark / Light Mode Toggle */}
             <button
               type="button"
               onClick={toggleTheme}
               title={darkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-              className="p-2 sm:px-3 sm:py-2 rounded-2xl border-2 border-[#e7e2d8] bg-white hover:bg-[#faf8f4] text-[#2c3848] transition-transform active:scale-90 flex items-center gap-1.5 text-xs font-bold shadow-sm"
+              className="w-9 h-9 rounded-2xl bg-white dark:bg-[#1a2533] border border-[#e5edf7] dark:border-[#26374d] text-[#2f4f7f] dark:text-[#a5c7f2] shadow-xs hover:bg-[#f0f5fc] dark:hover:bg-[#202f42] transition-transform active:scale-90 flex items-center justify-center"
             >
-              {darkMode ? (
-                <>
-                  <Sun size={17} className="text-amber-400 fill-amber-400" />
-                  <span className="hidden sm:inline">Terang</span>
-                </>
-              ) : (
-                <>
-                  <Moon size={17} className="text-[#92b4d2] fill-[#92b4d2]" />
-                  <span className="hidden sm:inline">Gelap</span>
-                </>
-              )}
+              {darkMode ? <Sun size={17} className="text-amber-400 fill-amber-400" /> : <Moon size={17} className="text-[#2f4f7f] fill-[#2f4f7f]" />}
             </button>
 
             {/* Sound Toggle (Icon) */}
@@ -171,106 +176,66 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
               type="button"
               onClick={toggleSound}
               title={soundOn ? 'Matikan Suara' : 'Aktifkan Suara'}
-              className="p-2 sm:px-2.5 sm:py-2 rounded-2xl border-2 border-[#e7e2d8] bg-white hover:bg-[#faf8f4] text-slate-600 transition-transform active:scale-90 flex items-center gap-1 text-xs font-bold"
+              className="hidden sm:flex w-9 h-9 rounded-2xl bg-white dark:bg-[#1a2533] border border-[#e5edf7] dark:border-[#26374d] text-[#5a7394] dark:text-slate-400 shadow-xs hover:bg-[#f0f5fc] dark:hover:bg-[#202f42] transition-transform active:scale-90 items-center justify-center"
             >
-              {soundOn ? <Volume2 size={17} className="text-[#92b4d2]" /> : <VolumeX size={17} className="text-slate-400" />}
-              <span className="hidden xl:inline">{soundOn ? 'Suara' : 'Mute'}</span>
+              {soundOn ? <Volume2 size={17} className="text-[#2f4f7f] dark:text-[#a5c7f2]" /> : <VolumeX size={17} />}
             </button>
 
-            {/* Chibi User Initial Badge & Logout */}
-            <div className="flex items-center gap-2 pl-2 border-l-2 border-[#e7e2d8]">
-              <div
-                title={profile?.display_name || 'Pengguna'}
-                className="w-9 h-9 rounded-2xl bg-[#edf5fc] border-2 border-[#d3e5f5] text-[#4a6b8c] font-black text-sm flex items-center justify-center shadow-sm select-none"
-              >
-                {(profile?.display_name || 'E').slice(0, 1).toUpperCase()}
-              </div>
+            {/* User Profile Initial (Mobile) / Logout */}
+            {profile && (
+              <div className="flex items-center gap-2 pl-1 sm:pl-2 sm:border-l border-[#e5edf7] dark:border-[#26374d]">
+                <NavLink
+                  to={teacher ? '/teacher' : '/student/akun'}
+                  title={profile?.display_name || 'Akun'}
+                  className="w-9 h-9 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] border border-[#dcebfa] dark:border-[#2b415e] text-[#2f4f7f] dark:text-[#9bc2f2] font-black text-sm flex items-center justify-center shadow-xs select-none hover:scale-105 active:scale-95 transition-transform"
+                >
+                  {(profile?.display_name || 'U').slice(0, 1).toUpperCase()}
+                </NavLink>
 
-              <button
-                type="button"
-                onClick={() => {
-                  sound.playPop();
-                  void signOut();
-                }}
-                title="Keluar"
-                className="p-1.5 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
+                {teacher && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playPop();
+                      void signOut();
+                    }}
+                    title="Keluar"
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 transition-colors"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-6 pt-5 grid md:grid-cols-[250px_minmax(0,1fr)] gap-6 items-start">
-        {/* Left Sidebar (Desktop) */}
-        <aside className="hidden md:flex flex-col gap-4 sticky top-20">
-          {/* Navigation Links */}
-          <div className="card-duo p-3 space-y-1 bg-white">
+      {/* Main Container with Permanent Left Sidebar for Desktop */}
+      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
+        {/* Left Sidebar (Desktop Only) */}
+        <aside className="hidden md:flex flex-col gap-3 sticky top-24">
+          <div className="card-temukata p-3 space-y-1.5 dark:bg-[#182332] dark:border-[#24354a]">
             {nav.map(item => {
-              const active = location.pathname === item.to || (location.pathname + location.search) === item.to;
+              const active = isItemActive(item.to, item.end);
               return (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   onClick={() => sound.playPop()}
-                  className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl font-black text-sm transition-all ${
+                  className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
                     active
-                      ? 'bg-[#edf5fc] text-[#4a6b8c] border-2 border-[#d3e5f5]'
-                      : 'text-slate-600 hover:bg-[#faf8f4] border-2 border-transparent'
+                      ? 'bg-[#e8f2ff] dark:bg-[#1e2e42] text-[#2f4f7f] dark:text-[#a5c7f2] font-black'
+                      : 'text-[#5a7394] dark:text-slate-400 hover:bg-[#f7f9fd] dark:hover:bg-[#1c293c] hover:text-[#2f4f7f]'
                   }`}
                 >
-                  <span className={active ? 'text-[#92b4d2]' : 'text-slate-400'}>{item.icon}</span>
+                  <span className={active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-[#8fa6c1] dark:text-slate-500'}>
+                    {item.icon}
+                  </span>
                   <span>{item.label}</span>
                 </NavLink>
               );
             })}
-          </div>
-
-          {/* Daily Streak Card */}
-          {!teacher && (() => {
-            const streakActive = isStreakActiveToday(progress.streak);
-            return (
-              <div
-                onClick={() => {
-                  sound.playPop();
-                  setShowStreakModal(true);
-                }}
-                className={`card-duo p-4 text-white cursor-pointer transition-transform hover:scale-[1.02] active:scale-95 ${
-                  streakActive
-                    ? 'bg-gradient-to-br from-[#f8be8c] to-[#f5a65b] border-[#db8a3d]'
-                    : 'bg-gradient-to-br from-slate-400 to-slate-500 border-slate-600'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black tracking-widest uppercase text-white/90">
-                    {streakActive ? 'STREAK AKTIF HARI INI 🔥' : 'BELUM AKTIF HARI INI ⏳'}
-                  </span>
-                  <StreakFlame active={streakActive} size={30} />
-                </div>
-                <p className="mt-2 text-sm font-extrabold leading-snug">
-                  {streakActive
-                    ? `${progress.streak.count} Hari Beruntun! Target harian tercapai.`
-                    : progress.streak.count > 0
-                    ? `Pertahankan ${progress.streak.count} hari streakmu! Selesaikan 1 bacaan hari ini.`
-                    : 'Mulai streak pertamamu! Selesaikan 1 bacaan hari ini.'}
-                </p>
-              </div>
-            );
-          })()}
-
-          {/* Calming Aesthetic Reading Principle */}
-          <div className="card-duo p-4 bg-[#fdfcf9] border-[#e7e2d8] text-[#2c3848]">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🌿</span>
-              <span className="text-xs font-black uppercase tracking-wider text-[#92b4d2]">
-                Catatan Membaca
-              </span>
-            </div>
-            <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-500">
-              "Kunci jawaban berada di dalam teks. Luangkan waktu untuk memahami konteks dan menemukan kalimat bukti dengan teliti."
-            </p>
           </div>
         </aside>
 
@@ -278,27 +243,29 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
         <main className="min-w-0 w-full">{children}</main>
       </div>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#fdfcf9]/95 backdrop-blur-lg border-t-2 border-[#e7e2d8] px-3 py-2 flex items-center justify-around shadow-lg">
+      {/* Mobile Bottom Navigation Bar (4 Main Tabs) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#131b26]/95 backdrop-blur-lg border-t border-[#e5edf7] dark:border-[#223044] px-4 py-2 flex items-center justify-around shadow-lg">
         {nav.map(item => {
-          const active = location.pathname === item.to || (location.pathname + location.search) === item.to;
+          const active = isItemActive(item.to, item.end);
           return (
             <NavLink
               key={item.to}
               to={item.to}
               onClick={() => sound.playPop()}
-              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all ${
-                active ? 'text-[#92b4d2] scale-105' : 'text-slate-400 hover:text-slate-600'
+              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-transform active:scale-95 ${
+                active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               <div
-                className={`p-1.5 rounded-xl ${
-                  active ? 'bg-[#edf5fc] border border-[#d3e5f5]' : 'bg-transparent'
+                className={`p-1.5 rounded-xl transition-colors ${
+                  active ? 'bg-[#e8f2ff] dark:bg-[#1e2e42] text-[#2f4f7f] dark:text-[#a5c7f2]' : 'bg-transparent text-slate-400'
                 }`}
               >
                 {item.icon}
               </div>
-              <span className="text-[10px] font-black">{item.label.split(' ')[0]}</span>
+              <span className={`text-[11px] ${active ? 'font-black' : 'font-bold'}`}>
+                {item.label}
+              </span>
             </NavLink>
           );
         })}
