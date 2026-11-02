@@ -114,11 +114,11 @@ export default function AppShell({
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-b border-[#E2EDF8] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
         <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
-          {/* Logo on Mobile or Teacher (On desktop, sidebar also has it) */}
+          {/* Logo on Mobile (On desktop, logo is at top of the clean sidebar) */}
           <NavLink
             to={teacher ? '/teacher' : '/student'}
             onClick={() => sound.playPop()}
-            className="flex items-center gap-2.5 group select-none"
+            className="flex md:hidden items-center gap-2.5 group select-none"
           >
             <div className="w-10 h-10 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E2EDF8] dark:border-[#34475E] overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 group-active:scale-95">
               <MascotIcon size={34} />
@@ -129,9 +129,10 @@ export default function AppShell({
               </span>
             </div>
           </NavLink>
+          <div className="hidden md:block" />
 
           {/* Gamified HUD: Streak, Diamonds, & Theme Toggle */}
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4 ml-auto">
             {!teacher && (
               <>
                 {/* Streak Counter Button */}
@@ -240,56 +241,104 @@ export default function AppShell({
         </div>
       </header>
 
-      {/* Main Container with Permanent Left Sidebar for Desktop */}
-      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
-        {/* Left Sidebar (Desktop Only) */}
-        <aside className="hidden md:flex flex-col gap-3 sticky top-24">
-          <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-3 space-y-1.5 shadow-sm transition-colors duration-250">
-            {nav.map(item => {
-              const active = isItemActive(item.to, item.end);
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => sound.playPop()}
-                  className={`flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
-                    active
-                      ? 'bg-[#E8F2FC] dark:bg-[#21334A] text-[#304D70] dark:text-[#8DBBE8] font-black border border-[#8DB4D8]/30 dark:border-[#8DBBE8]/40 shadow-2xs'
-                      : 'text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#F0F7FD] dark:hover:bg-[#21334A]/50 hover:text-[#304D70] dark:hover:text-[#F0F6FF]'
-                  }`}
-                >
-                  <div className="flex items-center gap-3.5">
-                    <span className={active ? 'text-[#304D70] dark:text-[#8DBBE8]' : 'text-[#8DB4D8] dark:text-[#C0D1E5]'}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
+      {/* Main Container with Permanent Clean Left Sidebar for Desktop */}
+      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[240px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+        {/* Left Sidebar (Desktop Only) - Clean Card as in Reference */}
+        <aside className="hidden md:flex flex-col sticky top-20 w-full shrink-0">
+          <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-3.5 shadow-sm min-h-[560px] h-[calc(100vh-6rem)] flex flex-col justify-between overflow-hidden transition-colors duration-250">
+            {/* Top Section: Logo & Nav items */}
+            <div>
+              {/* Logo TemuKata at top of Sidebar */}
+              <NavLink
+                to={teacher ? '/teacher' : '/student'}
+                onClick={() => sound.playPop()}
+                className="flex items-center gap-2.5 px-2.5 pt-1.5 pb-5 group select-none"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E2EDF8] dark:border-[#34475E] overflow-hidden flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
+                  <MascotIcon size={32} />
+                </div>
+                <span className="text-xl font-black tracking-tight text-[#304D70] dark:text-[#F0F6FF] leading-none">
+                  TemuKata
+                </span>
+              </NavLink>
 
-                  {item.badge ? (
-                    <span className="px-2 py-0.5 rounded-md bg-[#FF8FB1] dark:bg-[#ECAAB9] text-white dark:text-[#111C2B] text-[10px] font-black tracking-wider uppercase animate-pulse">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </NavLink>
-              );
-            })}
-          </div>
+              {/* Navigation Items */}
+              <nav className="space-y-1">
+                {nav.map(item => {
+                  const active = isItemActive(item.to, item.end);
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => sound.playPop()}
+                      className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl font-bold text-sm transition-all select-none ${
+                        active
+                          ? 'bg-[#E8F2FC] dark:bg-[#21334A] text-[#304D70] dark:text-[#8DBBE8] font-black shadow-2xs'
+                          : 'text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#F0F7FD] dark:hover:bg-[#21334A]/50 hover:text-[#304D70] dark:hover:text-[#F0F6FF]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={active ? 'text-[#304D70] dark:text-[#8DBBE8]' : 'text-[#8DB4D8] dark:text-[#C0D1E5]'}>
+                          {item.icon}
+                        </span>
+                        <span>{item.label}</span>
+                      </div>
 
-          {/* Cute Grass & Daisy Flowers decoration at bottom of sidebar */}
-          <div className="relative h-16 rounded-2xl overflow-hidden pointer-events-none select-none flex items-end justify-center opacity-90 dark:opacity-40">
-            <svg viewBox="0 0 200 60" className="w-full h-full object-cover">
-              <path d="M0,60 Q20,35 50,45 Q90,25 130,42 Q170,30 200,55 L200,60 L0,60 Z" fill="#A3E635" />
-              <path d="M-10,60 Q30,45 70,52 Q120,38 160,50 Q185,42 210,60 Z" fill="#84CC16" />
-              {/* Daisy 1 */}
-              <circle cx="45" cy="38" r="4" fill="#FFFFFF" />
-              <circle cx="45" cy="38" r="1.8" fill="#FBBF24" />
-              {/* Daisy 2 */}
-              <circle cx="115" cy="34" r="5" fill="#FFFFFF" />
-              <circle cx="115" cy="34" r="2.2" fill="#FBBF24" />
-              {/* Daisy 3 */}
-              <circle cx="165" cy="40" r="4.5" fill="#FFFFFF" />
-              <circle cx="165" cy="40" r="2" fill="#FBBF24" />
-            </svg>
+                      {item.badge ? (
+                        <span className="px-2 py-0.5 rounded-full bg-[#FF8FB1] dark:bg-[#ECAAB9] text-white dark:text-[#111C2B] text-[10px] font-black tracking-wider">
+                          {item.badge}
+                        </span>
+                      ) : null}
+                    </NavLink>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Bottom Section: Integrated Nature Meadow & Daisies at the bottom of the clean card */}
+            <div className="relative w-full h-28 -mx-3.5 -mb-3.5 pointer-events-none select-none overflow-hidden mt-auto">
+              <svg viewBox="0 0 240 120" className="w-full h-full object-cover">
+                {/* Soft pastel blue rolling hill in background */}
+                <path d="M0,120 Q50,68 120,78 Q190,58 240,86 L240,120 L0,120 Z" fill="#DCEBFA" opacity="0.85" />
+                {/* Front gentle green grass hills */}
+                <path d="M-10,120 Q40,88 100,96 Q160,78 250,106 L250,120 L-10,120 Z" fill="#A7DD76" />
+                <path d="M0,120 Q60,104 130,94 Q190,98 240,118 L240,120 L0,120 Z" fill="#8AC957" />
+
+                {/* Left Daisy with 5 rounded white petals */}
+                <g transform="translate(75, 92)">
+                  {[0, 72, 144, 216, 288].map(deg => {
+                    const rad = (deg * Math.PI) / 180;
+                    return (
+                      <circle
+                        key={deg}
+                        cx={8.5 * Math.cos(rad)}
+                        cy={8.5 * Math.sin(rad)}
+                        r="6.5"
+                        fill="#FFFFFF"
+                      />
+                    );
+                  })}
+                  <circle cx="0" cy="0" r="5.5" fill="#FBBF24" />
+                </g>
+
+                {/* Right Daisy */}
+                <g transform="translate(150, 98)">
+                  {[0, 72, 144, 216, 288].map(deg => {
+                    const rad = (deg * Math.PI) / 180;
+                    return (
+                      <circle
+                        key={deg}
+                        cx={7 * Math.cos(rad)}
+                        cy={7 * Math.sin(rad)}
+                        r="5.5"
+                        fill="#FFFFFF"
+                      />
+                    );
+                  })}
+                  <circle cx="0" cy="0" r="4.5" fill="#FBBF24" />
+                </g>
+              </svg>
+            </div>
           </div>
         </aside>
 
