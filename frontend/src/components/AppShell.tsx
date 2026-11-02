@@ -118,7 +118,7 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
                         : 'border-slate-200 bg-slate-100/90 hover:bg-slate-200/80 text-slate-500'
                     }`}
                   >
-                    <StreakFlame active={streakActive} size={20} />
+                    <StreakFlame active={streakActive} size={26} />
                     <span>{progress.streak.count}</span>
                     <span className="hidden sm:inline text-[11px] font-bold opacity-80">Hari</span>
                   </button>
@@ -240,7 +240,7 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
                   <span className="text-[10px] font-black tracking-widest uppercase text-white/90">
                     {streakActive ? 'STREAK AKTIF HARI INI 🔥' : 'BELUM AKTIF HARI INI ⏳'}
                   </span>
-                  <StreakFlame active={streakActive} size={22} />
+                  <StreakFlame active={streakActive} size={30} />
                 </div>
                 <p className="mt-2 text-sm font-extrabold leading-snug">
                   {streakActive

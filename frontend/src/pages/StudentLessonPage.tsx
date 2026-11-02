@@ -510,7 +510,7 @@ export default function StudentLessonPage() {
                   {finalScore.score} / {finalScore.total}
                 </strong>
                 <span className="text-[10px] font-bold text-[#215934]/80 mt-0.5 flex items-center gap-1.5">
-                  <StreakFlame active={true} size={15} />
+                  <StreakFlame active={true} size={20} />
                   Streak Menyala!
                 </span>
               </div>

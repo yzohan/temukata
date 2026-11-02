@@ -37,8 +37,8 @@ export default function StreakModal({ isOpen, onClose, streak }: StreakModalProp
             <X size={18} />
           </button>
 
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2 shadow-inner">
-            <StreakFlame active={isTodayActive} size={42} />
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 shadow-inner">
+            <StreakFlame active={isTodayActive} size={64} />
           </div>
 
           <h2 className="text-2xl font-black tracking-tight">
@@ -66,7 +66,7 @@ export default function StreakModal({ isOpen, onClose, streak }: StreakModalProp
                 <div key={dayName} className="flex flex-col items-center">
                   <span className="text-[11px] font-black text-slate-400 mb-1.5">{dayName}</span>
                   <div
-                    className={`w-9 h-9 rounded-2xl flex items-center justify-center font-black text-xs transition-all ${
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs transition-all ${
                       isActive
                         ? 'bg-amber-100 border-2 border-amber-300 text-amber-700 shadow-sm'
                         : isToday
@@ -75,9 +75,9 @@ export default function StreakModal({ isOpen, onClose, streak }: StreakModalProp
                     }`}
                   >
                     {isActive ? (
-                      <StreakFlame active={true} size={20} />
+                      <StreakFlame active={true} size={26} />
                     ) : isToday ? (
-                      <StreakFlame active={false} size={20} />
+                      <StreakFlame active={false} size={26} />
                     ) : (
                       '•'
                     )}
