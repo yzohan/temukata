@@ -47,7 +47,8 @@ export default function AppShell({
   const [progress, setProgress] = useState(getUserProgress());
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    return typeof window !== 'undefined' && localStorage.getItem('temukata_theme') === 'dark';
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('temukata_theme') === 'dark';
   });
 
   useEffect(() => {
@@ -67,7 +68,15 @@ export default function AppShell({
 
   function toggleTheme() {
     sound.playPop();
-    setDarkMode(prev => !prev);
+    const next = !darkMode;
+    setDarkMode(next);
+    if (next) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('temukata_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('temukata_theme', 'light');
+    }
   }
 
   function toggleSound() {
@@ -100,9 +109,16 @@ export default function AppShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F7F2] dark:bg-[#111C2B] flex flex-col pb-24 md:pb-8 text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250">
+    <div className="min-h-screen bg-[#EBF4FD] dark:bg-[#111C2B] flex flex-col pb-24 md:pb-8 text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250 relative">
+      {/* Soft Cloud Shapes in Background for Light Mode */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none opacity-80 dark:opacity-0 transition-opacity">
+        <div className="absolute top-12 left-10 w-96 h-36 bg-white/60 rounded-full blur-2xl" />
+        <div className="absolute top-64 right-16 w-80 h-32 bg-white/70 rounded-full blur-2xl" />
+        <div className="absolute bottom-20 left-1/3 w-[520px] h-44 bg-white/50 rounded-full blur-3xl" />
+      </div>
+
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#F8F7F2]/95 dark:bg-[#111C2B]/95 backdrop-blur-md border-b border-[#E4E8ED] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-b border-[#E2EDF8] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
         <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
           {/* Logo on Mobile or Teacher (On desktop, sidebar also has it) */}
           <NavLink
@@ -110,7 +126,7 @@ export default function AppShell({
             onClick={() => sound.playPop()}
             className="flex items-center gap-2.5 group select-none"
           >
-            <div className="w-10 h-10 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 group-active:scale-95">
+            <div className="w-10 h-10 rounded-2xl bg-[#E8F2FC] dark:bg-[#21334A] border border-[#E2EDF8] dark:border-[#34475E] overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 group-active:scale-95">
               <MascotIcon size={34} />
             </div>
             <div>
@@ -121,7 +137,7 @@ export default function AppShell({
           </NavLink>
 
           {/* Gamified HUD: Streak, Diamonds, & Theme Toggle */}
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-2.5 sm:gap-4">
             {!teacher && (
               <>
                 {/* Streak Counter Button */}
@@ -139,11 +155,11 @@ export default function AppShell({
                           ? `Streak aktif: ${progress.streak.count} hari berturut-turut!`
                           : 'Streak belum aktif hari ini (selesaikan 1 bacaan untuk menyalakan api)'
                       }
-                      className="flex items-center gap-2 p-1.5 rounded-xl transition-transform hover:opacity-85 active:scale-95 cursor-pointer select-none"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFF8ED] dark:bg-[#21334A] border border-[#FDE68A] dark:border-[#F8DF9B]/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer select-none"
                     >
-                      <StreakFlame active={streakActive} size={28} />
+                      <StreakFlame active={streakActive} size={22} />
                       <span
-                        className={`font-black text-base sm:text-lg leading-none tracking-tight ${
+                        className={`font-black text-sm sm:text-base leading-none tracking-tight ${
                           streakActive ? 'text-[#ff9600]' : 'text-[#526F92] dark:text-[#C0D1E5]'
                         }`}
                       >
@@ -156,16 +172,16 @@ export default function AppShell({
                 {/* Diamonds Counter */}
                 <div
                   title={`${progress.diamonds} Permata Membaca`}
-                  className="flex items-center gap-2 p-1.5 select-none"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E8F2FC] dark:bg-[#21334A] border border-[#BAE6FD] dark:border-[#8DBBE8]/30 select-none"
                 >
                   <img
                     src="/gem-diamond.svg"
                     alt="Permata"
-                    style={{ width: 28, height: 28 }}
+                    style={{ width: 20, height: 20 }}
                     className="object-contain inline-block shrink-0 select-none"
                     draggable={false}
                   />
-                  <span className="font-black text-base sm:text-lg leading-none tracking-tight text-[#1cb0f6]">
+                  <span className="font-black text-sm sm:text-base leading-none tracking-tight text-[#0284C7] dark:text-[#8DBBE8]">
                     {progress.diamonds}
                   </span>
                 </div>
@@ -177,7 +193,7 @@ export default function AppShell({
               type="button"
               onClick={toggleTheme}
               title={darkMode ? 'Beralih ke Mode Terang (Light Mode)' : 'Beralih ke Mode Gelap (Dark Mode)'}
-              className="w-9 h-9 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] text-[#304D70] dark:text-[#8DBBE8] shadow-xs hover:bg-[#FFF8ED] dark:hover:bg-[#21334A] transition-all active:scale-90 flex items-center justify-center cursor-pointer"
+              className="w-9 h-9 rounded-full bg-[#E8F2FC] dark:bg-[#21334A] border border-[#BAE6FD] dark:border-[#34475E] text-[#304D70] dark:text-[#F8DF9B] shadow-xs hover:scale-105 transition-all active:scale-90 flex items-center justify-center cursor-pointer"
             >
               {darkMode ? (
                 <Sun size={17} className="text-[#F8DF9B] fill-[#F8DF9B] transition-transform duration-200" />
@@ -191,14 +207,14 @@ export default function AppShell({
               type="button"
               onClick={toggleSound}
               title={soundOn ? 'Matikan Suara' : 'Aktifkan Suara'}
-              className="hidden sm:flex w-9 h-9 rounded-2xl bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] text-[#526F92] dark:text-[#C0D1E5] shadow-xs hover:bg-[#FFF8ED] dark:hover:bg-[#21334A] transition-transform active:scale-90 items-center justify-center cursor-pointer"
+              className="hidden sm:flex w-9 h-9 rounded-full bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] text-[#526F92] dark:text-[#C0D1E5] shadow-xs hover:bg-[#FFF8ED] dark:hover:bg-[#21334A] transition-transform active:scale-90 items-center justify-center cursor-pointer"
             >
-              {soundOn ? <Volume2 size={17} className="text-[#304D70] dark:text-[#8DBBE8]" /> : <VolumeX size={17} />}
+              {soundOn ? <Volume2 size={16} className="text-[#304D70] dark:text-[#8DBBE8]" /> : <VolumeX size={16} />}
             </button>
 
             {/* User Profile Avatar with Equipped Border / Logout */}
             {profile && (
-              <div className="flex items-center gap-2 pl-1 sm:pl-2 sm:border-l border-[#E4E8ED] dark:border-[#34475E]">
+              <div className="flex items-center gap-2 pl-1 sm:pl-2 sm:border-l border-[#E2EDF8] dark:border-[#34475E]">
                 <NavLink
                   to={teacher ? '/teacher' : '/student/akun'}
                   title={profile?.display_name || 'Akun'}
@@ -234,7 +250,7 @@ export default function AppShell({
       <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
         {/* Left Sidebar (Desktop Only) */}
         <aside className="hidden md:flex flex-col gap-3 sticky top-24">
-          <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-3 space-y-1.5 shadow-xs transition-colors duration-250">
+          <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-3 space-y-1.5 shadow-sm transition-colors duration-250">
             {nav.map(item => {
               const active = isItemActive(item.to, item.end);
               return (
@@ -245,7 +261,7 @@ export default function AppShell({
                   className={`flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
                     active
                       ? 'bg-[#E8F2FC] dark:bg-[#21334A] text-[#304D70] dark:text-[#8DBBE8] font-black border border-[#8DB4D8]/30 dark:border-[#8DBBE8]/40 shadow-2xs'
-                      : 'text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#F8F7F2] dark:hover:bg-[#21334A]/50 hover:text-[#304D70] dark:hover:text-[#F0F6FF]'
+                      : 'text-[#526F92] dark:text-[#C0D1E5] hover:bg-[#F0F7FD] dark:hover:bg-[#21334A]/50 hover:text-[#304D70] dark:hover:text-[#F0F6FF]'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
@@ -263,6 +279,23 @@ export default function AppShell({
                 </NavLink>
               );
             })}
+          </div>
+
+          {/* Cute Grass & Daisy Flowers decoration at bottom of sidebar */}
+          <div className="relative h-16 rounded-2xl overflow-hidden pointer-events-none select-none flex items-end justify-center opacity-90 dark:opacity-40">
+            <svg viewBox="0 0 200 60" className="w-full h-full object-cover">
+              <path d="M0,60 Q20,35 50,45 Q90,25 130,42 Q170,30 200,55 L200,60 L0,60 Z" fill="#A3E635" />
+              <path d="M-10,60 Q30,45 70,52 Q120,38 160,50 Q185,42 210,60 Z" fill="#84CC16" />
+              {/* Daisy 1 */}
+              <circle cx="45" cy="38" r="4" fill="#FFFFFF" />
+              <circle cx="45" cy="38" r="1.8" fill="#FBBF24" />
+              {/* Daisy 2 */}
+              <circle cx="115" cy="34" r="5" fill="#FFFFFF" />
+              <circle cx="115" cy="34" r="2.2" fill="#FBBF24" />
+              {/* Daisy 3 */}
+              <circle cx="165" cy="40" r="4.5" fill="#FFFFFF" />
+              <circle cx="165" cy="40" r="2" fill="#FBBF24" />
+            </svg>
           </div>
         </aside>
 

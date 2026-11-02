@@ -182,11 +182,11 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         {tab === 'beranda' && (
           <div className="space-y-6 animate-fade-in">
             {/* Hero Section */}
-            <div className="relative rounded-3xl bg-gradient-to-r from-[#E8F2FC] via-[#E2EEFD] to-[#DCEBFA] dark:from-[#263D57] dark:via-[#21334A] dark:to-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] p-6 sm:p-8 overflow-hidden shadow-xs transition-colors duration-250">
+            <div className="relative rounded-3xl bg-white dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] p-6 sm:p-8 overflow-hidden shadow-xs transition-colors duration-250">
               <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="max-w-lg text-center sm:text-left">
                   <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#304D70] dark:text-[#F0F6FF] tracking-tight leading-tight">
-                    Halo, {profile?.display_name || 'mikael'}! <span className="inline-block text-[#FF8FB1] dark:text-[#ECAAB9]">🌸</span>
+                    Halo, {profile?.display_name || 'Nathania'}! <span className="inline-block text-[#FF8FB1] dark:text-[#ECAAB9]">🌸</span>
                   </h1>
                   <p className="mt-2 text-sm sm:text-base font-semibold text-[#526F92] dark:text-[#C0D1E5] leading-relaxed">
                     Yuk, lanjutkan petualangan membacamu hari ini!
@@ -197,17 +197,17 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                       <Link
                         to={`/student/lessons/${activeLesson.id}`}
                         onClick={() => sound.playPop()}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] font-black text-sm shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all border border-[#E4E8ED] dark:border-[#34475E]"
+                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#8DB4D8] hover:bg-[#7ba5cd] dark:bg-[#8DBBE8] dark:hover:bg-[#7ca9d6] text-white dark:text-[#111C2B] font-black text-sm shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all"
                       >
-                        <Play size={16} className="fill-[#8DB4D8] text-[#8DB4D8] dark:fill-[#8DBBE8] dark:text-[#8DBBE8]" />
+                        <Play size={16} className="fill-current ml-0.5" />
                         <span>Baca 1 materi hari ini!</span>
                       </Link>
                     ) : (
                       <button
                         onClick={() => navigate('/student/materi')}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#FFFFFF] dark:bg-[#1C2A3C] text-[#304D70] dark:text-[#F0F6FF] font-black text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all border border-[#E4E8ED] dark:border-[#34475E]"
+                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#8DB4D8] hover:bg-[#7ba5cd] dark:bg-[#8DBBE8] text-white dark:text-[#111C2B] font-black text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
                       >
-                        <Play size={16} className="fill-[#8DB4D8] text-[#8DB4D8] dark:fill-[#8DBBE8] dark:text-[#8DBBE8]" />
+                        <Play size={16} className="fill-current ml-0.5" />
                         <span>Lihat Peta Literasi</span>
                       </button>
                     )}
@@ -340,10 +340,10 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               </div>
             </div>
 
-            {/* Grid Row 2: Materi Hari Ini & Jelajahi Materi Lain */}
+            {/* Grid Row 2: Materi Hari Ini & Toko TemuKata */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Materi Hari Ini */}
-              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
+              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
                 <div className="flex items-center gap-2 mb-4">
                   <BookOpen size={18} className="text-[#8DB4D8] dark:text-[#8DBBE8]" />
                   <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
@@ -352,7 +352,7 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 </div>
 
                 {activeLesson ? (
-                  <div className="rounded-2xl border border-[#E4E8ED] dark:border-[#34475E] bg-[#F8F7F2] dark:bg-[#21334A] p-4 flex items-center justify-between gap-4">
+                  <div className="rounded-2xl border border-[#E2EDF8] dark:border-[#34475E] bg-[#F0F7FD] dark:bg-[#21334A] p-4 flex items-center justify-between gap-4">
                     {/* Scenic Thumbnail Illustration */}
                     <div className="w-20 h-16 sm:w-28 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br from-[#cde4fd] to-[#a7d0fd] relative flex items-center justify-center">
                       <svg viewBox="0 0 100 70" className="w-full h-full object-cover">
@@ -393,48 +393,90 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 )}
               </div>
 
-              {/* Jelajahi Materi Lain (4 Categories Grid) */}
-              <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E4E8ED] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
-                    Jelajahi Materi Lain
-                  </h3>
+              {/* Card Toko TemuKata (As in Reference Slide 1) */}
+              <div
+                onClick={() => {
+                  sound.playPop();
+                  navigate('/student/toko');
+                }}
+                className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-6 shadow-xs hover:border-[#FF8FB1] dark:hover:border-[#ECAAB9] hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <ShoppingBag size={18} className="text-[#FF8FB1] dark:text-[#ECAAB9]" />
+                      <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
+                        Toko TemuKata
+                      </h3>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-[#FF8FB1] dark:bg-[#ECAAB9] text-white dark:text-[#111C2B] text-[10px] font-black uppercase">
+                      Baru
+                    </span>
+                  </div>
+
+                  <div className="rounded-2xl border border-[#FDE68A]/40 dark:border-[#34475E] bg-[#FFF8ED] dark:bg-[#21334A] p-4 flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#1C2A3C] border border-[#FDE68A] dark:border-[#F8DF9B]/30 flex items-center justify-center shrink-0 shadow-xs text-3xl">
+                      🏪
+                    </div>
+                    <div>
+                      <h4 className="font-black text-sm sm:text-base text-[#304D70] dark:text-[#F0F6FF]">
+                        Temukan border dan hiasan avatar baru!
+                      </h4>
+                      <p className="text-xs font-semibold text-[#526F92] dark:text-[#C0D1E5] mt-1">
+                        Koleksi bingkai unik dengan menukarkan permata belajarmu.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between text-xs font-bold text-[#8DB4D8] dark:text-[#8DBBE8]">
+                  <span>Buka Toko Kosmetik</span>
+                  <ChevronRight size={16} />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3: Jelajahi Materi Lain (4 Categories Horizontal Grid) */}
+            <div className="bg-[#FFFFFF] dark:bg-[#1C2A3C] border border-[#E2EDF8] dark:border-[#34475E] rounded-3xl p-6 shadow-xs transition-colors duration-250">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-black text-base sm:text-lg text-[#304D70] dark:text-[#F0F6FF] tracking-tight">
+                  Jelajahi Materi Lain
+                </h3>
+                <button
+                  onClick={() => {
+                    setMateriSubTab('daftar');
+                    navigate('/student/materi');
+                  }}
+                  className="text-xs font-bold text-[#8DB4D8] dark:text-[#8DBBE8] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  Lihat Semua <ArrowRight size={13} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {[
+                  { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                  { label: 'Menemukan Kalimat Bukti', icon: <Search size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                  { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                  { label: 'Menyimpulkan Isi', icon: <Feather size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
+                ].map(cat => (
                   <button
+                    key={cat.label}
                     onClick={() => {
+                      sound.playPop();
                       setMateriSubTab('daftar');
                       navigate('/student/materi');
                     }}
-                    className="text-xs font-bold text-[#8DB4D8] dark:text-[#8DBBE8] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    className="p-4 rounded-2xl bg-[#F0F7FD] dark:bg-[#21334A] border border-[#E2EDF8] dark:border-[#34475E] hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8] hover:-translate-y-0.5 flex flex-col items-center justify-center text-center transition-all group cursor-pointer"
                   >
-                    Lihat Semua <ArrowRight size={13} />
+                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
+                      {cat.icon}
+                    </div>
+                    <span className="text-xs font-black text-[#304D70] dark:text-[#F0F6FF] leading-tight">
+                      {cat.label}
+                    </span>
                   </button>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
-                    { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
-                    { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
-                    { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#8DB4D8] dark:text-[#8DBBE8]" /> },
-                  ].map(cat => (
-                    <button
-                      key={cat.label}
-                      onClick={() => {
-                        sound.playPop();
-                        setMateriSubTab('daftar');
-                        navigate('/student/materi');
-                      }}
-                      className="p-3.5 rounded-2xl bg-[#F8F7F2] dark:bg-[#21334A] border border-[#E4E8ED] dark:border-[#34475E] hover:border-[#8DB4D8] dark:hover:border-[#8DBBE8] flex flex-col items-center justify-center text-center transition-all group cursor-pointer"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1C2A3C] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
-                        {cat.icon}
-                      </div>
-                      <span className="text-xs font-extrabold text-[#304D70] dark:text-[#F0F6FF] leading-tight">
-                        {cat.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>

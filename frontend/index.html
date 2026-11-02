@@ -10,13 +10,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900;1000&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <script>
       try {
-        if (localStorage.getItem('temukata_theme') === 'dark') {
+        var savedTheme = localStorage.getItem('temukata_theme');
+        if (savedTheme === 'dark') {
           document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('temukata_theme', 'light');
         }
       } catch (e) {}
     </script>
   </head>
-  <body class="font-['Nunito',sans-serif] antialiased bg-[#f6f3ed] text-[#2c3848] selection:bg-[#92b4d2] selection:text-white">
+  <body class="font-['Nunito',sans-serif] antialiased bg-[#EBF4FD] dark:bg-[#111C2B] text-[#304D70] dark:text-[#F0F6FF] selection:bg-[#8DB4D8] selection:text-white">
     <div id="root"></div>
     <script type="module" src="./src/main.tsx"></script>
   </body>

@@ -6,9 +6,9 @@
   text-rendering: optimizeLegibility;
 
   /* ======================================================== */
-  /* LIGHT MODE TOKENS (Clean, bright, cozy, dan playful)     */
+  /* LIGHT MODE TOKENS (Ice Blue Sky, Clean, Playful)         */
   /* ======================================================== */
-  --bg-app: #F8F7F2;
+  --bg-app: #EBF4FD;
   --surface-primary: #FFFFFF;
   --surface-secondary: #FFF8ED;
   --surface-hero: #E8F2FC;
@@ -17,10 +17,10 @@
   --color-primary-blue: #8DB4D8;
   --text-main: #304D70;
   --text-secondary: #526F92;
-  --border-main: #E4E8ED;
+  --border-main: #E2EDF8;
   --accent-pink: #FF8FB1;
   --accent-yellow: #F5A65B;
-  --card-shadow: 0 4px 20px -2px rgba(48, 77, 112, 0.07);
+  --card-shadow: 0 4px 20px -2px rgba(48, 77, 112, 0.06);
 }
 
 .dark {

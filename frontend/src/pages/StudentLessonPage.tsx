@@ -262,9 +262,15 @@ export default function StudentLessonPage() {
   const progressPercent = Math.round(((index + (isCorrect !== null ? 1 : 0)) / 5) * 100);
 
   return (
-    <div className="min-h-screen bg-[#F8F7F2] dark:bg-[#111C2B] flex flex-col justify-between text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250">
+    <div className="min-h-screen bg-[#EBF4FD] dark:bg-[#111C2B] flex flex-col justify-between text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250 relative">
+      {/* Soft Cloud Shapes in Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none opacity-70 dark:opacity-0 transition-opacity">
+        <div className="absolute top-10 left-12 w-96 h-36 bg-white/60 rounded-full blur-2xl" />
+        <div className="absolute top-72 right-12 w-80 h-32 bg-white/70 rounded-full blur-2xl" />
+      </div>
+
       {/* Top Header & Breadcrumbs */}
-      <header className="sticky top-0 z-40 bg-[#F8F7F2]/95 dark:bg-[#111C2B]/95 backdrop-blur-md border-b border-[#E4E8ED] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-b border-[#E2EDF8] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">
         <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
           {/* Breadcrumb Navigation */}
           <Link
