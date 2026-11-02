@@ -262,14 +262,7 @@ export default function StudentLessonPage() {
   const progressPercent = Math.round(((index + (isCorrect !== null ? 1 : 0)) / 5) * 100);
 
   return (
-    <div className="min-h-screen bg-[#EBF4FD] dark:bg-[#111C2B] flex flex-col justify-between text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250 relative">
-      {/* Light Mode Scenic Desktop Wallpaper Background */}
-      <div
-        className="fixed inset-0 pointer-events-none -z-10 bg-no-repeat bg-cover bg-bottom opacity-100 dark:opacity-0 transition-opacity duration-300 select-none"
-        style={{ backgroundImage: "url('/bg-desktop-light.png')" }}
-      />
-      {/* Soft overlay wash to ensure text readability */}
-      <div className="fixed inset-0 pointer-events-none -z-10 bg-gradient-to-b from-[#EBF4FD]/75 via-[#EBF4FD]/45 to-transparent dark:hidden select-none" />
+    <div className="min-h-screen bg-transparent dark:bg-[#111C2B] flex flex-col justify-between text-[#304D70] dark:text-[#F0F6FF] antialiased transition-colors duration-250 relative">
 
       {/* Top Header & Breadcrumbs */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1C2A3C]/95 backdrop-blur-md border-b border-[#E2EDF8] dark:border-[#34475E] px-4 py-3 sm:px-8 transition-colors duration-250">

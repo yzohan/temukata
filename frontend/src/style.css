@@ -57,6 +57,15 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+body:not(.dark) {
+  background-color: #EBF4FD !important;
+  background-image: url('/bg-desktop-light.png') !important;
+  background-size: cover !important;
+  background-position: center bottom !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
 /* ======================================================== */
 /* SEMANTIC THEME CARD CLASSES                              */
 /* ======================================================== */
