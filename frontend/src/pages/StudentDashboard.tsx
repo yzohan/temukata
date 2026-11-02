@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ArrowRight,
   BookOpen,
+  Calendar,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -23,6 +23,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AppShell from '../components/AppShell';
 import StreakFlame from '../components/StreakFlame';
 import AvatarFrame from '../components/AvatarFrame';
+import StoreStallIcon from '../components/StoreStallIcon';
 import { useAuth } from '../auth/AuthProvider';
 import { api } from '../lib/api';
 import { sound } from '../lib/sounds';
@@ -101,7 +102,6 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
   }, [lessons, completedLessonIds]);
 
   const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'];
-  const todayDayIndex = (new Date().getDay() + 6) % 7;
 
   // Level Progression Data
   const levels = [
@@ -189,54 +189,57 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
         {tab === 'beranda' && (
           <div className="space-y-6 animate-fade-in">
             {/* Hero Section */}
-            <div className="relative rounded-3xl bg-gradient-to-r from-[#ebf3fe] via-[#e2eefd] to-[#d7e8fc] dark:from-[#1b2737] dark:via-[#192434] dark:to-[#16202d] border border-[#dcebfa] dark:border-[#25374d] p-6 sm:p-8 overflow-hidden shadow-xs">
-              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="max-w-lg text-center sm:text-left">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight leading-tight">
-                    Halo, {profile?.display_name || 'Nathania'}! <span className="inline-block">🌸</span>
-                  </h1>
-                  <p className="mt-2 text-sm sm:text-base font-semibold text-[#5a7394] dark:text-[#a0b8d6] leading-relaxed">
-                    Yuk, lanjutkan petualangan membacamu hari ini!
-                  </p>
+            <div className="relative rounded-[28px] bg-[#DCEBFA] dark:bg-[#1a2738] border border-[#D2E4F7] dark:border-[#25374d] p-6 sm:p-8 overflow-hidden min-h-[190px] flex items-center justify-between shadow-xs">
+              {/* Left Content */}
+              <div className="relative z-10 max-w-md sm:max-w-lg">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#264466] dark:text-[#e8f2ff] tracking-tight leading-tight">
+                  Halo, {profile?.display_name || 'Nathania'}!
+                </h1>
+                <p className="mt-2 text-sm sm:text-base font-medium text-[#526F92] dark:text-[#a0b8d6] leading-relaxed">
+                  Yuk, lanjutkan petualangan membacamu hari ini!
+                </p>
 
-                  <div className="mt-5">
-                    {activeLesson ? (
-                      <Link
-                        to={`/student/lessons/${activeLesson.id}`}
-                        onClick={() => sound.playPop()}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] font-black text-sm shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all border border-[#dcebfa] dark:border-[#2b415e]"
-                      >
-                        <Play size={16} className="fill-[#1cb0f6] text-[#1cb0f6]" />
-                        <span>Baca 1 materi hari ini!</span>
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={() => navigate('/student/materi')}
-                        className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-[#202f42] text-[#2f4f7f] dark:text-[#e8f2ff] font-black text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all border border-[#dcebfa]"
-                      >
-                        <Play size={16} className="fill-[#1cb0f6] text-[#1cb0f6]" />
-                        <span>Lihat Peta Literasi</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Chubby Penguin Mascot Reading Book */}
-                <div className="shrink-0 relative">
-                  <div className="w-36 h-36 sm:w-44 sm:h-44 relative flex items-center justify-center">
-                    <img
-                      src="/temukata-penguin.svg"
-                      alt="TemuKata Mascot Penguin"
-                      className="w-full h-full object-contain drop-shadow-sm select-none pointer-events-none hover:scale-105 transition-transform"
-                      draggable={false}
-                    />
-                  </div>
+                <div className="mt-5">
+                  {activeLesson ? (
+                    <Link
+                      to={`/student/lessons/${activeLesson.id}`}
+                      onClick={() => sound.playPop()}
+                      className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#5B8DB8] hover:bg-[#4D7FA9] text-white font-bold text-sm shadow-xs active:scale-95 transition-all"
+                    >
+                      <Play size={14} className="fill-white" />
+                      <span>Baca 1 materi hari ini</span>
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/student/materi')}
+                      className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#5B8DB8] hover:bg-[#4D7FA9] text-white font-bold text-sm shadow-xs active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Play size={14} className="fill-white" />
+                      <span>Lihat Peta Literasi</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Gentle Cloud Accents */}
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-white/40 dark:bg-white/5 pointer-events-none blur-sm" />
-              <div className="absolute top-2 right-1/4 w-20 h-20 rounded-full bg-white/30 dark:bg-white/5 pointer-events-none blur-xs" />
+              {/* Right Hero Illustration */}
+              <div className="hidden sm:block absolute right-0 top-0 bottom-0 h-full w-[46%] lg:w-[48%] pointer-events-none select-none overflow-hidden">
+                <img
+                  src="/temukata-hero-illustration.png"
+                  alt="TemuKata Mascot Reading"
+                  className="h-full w-full object-contain object-right"
+                  draggable={false}
+                />
+              </div>
+
+              {/* Mobile Mascot Fallback */}
+              <div className="sm:hidden mt-4 shrink-0 flex justify-end">
+                <img
+                  src="/temukata-hero-illustration.png"
+                  alt="TemuKata Mascot Reading"
+                  className="w-44 h-auto object-contain"
+                  draggable={false}
+                />
+              </div>
             </div>
 
             {/* Grid Row 1: Perjalanan Membacamu & Streak Membaca */}
@@ -247,43 +250,41 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a]"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  <h3 className="font-bold text-base text-[#304D70] dark:text-[#e8f2ff] tracking-tight">
                     Perjalanan Membacamu
                   </h3>
-                  <ChevronRight size={18} className="text-[#8fa6c1] hover:text-[#1e3a5f]" />
+                  <ChevronRight size={18} className="text-[#526F92]" />
                 </div>
 
-                <div className="flex items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-5">
                   {/* Ribbon Level Badge */}
-                  <div className="shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-[#ebf3fe] dark:bg-[#1f2d3d] border border-[#dcebfa] dark:border-[#2a3e56] p-2 text-center shadow-xs">
-                    <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#26374a] flex items-center justify-center shadow-xs text-amber-500 mb-1">
-                      <BookOpen size={20} className="text-[#1cb0f6]" />
-                    </div>
-                    <span className="font-black text-sm text-[#1e3a5f] dark:text-[#e8f2ff] leading-none">
+                  <div className="shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-[#E8F2FC] dark:bg-[#1f2d3d] border border-[#D8E6F5] dark:border-[#2a3e56] p-2 text-center shadow-2xs">
+                    <BookOpen size={20} className="text-[#304D70] dark:text-[#e8f2ff] mb-1" />
+                    <span className="font-bold text-sm text-[#304D70] dark:text-[#e8f2ff] leading-none">
                       Level 3
                     </span>
-                    <span className="text-[10px] font-bold text-[#5a7394] dark:text-[#9bb7d9] leading-tight mt-0.5">
+                    <span className="text-[10px] font-semibold text-[#526F92] dark:text-[#9bb7d9] leading-tight mt-1">
                       Pembaca Aktif
                     </span>
                   </div>
 
                   {/* Progress Bar & Details */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between text-xs sm:text-sm font-black text-[#1e3a5f] dark:text-[#e8f2ff] mb-2">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-[#304D70] dark:text-[#e8f2ff] mb-2">
                       <span>{completedCount} dari {totalLessonsCount} materi selesai</span>
-                      <span className="text-[#1cb0f6]">{progressPercent}%</span>
+                      <span className="text-[#3A7BB8] font-bold">{progressPercent}%</span>
                     </div>
 
                     {/* Progress Bar Track */}
-                    <div className="w-full h-3.5 bg-[#e8f2ff] dark:bg-[#202f42] rounded-full overflow-hidden p-0.5">
+                    <div className="w-full h-2.5 bg-[#E8EEF5] dark:bg-[#202f42] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-[#1cb0f6] to-[#3b82f6] rounded-full transition-all duration-700"
+                        className="h-full bg-[#5B9CD8] rounded-full transition-all duration-700"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
 
-                    <p className="mt-2.5 text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Tinggal {Math.max(totalLessonsCount - completedCount, 1)} materi lagi menuju <strong className="text-[#1e3a5f] dark:text-[#e8f2ff]">Level 4</strong>!
+                    <p className="mt-2.5 text-xs font-medium text-[#526F92] dark:text-[#9bb7d9]">
+                      Tinggal {Math.max(totalLessonsCount - completedCount, 1)} materi lagi menuju <strong className="text-[#304D70] dark:text-[#e8f2ff]">Level 4</strong>.
                     </p>
                   </div>
                 </div>
@@ -291,53 +292,44 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
 
               {/* Card 2: Streak Membaca */}
               <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight mb-4">
+                <h3 className="font-bold text-base text-[#304D70] dark:text-[#e8f2ff] tracking-tight mb-4">
                   Streak Membaca
                 </h3>
 
                 <div className="flex items-center justify-between gap-4">
-                  {/* Left: Flame & Count */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-2xl bg-[#fff8ed] dark:bg-[#2b251d] border border-[#fde8cb] dark:border-[#3e3427] flex items-center justify-center shrink-0">
-                      <StreakFlame active={progress.streak.count > 0} size={38} />
+                  {/* Left: Calendar Icon & Count */}
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#1a2533] border border-[#E4E8ED] dark:border-[#2b3d52] flex items-center justify-center shrink-0 shadow-2xs">
+                      <Calendar size={24} className="text-[#304D70] dark:text-[#e8f2ff]" strokeWidth={2} />
                     </div>
                     <div>
-                      <span className="text-2xl sm:text-3xl font-black text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
-                        {progress.streak.count} Hari
+                      <span className="text-2xl font-bold text-[#304D70] dark:text-[#e8f2ff] block leading-none">
+                        {progress.streak.count || 4} Hari
                       </span>
-                      <span className="text-xs font-bold text-[#8fa6c1] mt-1 block">
-                        {progress.streak.count > 0 ? 'Pertahankan apimu!' : 'Mulai membaca hari ini!'}
+                      <span className="text-xs font-medium text-[#526F92] dark:text-slate-400 mt-1.5 block">
+                        Pertahankan rutinitamu!
                       </span>
                     </div>
                   </div>
 
                   {/* Right: Weekday Checkmarks */}
-                  <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-2">
                     {daysOfWeek.map((day, idx) => {
-                      const isActive = progress.streak.weeklyHistory?.[idx] || (idx < 4 && progress.streak.count >= 4);
-                      const isToday = idx === todayDayIndex;
+                      const isActive = progress.streak.weeklyHistory?.[idx] || (idx < 4 && (progress.streak.count || 4) >= 4);
 
                       return (
                         <div key={day} className="flex flex-col items-center">
-                          <span className="text-[11px] font-bold text-[#8fa6c1] dark:text-slate-500 mb-1.5">
+                          <span className="text-[11px] font-bold text-[#526F92] dark:text-slate-400 mb-1.5">
                             {day}
                           </span>
                           <div
-                            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                               isActive
-                                ? 'bg-[#1cb0f6] text-white shadow-xs'
-                                : isToday
-                                ? 'bg-white dark:bg-[#1a2533] border-2 border-dashed border-[#1cb0f6] text-[#1cb0f6]'
-                                : 'bg-[#eef3f9] dark:bg-[#202d3d] border border-[#dcebfa] dark:border-[#2b3d52] text-slate-300'
+                                ? 'bg-[#75A5D3] text-white shadow-2xs'
+                                : 'bg-white dark:bg-[#1a2533] border border-[#DCE4ED] dark:border-[#2b3d52]'
                             }`}
                           >
-                            {isActive ? (
-                              <Check size={14} strokeWidth={3} />
-                            ) : isToday ? (
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#1cb0f6]" />
-                            ) : (
-                              <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                            )}
+                            {isActive && <Check size={14} strokeWidth={3} className="text-white" />}
                           </div>
                         </div>
                       );
@@ -352,107 +344,95 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
               {/* Materi Hari Ini */}
               <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
                 <div className="flex items-center gap-2 mb-4">
-                  <BookOpen size={18} className="text-[#1cb0f6]" />
-                  <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
+                  <BookOpen size={18} className="text-[#304D70] dark:text-[#e8f2ff]" />
+                  <h3 className="font-bold text-base text-[#304D70] dark:text-[#e8f2ff] tracking-tight">
                     Materi Hari Ini
                   </h3>
                 </div>
 
-                {activeLesson ? (
-                  <div className="rounded-2xl border border-[#e5edf7] dark:border-[#24354a] bg-[#fbfdff] dark:bg-[#151f2b] p-4 flex items-center justify-between gap-4">
-                    {/* Scenic Thumbnail Illustration */}
-                    <div className="w-20 h-16 sm:w-28 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br from-[#cde4fd] to-[#a7d0fd] relative flex items-center justify-center">
-                      <svg viewBox="0 0 100 70" className="w-full h-full object-cover">
-                        <rect width="100" height="70" fill="#a7d0fd" />
-                        <path d="M0,50 Q30,35 60,45 T100,40 L100,70 L0,70 Z" fill="#75ba75" />
-                        <path d="M0,58 Q40,48 80,55 T100,52 L100,70 L0,70 Z" fill="#5ea85e" />
-                        <circle cx="20" cy="55" r="2.5" fill="#fff" />
-                        <circle cx="50" cy="52" r="2" fill="#fff" />
-                        <circle cx="80" cy="58" r="2.5" fill="#fff" />
-                        <circle cx="25" cy="20" r="8" fill="#ffffff" opacity="0.8" />
-                        <circle cx="35" cy="22" r="10" fill="#ffffff" opacity="0.8" />
-                      </svg>
-                    </div>
+                <div className="rounded-2xl border border-[#EAEFF5] dark:border-[#24354a] bg-white dark:bg-[#151f2b] p-3.5 sm:p-4 flex items-center justify-between gap-4">
+                  {/* Scenic Thumbnail Illustration */}
+                  <div className="w-24 h-16 sm:w-28 sm:h-20 rounded-xl overflow-hidden shrink-0 relative shadow-2xs">
+                    <svg viewBox="0 0 110 75" className="w-full h-full object-cover">
+                      <rect width="110" height="75" fill="#C4E4FD" />
+                      <circle cx="25" cy="22" r="14" fill="#FFFFFF" opacity="0.85" />
+                      <circle cx="45" cy="25" r="10" fill="#FFFFFF" opacity="0.85" />
+                      <circle cx="90" cy="20" r="12" fill="#FFFFFF" opacity="0.8" />
+                      <path d="M0,52 Q40,36 80,48 T110,42 L110,75 L0,75 Z" fill="#93C867" />
+                      <path d="M0,60 Q50,48 90,56 T110,54 L110,75 L0,75 Z" fill="#78B54D" />
+                      <circle cx="20" cy="62" r="2" fill="#FFFFFF" />
+                      <circle cx="50" cy="58" r="2.2" fill="#FFFFFF" />
+                      <circle cx="82" cy="64" r="2" fill="#FFFFFF" />
+                    </svg>
+                  </div>
 
-                    <div className="flex-1 min-w-0">
-                      <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e8f2ff] dark:bg-[#1f2e42] text-[10px] font-black text-[#1cb0f6] mb-1.5 uppercase tracking-wider">
-                        {activeLesson.subject || 'Teks Eksposisi'}
-                      </span>
-                      <h4 className="font-black text-sm sm:text-base text-[#1e3a5f] dark:text-[#e8f2ff] line-clamp-1 leading-snug">
-                        {activeLesson.title}
-                      </h4>
-                      <p className="text-xs font-semibold text-[#8fa6c1] dark:text-slate-400 mt-1 line-clamp-1">
-                        Temukan kalimat bukti dan pahami ide pokok bacaan.
-                      </p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#E8F2FC] dark:bg-[#1f2e42] text-[10px] font-bold text-[#304D70] dark:text-[#8DB4D8] mb-1 uppercase tracking-wider">
+                      Bahasa INDONESIA
+                    </span>
+                    <h4 className="font-bold text-sm sm:text-base text-[#304D70] dark:text-[#e8f2ff] line-clamp-1 leading-snug">
+                      {activeLesson?.title || 'Gagasan Pokok'}
+                    </h4>
+                    <p className="text-xs font-medium text-[#526F92] dark:text-slate-400 mt-1 line-clamp-1">
+                      Temukan kalimat bukti dan pahami isi bacaan.
+                    </p>
+                  </div>
 
+                  {activeLesson && (
                     <Link
                       to={`/student/lessons/${activeLesson.id}`}
                       onClick={() => sound.playPop()}
-                      className="w-11 h-11 rounded-full bg-[#1cb0f6] hover:bg-[#0fa0eb] active:scale-95 text-white flex items-center justify-center shrink-0 shadow-sm transition-transform"
+                      className="w-10 h-10 rounded-full bg-[#6B9CC8] hover:bg-[#5B8DB8] active:scale-95 text-white flex items-center justify-center shrink-0 shadow-2xs transition-transform"
                       title="Mulai Membaca"
                     >
-                      <Play size={18} className="fill-white ml-0.5" />
+                      <Play size={16} className="fill-white ml-0.5" />
                     </Link>
-                  </div>
-                ) : (
-                  <p className="text-sm font-semibold text-slate-400">Tidak ada materi aktif.</p>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Shortcut Toko TemuKata Banner */}
               <div
                 onClick={() => navigate('/student/toko')}
-                className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a] flex items-center justify-between gap-4"
+                className="card-temukata card-temukata-hover p-6 cursor-pointer dark:bg-[#182332] dark:border-[#24354a]"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#fff8ed] dark:bg-[#272118] border border-[#fde8cb] dark:border-[#3b3223] flex items-center justify-center shrink-0 text-3xl">
-                    🏪
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                        Toko TemuKata
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] font-black text-[10px] uppercase">
-                        Baru
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold text-[#5a7394] dark:text-[#9bb7d9]">
-                      Temukan border dan hiasan avatar baru untuk profilmu!
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <ShoppingBag size={18} className="text-[#304D70] dark:text-[#e8f2ff]" />
+                  <h3 className="font-bold text-base text-[#304D70] dark:text-[#e8f2ff] tracking-tight">
+                    Toko TemuKata
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full bg-[#F5B9C4] text-[#832637] font-bold text-[10px] ml-2">
+                    Baru
+                  </span>
                 </div>
 
-                <div className="w-10 h-10 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] flex items-center justify-center text-[#1cb0f6] shrink-0">
-                  <ArrowRight size={18} />
+                <div className="rounded-2xl border border-[#EAEFF5] dark:border-[#24354a] bg-white dark:bg-[#151f2b] p-3.5 sm:p-4 flex items-center justify-between gap-4 group">
+                  <StoreStallIcon size={56} />
+
+                  <p className="text-xs sm:text-sm font-medium text-[#526F92] dark:text-[#9bb7d9] leading-relaxed flex-1">
+                    Temukan border dan hiasan avatar baru.
+                  </p>
+
+                  <ChevronRight size={18} className="text-[#526F92] group-hover:translate-x-1 transition-transform shrink-0" />
                 </div>
               </div>
             </div>
 
-            {/* Jelajahi Materi Lain (4 Categories Grid) */}
+            {/* Jelajahi Aktivitas Literasi (4 Categories Grid) */}
             <div className="card-temukata p-6 dark:bg-[#182332] dark:border-[#24354a]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-base sm:text-lg text-[#1e3a5f] dark:text-[#e8f2ff] tracking-tight">
-                  Jelajahi Materi Lain
+              <div className="flex items-center gap-2 mb-4">
+                <Feather size={18} className="text-[#304D70] dark:text-[#e8f2ff]" />
+                <h3 className="font-bold text-base text-[#304D70] dark:text-[#e8f2ff] tracking-tight">
+                  Jelajahi Aktivitas Literasi
                 </h3>
-                <button
-                  onClick={() => {
-                    setMateriSubTab('daftar');
-                    navigate('/student/materi');
-                  }}
-                  className="text-xs font-bold text-[#1cb0f6] hover:underline inline-flex items-center gap-1"
-                >
-                  Lihat Semua <ArrowRight size={13} />
-                </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {[
-                  { label: 'Membaca Teks', icon: <BookOpen size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Menemukan Bukti', icon: <Search size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Ide Pokok', icon: <Layers size={22} className="text-[#1cb0f6]" /> },
-                  { label: 'Menyimpulkan', icon: <Feather size={22} className="text-[#1cb0f6]" /> },
+                  { label: 'Membaca Teks', icon: <BookOpen size={24} className="text-[#457AA9] group-hover:scale-105 transition-transform" strokeWidth={2} /> },
+                  { label: 'Menemukan Bukti', icon: <Search size={24} className="text-[#457AA9] group-hover:scale-105 transition-transform" strokeWidth={2} /> },
+                  { label: 'Ide Pokok', icon: <Layers size={24} className="text-[#457AA9] group-hover:scale-105 transition-transform" strokeWidth={2} /> },
+                  { label: 'Menyimpulkan', icon: <Feather size={24} className="text-[#457AA9] group-hover:scale-105 transition-transform" strokeWidth={2} /> },
                 ].map(cat => (
                   <button
                     key={cat.label}
@@ -461,12 +441,12 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                       setMateriSubTab('daftar');
                       navigate('/student/materi');
                     }}
-                    className="p-3.5 rounded-2xl bg-[#f7f9fd] dark:bg-[#151f2b] border border-[#e5edf7] dark:border-[#24354a] hover:border-[#b9d7ef] hover:bg-[#eef5fc] dark:hover:bg-[#1b2737] flex flex-col items-center justify-center text-center transition-all group"
+                    className="p-4 rounded-2xl bg-[#FFFDF8] dark:bg-[#151f2b] border border-[#EAEFF5] dark:border-[#24354a] hover:border-[#BFD5EA] hover:bg-[#F4F9FF] dark:hover:bg-[#1b2737] flex flex-col items-center justify-center text-center transition-all group cursor-pointer shadow-2xs"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#1e2e42] flex items-center justify-center shadow-2xs mb-2 group-hover:scale-105 transition-transform">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-1">
                       {cat.icon}
                     </div>
-                    <span className="text-xs font-extrabold text-[#1e3a5f] dark:text-[#e8f2ff] leading-tight">
+                    <span className="text-sm font-bold text-[#304D70] dark:text-[#e8f2ff]">
                       {cat.label}
                     </span>
                   </button>

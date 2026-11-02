@@ -19,6 +19,7 @@ import StreakModal from './StreakModal';
 import StreakFlame, { isStreakActiveToday } from './StreakFlame';
 import { MascotIcon } from './Mascot';
 import AvatarFrame from './AvatarFrame';
+import LandscapeFooter from './LandscapeFooter';
 import { useAuth } from '../auth/AuthProvider';
 import { getUserProgress, subscribeProgress } from '../lib/gamification';
 import { sound } from '../lib/sounds';
@@ -92,31 +93,31 @@ export default function AppShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f9fd] dark:bg-[#131b26] flex flex-col pb-24 md:pb-8 text-[#2f4f7f] dark:text-[#d3e3f8] antialiased">
+    <div className="min-h-screen bg-[#F8F7F2] dark:bg-[#131b26] flex flex-col pb-20 md:pb-0 text-[#304D70] dark:text-[#d3e3f8] antialiased">
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#f7f9fd]/90 dark:bg-[#131b26]/90 backdrop-blur-md border-b border-[#e5edf7] dark:border-[#223044] px-4 py-3 sm:px-8">
+      <header className="sticky top-0 z-40 bg-[#F8F7F2]/95 dark:bg-[#131b26]/90 backdrop-blur-md border-b border-[#E4E8ED] dark:border-[#223044] px-4 py-3 sm:px-8">
         <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
-          {/* Logo on Mobile or Teacher (On desktop, sidebar also has it) */}
+          {/* Logo on Left */}
           <NavLink
             to={teacher ? '/teacher' : '/student'}
             onClick={() => sound.playPop()}
             className="flex items-center gap-2.5 group select-none"
           >
-            <div className="w-10 h-10 rounded-2xl bg-[#e8f2ff] dark:bg-[#1e2e42] border border-[#dcebfa] dark:border-[#2b415e] overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 group-active:scale-95">
+            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1e2e42] border border-[#E4E8ED] dark:border-[#2b415e] overflow-hidden flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105 group-active:scale-95">
               <MascotIcon size={34} />
             </div>
             <div>
-              <span className="text-xl font-black tracking-tight text-[#1e3a5f] dark:text-[#e8f2ff] block leading-none">
+              <span className="text-xl font-bold tracking-tight text-[#304D70] dark:text-[#e8f2ff] block leading-none">
                 TemuKata
               </span>
             </div>
           </NavLink>
 
-          {/* Gamified HUD: Streak, Diamonds, & Theme Toggle */}
-          <div className="flex items-center gap-4 sm:gap-6">
+          {/* Gamified HUD: Streak, Diamonds, Theme & Sound */}
+          <div className="flex items-center gap-2.5 sm:gap-4">
             {!teacher && (
               <>
-                {/* Streak Counter Button */}
+                {/* Streak Counter Capsule */}
                 {(() => {
                   const streakActive = isStreakActiveToday(progress.streak);
                   return (
@@ -131,62 +132,58 @@ export default function AppShell({
                           ? `Streak aktif: ${progress.streak.count} hari berturut-turut!`
                           : 'Streak belum aktif hari ini (selesaikan 1 bacaan untuk menyalakan api)'
                       }
-                      className="flex items-center gap-2 p-1 rounded-xl transition-transform hover:opacity-85 active:scale-95 cursor-pointer select-none"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-[#1a2533] border border-[#E4E8ED] dark:border-[#2b3d54] shadow-2xs hover:bg-[#FAF8F5] transition-all cursor-pointer select-none active:scale-95"
                     >
-                      <StreakFlame active={streakActive} size={28} />
-                      <span
-                        className={`font-black text-base sm:text-lg leading-none tracking-tight ${
-                          streakActive ? 'text-[#ff9600]' : 'text-slate-400 dark:text-slate-500'
-                        }`}
-                      >
+                      <StreakFlame active={streakActive} size={22} />
+                      <span className="font-bold text-sm sm:text-base text-[#304D70] dark:text-[#e8f2ff] leading-none">
                         {progress.streak.count}
                       </span>
                     </button>
                   );
                 })()}
 
-                {/* Diamonds Counter */}
+                {/* Diamonds Counter Capsule */}
                 <div
                   title={`${progress.diamonds} Permata Membaca`}
-                  className="flex items-center gap-2 p-1 select-none"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-[#1a2533] border border-[#E4E8ED] dark:border-[#2b3d54] shadow-2xs select-none"
                 >
                   <img
                     src="/gem-diamond.svg"
                     alt="Permata"
-                    style={{ width: 28, height: 28 }}
+                    style={{ width: 20, height: 20 }}
                     className="object-contain inline-block shrink-0 select-none"
                     draggable={false}
                   />
-                  <span className="font-black text-base sm:text-lg leading-none tracking-tight text-[#1cb0f6]">
+                  <span className="font-bold text-sm sm:text-base text-[#304D70] dark:text-[#e8f2ff] leading-none">
                     {progress.diamonds}
                   </span>
                 </div>
               </>
             )}
 
-            {/* Dark / Light Mode Toggle */}
+            {/* Dark / Light Mode Circle Toggle */}
             <button
               type="button"
               onClick={toggleTheme}
               title={darkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-              className="w-9 h-9 rounded-2xl bg-white dark:bg-[#1a2533] border border-[#e5edf7] dark:border-[#26374d] text-[#2f4f7f] dark:text-[#a5c7f2] shadow-xs hover:bg-[#f0f5fc] dark:hover:bg-[#202f42] transition-transform active:scale-90 flex items-center justify-center"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1a2533] border border-[#E4E8ED] dark:border-[#2b3d54] text-[#304D70] dark:text-[#a5c7f2] shadow-2xs hover:bg-[#FAF8F5] dark:hover:bg-[#202f42] transition-transform active:scale-90 flex items-center justify-center cursor-pointer"
             >
-              {darkMode ? <Sun size={17} className="text-amber-400 fill-amber-400" /> : <Moon size={17} className="text-[#2f4f7f] fill-[#2f4f7f]" />}
+              {darkMode ? <Sun size={16} className="text-amber-400 fill-amber-400" /> : <Moon size={16} className="text-[#304D70] fill-[#304D70]" />}
             </button>
 
-            {/* Sound Toggle (Icon) */}
+            {/* Sound Circle Toggle */}
             <button
               type="button"
               onClick={toggleSound}
               title={soundOn ? 'Matikan Suara' : 'Aktifkan Suara'}
-              className="hidden sm:flex w-9 h-9 rounded-2xl bg-white dark:bg-[#1a2533] border border-[#e5edf7] dark:border-[#26374d] text-[#5a7394] dark:text-slate-400 shadow-xs hover:bg-[#f0f5fc] dark:hover:bg-[#202f42] transition-transform active:scale-90 items-center justify-center"
+              className="hidden sm:flex w-9 h-9 rounded-full bg-white dark:bg-[#1a2533] border border-[#E4E8ED] dark:border-[#2b3d54] text-[#304D70] dark:text-slate-400 shadow-2xs hover:bg-[#FAF8F5] dark:hover:bg-[#202f42] transition-transform active:scale-90 items-center justify-center cursor-pointer"
             >
-              {soundOn ? <Volume2 size={17} className="text-[#2f4f7f] dark:text-[#a5c7f2]" /> : <VolumeX size={17} />}
+              {soundOn ? <Volume2 size={16} className="text-[#304D70] dark:text-[#a5c7f2]" /> : <VolumeX size={16} />}
             </button>
 
             {/* User Profile Initial (Mobile) / Logout */}
             {profile && (
-              <div className="flex items-center gap-2 pl-1 sm:pl-2 sm:border-l border-[#e5edf7] dark:border-[#26374d]">
+              <div className="flex items-center gap-2 pl-1 sm:pl-2 sm:border-l border-[#E4E8ED] dark:border-[#26374d]">
                 <NavLink
                   to={teacher ? '/teacher' : '/student/akun'}
                   title={profile?.display_name || 'Akun'}
@@ -219,10 +216,10 @@ export default function AppShell({
       </header>
 
       {/* Main Container with Permanent Left Sidebar for Desktop */}
-      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
+      <div className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-8 pt-6 grid md:grid-cols-[230px_minmax(0,1fr)] gap-7 items-start">
         {/* Left Sidebar (Desktop Only) */}
-        <aside className="hidden md:flex flex-col gap-3 sticky top-24">
-          <div className="card-temukata p-3 space-y-1.5 dark:bg-[#182332] dark:border-[#24354a]">
+        <aside className="hidden md:flex flex-col gap-3 sticky top-22">
+          <div className="bg-[#FFF8ED] dark:bg-[#182332] border border-[#EFE8DC] dark:border-[#24354a] rounded-3xl p-3.5 space-y-1.5 shadow-[0_4px_16px_rgba(48,77,112,0.03)] relative overflow-hidden">
             {nav.map(item => {
               const active = isItemActive(item.to, item.end);
               return (
@@ -232,24 +229,34 @@ export default function AppShell({
                   onClick={() => sound.playPop()}
                   className={`flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-sm transition-all select-none ${
                     active
-                      ? 'bg-[#e8f2ff] dark:bg-[#1e2e42] text-[#2f4f7f] dark:text-[#a5c7f2] font-black'
-                      : 'text-[#5a7394] dark:text-slate-400 hover:bg-[#f7f9fd] dark:hover:bg-[#1c293c] hover:text-[#2f4f7f]'
+                      ? 'bg-[#DCEBFA] dark:bg-[#1e2e42] text-[#304D70] dark:text-[#a5c7f2] font-bold shadow-2xs'
+                      : 'text-[#526F92] dark:text-slate-400 hover:bg-[#FFF3DF] dark:hover:bg-[#1c293c] hover:text-[#304D70]'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
-                    <span className={active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-[#8fa6c1] dark:text-slate-500'}>
+                    <span className={active ? 'text-[#304D70] dark:text-[#a5c7f2]' : 'text-[#526F92] dark:text-slate-500'}>
                       {item.icon}
                     </span>
                     <span>{item.label}</span>
                   </div>
                   {'badge' in item && (item as any).badge && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#f5b9c4] text-[#832637] font-black text-[10px] uppercase tracking-wider">
+                    <span className="px-2 py-0.5 rounded-full bg-[#F5B9C4] text-[#832637] font-bold text-[10px] uppercase tracking-wider">
                       {(item as any).badge}
                     </span>
                   )}
                 </NavLink>
               );
             })}
+
+            {/* Botanical Leaf Sprig Framing Bottom of Sidebar */}
+            <div className="pt-6 pb-1 pointer-events-none select-none flex justify-start pl-2 opacity-85">
+              <svg width="45" height="50" viewBox="0 0 45 50" fill="none">
+                <path d="M5,48 C10,32 18,18 36,8" stroke="#7BAA6D" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M14,35 C11,26 17,20 25,18 C27,26 21,33 14,35 Z" fill="#8DB97F" />
+                <path d="M22,22 C30,14 39,12 43,18 C40,25 31,27 22,22 Z" fill="#A0C992" />
+                <path d="M35,8 C33,2 40,-2 46,2 C46,9 41,12 35,8 Z" fill="#7BAA6D" />
+              </svg>
+            </div>
           </div>
         </aside>
 
@@ -257,8 +264,11 @@ export default function AppShell({
         <main className="min-w-0 w-full">{children}</main>
       </div>
 
-      {/* Mobile Bottom Navigation Bar (4 Main Tabs) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#131b26]/95 backdrop-blur-lg border-t border-[#e5edf7] dark:border-[#223044] px-4 py-2 flex items-center justify-around shadow-lg">
+      {/* Landscape Vector Framing Bottom of Page */}
+      <LandscapeFooter />
+
+      {/* Mobile Bottom Navigation Bar (5 Main Tabs) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFF8ED]/95 dark:bg-[#131b26]/95 backdrop-blur-lg border-t border-[#EFE8DC] dark:border-[#223044] px-3 py-2 flex items-center justify-around shadow-lg">
         {nav.map(item => {
           const active = isItemActive(item.to, item.end);
           return (
@@ -267,17 +277,17 @@ export default function AppShell({
               to={item.to}
               onClick={() => sound.playPop()}
               className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-transform active:scale-95 ${
-                active ? 'text-[#2f4f7f] dark:text-[#a5c7f2]' : 'text-slate-400 hover:text-slate-600'
+                active ? 'text-[#304D70] dark:text-[#a5c7f2]' : 'text-[#8FA6C1] hover:text-[#304D70]'
               }`}
             >
               <div
                 className={`p-1.5 rounded-xl transition-colors ${
-                  active ? 'bg-[#e8f2ff] dark:bg-[#1e2e42] text-[#2f4f7f] dark:text-[#a5c7f2]' : 'bg-transparent text-slate-400'
+                  active ? 'bg-[#DCEBFA] dark:bg-[#1e2e42] text-[#304D70] dark:text-[#a5c7f2]' : 'bg-transparent text-[#8FA6C1]'
                 }`}
               >
                 {item.icon}
               </div>
-              <span className={`text-[11px] ${active ? 'font-black' : 'font-bold'}`}>
+              <span className={`text-[11px] ${active ? 'font-bold' : 'font-medium'}`}>
                 {item.label}
               </span>
             </NavLink>
