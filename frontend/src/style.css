@@ -8,21 +8,21 @@
   text-rendering: optimizeLegibility;
 
   /* ======================================================== */
-  /* LIGHT MODE TOKENS (Ice Blue Sky, Clean, Playful)         */
+  /* LIGHT MODE TOKENS (Pinterest-Editorial, Warm & Cozy)     */
   /* ======================================================== */
-  --bg-app: #EBF4FD;
+  --bg-app: #F8F7F2;
   --surface-primary: #FFFFFF;
   --surface-secondary: #FFF8ED;
-  --surface-hero: #E8F2FC;
+  --surface-hero: #DCEBFA;
   --color-ice-blue: #E8F2FC;
   --color-soft-blue: #8DB4D8;
-  --color-primary-blue: #8DB4D8;
+  --color-primary-blue: #5B8DB8;
   --text-main: #304D70;
   --text-secondary: #526F92;
-  --border-main: #E2EDF8;
-  --accent-pink: #FF8FB1;
-  --accent-yellow: #F5A65B;
-  --card-shadow: 0 4px 20px -2px rgba(48, 77, 112, 0.06);
+  --border-main: #E4E8ED;
+  --accent-pink: #F5B9C4;
+  --accent-yellow: #FFE8A8;
+  --card-shadow: 0 4px 16px -2px rgba(48, 77, 112, 0.05);
 }
 
 .dark {
@@ -58,12 +58,7 @@ body {
 }
 
 body:not(.dark) {
-  background-color: #EBF4FD !important;
-  background-image: url('/bg-desktop-light.png') !important;
-  background-size: cover !important;
-  background-position: center bottom !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
+  background-color: #F8F7F2 !important;
 }
 
 /* ======================================================== */
