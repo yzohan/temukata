@@ -7,7 +7,6 @@ import {
   MapPin,
   Moon,
   Plus,
-  Sparkles,
   Sun,
   Users,
   Volume2,
@@ -94,9 +93,9 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
             </div>
           </NavLink>
 
-          {/* Gamified HUD: Streak & Diamonds */}
+          {/* Gamified HUD: Streak & Diamonds (Duolingo Style: Clean, Borderless, Aligned) */}
           {!teacher && (
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-4 sm:gap-6">
               {/* Streak Tracker Button */}
               {(() => {
                 const streakActive = isStreakActiveToday(progress.streak);
@@ -109,30 +108,38 @@ export default function AppShell({ mode, children }: { mode: 'student' | 'teache
                     }}
                     title={
                       streakActive
-                        ? 'Streak aktif hari ini!'
+                        ? `Streak aktif: ${progress.streak.count} hari berturut-turut!`
                         : 'Streak belum aktif hari ini (selesaikan 1 bacaan untuk menyalakan api)'
                     }
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-2xl border-2 font-black text-xs sm:text-sm shadow-sm transition-all active:scale-95 ${
-                      streakActive
-                        ? 'border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800'
-                        : 'border-slate-200 bg-slate-100/90 hover:bg-slate-200/80 text-slate-500'
-                    }`}
+                    className="flex items-center gap-2 p-1 rounded-xl transition-transform hover:opacity-85 active:scale-95 cursor-pointer select-none"
                   >
-                    <StreakFlame active={streakActive} size={26} />
-                    <span>{progress.streak.count}</span>
-                    <span className="hidden sm:inline text-[11px] font-bold opacity-80">Hari</span>
+                    <StreakFlame active={streakActive} size={28} />
+                    <span
+                      className={`font-black text-base sm:text-lg leading-none tracking-tight ${
+                        streakActive ? 'text-[#ff9600]' : 'text-slate-400 dark:text-slate-500'
+                      }`}
+                    >
+                      {progress.streak.count}
+                    </span>
                   </button>
                 );
               })()}
 
               {/* Diamonds Balance */}
               <div
-                title="Permata Membaca"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border-2 border-[#d3e5f5] bg-[#edf5fc] text-[#4a6b8c] font-black text-xs sm:text-sm shadow-sm select-none"
+                title={`${progress.diamonds} Permata Membaca`}
+                className="flex items-center gap-2 p-1 select-none"
               >
-                <Sparkles size={16} className="text-[#92b4d2] fill-[#b9d7ef]" />
-                <span>{progress.diamonds}</span>
-                <span className="hidden md:inline text-[11px] font-bold">💎</span>
+                <img
+                  src="/gem-diamond.svg"
+                  alt="Permata"
+                  style={{ width: 28, height: 28 }}
+                  className="object-contain inline-block shrink-0 select-none"
+                  draggable={false}
+                />
+                <span className="font-black text-base sm:text-lg leading-none tracking-tight text-[#1cb0f6]">
+                  {progress.diamonds}
+                </span>
               </div>
             </div>
           )}

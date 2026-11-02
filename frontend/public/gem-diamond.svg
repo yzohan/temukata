@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Outer Glow / Shadow -->
+  <path d="M32 60C30.5 60 29.2 59.3 28.3 58.1L12.7 37.8C11.6 36.4 11 34.6 11 32.8V17C11 13.7 13.7 11 17 11H47C50.3 11 53 13.7 53 17V32.8C53 34.6 52.4 36.4 51.3 37.8L35.7 58.1C34.8 59.3 33.5 60 32 60Z" fill="#0c709e" />
+  
+  <!-- Main Gem Body -->
+  <path d="M32 57L14 34V16C14 14.3 15.3 13 17 13H47C48.7 13 50 14.3 50 16V34L32 57Z" fill="#1cb0f6" />
+  
+  <!-- Top Highlight Facet -->
+  <path d="M17 13H47C48.7 13 50 14.3 50 16V22L32 27L14 22V16C14 14.3 15.3 13 17 13Z" fill="#49c0f8" />
+  
+  <!-- Center Front Diamond Face -->
+  <path d="M32 27L50 22V34L32 57L14 34V22L32 27Z" fill="#1cb0f6" />
+  
+  <!-- Bottom Shadow Facet -->
+  <path d="M32 57L50 34H14L32 57Z" fill="#1493cf" />
+  
+  <!-- Right Side Dark Facet -->
+  <path d="M32 27L50 22V34L32 57L32 27Z" fill="#0f81b7" opacity="0.25" />
+  
+  <!-- Crisp Glint Reflection (White Highlight) -->
+  <path d="M19 16C18.4 16 18 16.4 18 17V20C18 20.6 18.4 21 19 21H27C27.6 21 28 20.6 28 20V17C28 16.4 27.6 16 27 16H19Z" fill="#ffffff" opacity="0.85" />
+  <circle cx="21" cy="25" r="2" fill="#ffffff" opacity="0.75" />
+</svg>

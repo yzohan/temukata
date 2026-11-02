@@ -75,9 +75,9 @@ export default function StreakModal({ isOpen, onClose, streak }: StreakModalProp
                     }`}
                   >
                     {isActive ? (
-                      <StreakFlame active={true} size={26} />
+                      <StreakFlame active={true} size={28} />
                     ) : isToday ? (
-                      <StreakFlame active={false} size={26} />
+                      <StreakFlame active={false} size={28} />
                     ) : (
                       '•'
                     )}

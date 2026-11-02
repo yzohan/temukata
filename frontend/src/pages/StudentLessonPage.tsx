@@ -495,9 +495,9 @@ export default function StudentLessonPage() {
                 <span className="text-[10px] font-black uppercase text-[#4a6b8c] tracking-wider">
                   Hadiah Level
                 </span>
-                <strong className="text-xl sm:text-2xl font-black text-[#31577c] flex items-center gap-1 mt-0.5">
-                  <Sparkles size={20} className="text-[#92b4d2] fill-[#b9d7ef] animate-spin" />
-                  +5 💎
+                <strong className="text-xl sm:text-2xl font-black text-[#1cb0f6] flex items-center gap-1.5 mt-0.5">
+                  <img src="/gem-diamond.svg" alt="Permata" className="w-6 h-6 object-contain inline-block" draggable={false} />
+                  +5
                 </strong>
                 <span className="text-[10px] font-bold text-slate-500 mt-0.5">Permata Didapatkan!</span>
               </div>

@@ -17,9 +17,8 @@ export default function StreakFlame({
   active = false,
   size = 20,
   className = '',
-  animate = true,
 }: StreakFlameProps) {
-  // If active: animated SVG with burning motion.
+  // If active: animated SVG with burning motion (no CSS shake/wiggle).
   // If inactive: 100% static grey SVG with no movement.
   const src = active ? '/streak-active.svg' : '/streak-inactive.svg';
   return (
@@ -27,9 +26,7 @@ export default function StreakFlame({
       src={src}
       alt={active ? 'Streak Aktif' : 'Streak Mati / Belum Belajar'}
       style={{ width: size, height: size }}
-      className={`object-contain inline-block shrink-0 select-none ${
-        active && animate ? 'animate-wiggle' : ''
-      } ${className}`}
+      className={`object-contain inline-block shrink-0 select-none ${className}`}
       draggable={false}
     />
   );
