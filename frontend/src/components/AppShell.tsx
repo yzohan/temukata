@@ -240,7 +240,7 @@ export default function AppShell({
       {/* ============================================================== */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 border-r-2 border-[#E5E5E5] dark:border-[#223044] bg-white dark:bg-[#111C2B] flex-col justify-between p-4 z-40 overflow-y-auto select-none">
         <div>
-          {/* Logo Brand at top (Duolingo Style: lowercase playful font-black) */}
+          {/* Logo Brand at top: TemuKata */}
           <NavLink
             to={teacher ? '/teacher' : '/student'}
             onClick={() => sound.playPop()}
@@ -249,8 +249,8 @@ export default function AppShell({
             <div className="w-10 h-10 rounded-2xl bg-[#E8F2FC] dark:bg-[#1C2A3C] border-2 border-[#8DB4D8] dark:border-[#38BDF8] flex items-center justify-center overflow-hidden shrink-0 shadow-xs transition-transform group-hover:scale-105">
               <MascotIcon size={32} />
             </div>
-            <span className="text-2xl font-black tracking-tight text-[#58CC02] lowercase font-sans">
-              temukata
+            <span className="text-2xl font-bold tracking-tight text-[#304D70] dark:text-[#E8F2FF] leading-none">
+              TemuKata
             </span>
           </NavLink>
 
@@ -319,8 +319,8 @@ export default function AppShell({
                 <div className="w-9 h-9 rounded-2xl bg-white dark:bg-[#1E2E42] border border-[#E4E8ED] dark:border-[#2B415E] overflow-hidden flex items-center justify-center shadow-xs">
                   <MascotIcon size={30} />
                 </div>
-                <span className="text-xl font-black tracking-tight text-[#58CC02] lowercase">
-                  temukata
+                <span className="text-xl font-bold tracking-tight text-[#304D70] dark:text-[#E8F2FF] leading-none">
+                  TemuKata
                 </span>
               </NavLink>
             </div>
