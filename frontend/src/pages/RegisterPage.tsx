@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Mascot from '../components/Mascot';
 import { useAuth } from '../auth/AuthProvider';
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [busy, setBusy] = useState(false);
@@ -124,28 +125,54 @@ export default function RegisterPage() {
 
             <div>
               <label className="field-label">Password</label>
-              <input
-                className="auth-input"
-                type="password"
-                minLength={6}
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Minimal 6 karakter"
-              />
+              <div className="relative">
+                <input
+                  className="auth-input pr-12"
+                  type={showPassword ? 'text' : 'password'}
+                  minLength={6}
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Minimal 6 karakter"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playPop();
+                    setShowPassword(prev => !prev);
+                  }}
+                  title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2c3848] transition-colors p-1 rounded-lg"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="field-label">Ulangi Password</label>
-              <input
-                className="auth-input"
-                type="password"
-                minLength={6}
-                required
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                placeholder="Ketik ulang password"
-              />
+              <div className="relative">
+                <input
+                  className="auth-input pr-12"
+                  type={showPassword ? 'text' : 'password'}
+                  minLength={6}
+                  required
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  placeholder="Ketik ulang password"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playPop();
+                    setShowPassword(prev => !prev);
+                  }}
+                  title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2c3848] transition-colors p-1 rounded-lg"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {error && (

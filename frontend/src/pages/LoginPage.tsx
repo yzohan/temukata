@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Mascot, { MascotIcon } from '../components/Mascot';
 import { useAuth } from '../auth/AuthProvider';
@@ -9,8 +9,9 @@ export default function LoginPage() {
   const { signIn, signInWithGoogle, user, profile } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('ijah@gmail.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -51,13 +52,6 @@ export default function LoginPage() {
     } finally {
       setBusy(false);
     }
-  }
-
-  function fillDemo() {
-    sound.playPop();
-    setEmail('ijah@gmail.com');
-    setPassword('admin123');
-    setError('');
   }
 
   return (
@@ -128,8 +122,8 @@ export default function LoginPage() {
 
             <div className="relative">
               <input
-                className="auth-input text-sm font-bold pr-20 placeholder:text-slate-400"
-                type="password"
+                className="auth-input text-sm font-bold pr-12 placeholder:text-slate-400"
+                type={showPassword ? 'text' : 'password'}
                 minLength={6}
                 required
                 autoComplete="current-password"
@@ -139,11 +133,14 @@ export default function LoginPage() {
               />
               <button
                 type="button"
-                onClick={fillDemo}
-                title="Klik untuk mengisi akun demo cepat"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-black tracking-wider uppercase text-slate-400 hover:text-[#92b4d2] transition-colors"
+                onClick={() => {
+                  sound.playPop();
+                  setShowPassword(prev => !prev);
+                }}
+                title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2c3848] transition-colors p-1 rounded-lg"
               >
-                LUPA?
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
 
@@ -198,17 +195,6 @@ export default function LoginPage() {
             </svg>
             <span className="font-black text-[#2c3848]">MASUK DENGAN GOOGLE</span>
           </button>
-
-          {/* Quick Demo Helper Hint */}
-          <div className="mt-3.5 text-center">
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="text-[11px] font-bold text-slate-400 hover:text-[#92b4d2] underline decoration-dotted transition-colors"
-            >
-              Akun Guru / Admin: ijah@gmail.com / admin123
-            </button>
-          </div>
 
           <p className="mt-5 text-center text-xs font-bold text-slate-500">
             Belum punya akun?{' '}
