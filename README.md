@@ -177,13 +177,51 @@ learning app/
 
 ---
 
-## 🛠️ Ringkasan Teknologi
+## 🛠️ Tech Stack & Arsitektur (Penjelasan untuk Pemula / Awam)
 
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS v4, Lucide React, Canvas Confetti.
-- **Backend**: Express.js, TypeScript, CORS, Dotenv.
-- **Database & Auth**: Supabase (PostgreSQL, Row Level Security, Trigger Functions).
-- **Audio Engine**: Web Audio API Synthesizer (tanpa ketergantungan file audio eksternal).
-- **Gamifikasi**: LocalStorage State Management + Custom Event Dispatcher untuk sinkronisasi instan antar-komponen.
+Biar gampang dipahami, bayangkan aplikasi TemuKata ini seperti sebuah **Restoran**:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ 🍽️ FRONTEND (Ruang Makan & Pelayan)                                    │
+│ React 19 + TypeScript + Vite + Tailwind CSS v4                         │
+│ ➜ Bagian yang dilihat dan diklik oleh pengguna di layar HP / Laptop.   │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ (Kirim pesanan / request data)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 👨‍🍳 BACKEND (Dapur Restoran)                                            │
+│ Node.js + Express.js + TypeScript                                      │
+│ ➜ Mengolah logika, memvalidasi jawaban, menghitung skor & streak.      │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ (Simpan & ambil bahan makanan)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 📦 DATABASE & AUTH (Gudang Bahan / Brankas)                            │
+│ Supabase (PostgreSQL + Auth System)                                    │
+│ ➜ Tempat menyimpan akun user, riwayat bacaan, soal, dan tabel profil.  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. 🖥️ Frontend (Tampilan Aplikasi)
+Bagian yang langsung dilihat dan digunakan oleh murid dan guru:
+- **React 19**: Fondasi antarmuka (*UI*) modern yang membuat halaman terasa interaktif, cepat, dan tidak perlu *reload/refresh* layar saat berpindah menu.
+- **TypeScript**: Bahasa JavaScript versi aman dengan sistem pengecekan tipe (*type-safety*) otomatis, meminimalisir *bug* atau eror kodingan saat aplikasi dikembangkan.
+- **Vite**: Alat pembuat (*bundler*) proyek super kilat. Membuka server lokal hanya butuh hitungan detik.
+- **Tailwind CSS v4**: Alat penata gaya (*styling*) desain. Bertanggung jawab atas warna estetik, tata letak ala Duolingo, tombol 3D, serta peralihan mulus antara **Light Mode** dan **Dark Mode**.
+- **Lucide React & SVG Icons**: Koleksi ikon grafis modern (rumah burung, barbel, perisai juara, toko) yang ringan dan tajam di semua ukuran layar.
+- **Web Audio API**: Efek suara sintetis (suara *pop*, klik tombol, efek berhasil) yang diproses langsung oleh browser tanpa perlu men-download file audio `.mp3` berat.
+
+### 2. ⚙️ Backend (Otak & Logika Bisnis)
+Bagian server di balik layar yang memproses data:
+- **Node.js**: Mesin yang menjalankan bahasa pemrograman JavaScript/TypeScript di sisi server (luar browser).
+- **Express.js**: Kerangka kerja (*framework*) minimalis untuk membuat jalur API (*REST endpoints*), menjadi jembatan penghubung antara tampilan web (Frontend) dan database.
+- **Zod**: Penjaga pintu data yang memverifikasi input dari pengguna agar data yang dikirim tidak rusak atau disusupi format salah.
+
+### 3. 🗄️ Database & Keamanan (Tempat Simpan Data)
+- **Supabase (PostgreSQL)**: Database berbasis cloud tingkat industri untuk menyimpan data akun murid/guru, bank soal bacaan, serta riwayat jawaban.
+- **Supabase Auth**: Sistem keamanan untuk login dan pendaftaran akun murid dengan enkripsi kata sandi yang aman.
+- **Row Level Security (RLS)**: Sistem perizinan ketat di database sehingga murid hanya bisa mengubah profil milik mereka sendiri tanpa bisa mengutak-atik akun orang lain.
 
 ---
 
