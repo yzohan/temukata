@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { authenticate, requireRole } from '../middleware/auth.js';
 import { supabase } from '../lib/supabase.js';
 
 const router = Router();
@@ -10,6 +9,7 @@ type RankRow = {
   points: number;
   equippedBorder?: string;
   rankChange?: number | null;
+  previousRank?: number | null;
 };
 
 const DEFAULT_COHORT: RankRow[] = [
@@ -25,81 +25,103 @@ const DEFAULT_COHORT: RankRow[] = [
 ];
 
 function toEntries(rows: RankRow[], period: 'weekly' | 'monthly' = 'weekly') {
-  const multiplier = period === 'monthly' ? 3.4 : 1;
   const sorted = [...rows].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
     return a.displayName.localeCompare(b.displayName, 'id');
   });
-  return sorted.map((row, index) => ({
-    userId: row.userId,
-    displayName: row.displayName,
-    points: Math.round(row.points * multiplier),
-    rank: index + 1,
-    equippedBorder: row.equippedBorder,
-    rankChange: row.rankChange ?? (index === 0 ? 0 : index % 2 === 0 ? 1 : -1),
-  }));
+  return sorted.map((row, index) => {
+    const rank = index + 1;
+    const rankChange =
+      row.rankChange !== undefined && row.rankChange !== null
+        ? row.rankChange
+        : row.previousRank
+        ? row.previousRank - rank
+        : 0;
+    return {
+      userId: row.userId,
+      displayName: row.displayName,
+      points: row.points,
+      rank,
+      equippedBorder: row.equippedBorder || 'ice-dream',
+      rankChange,
+    };
+  });
 }
 
-async function loadFromDiamonds() {
+// 1. Ambil data melalui RPC fungsi get_leaderboard di Supabase (jika sudah di-deploy)
+async function loadFromRpc(period: 'weekly' | 'monthly') {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, display_name, diamonds, equipped_border')
-      .eq('role', 'student');
-    if (error || !data || data.length === 0) return null;
-    return data.map(row => ({
-      userId: row.id as string,
-      displayName: (row.display_name as string) || 'Siswa',
-      points: Number(row.diamonds ?? 0),
-      equippedBorder: (row.equipped_border as string) || undefined,
+    const { data, error } = await supabase.rpc('get_leaderboard', { p_period: period });
+    if (error || !data || !Array.isArray(data) || data.length === 0) return null;
+    return data.map((row: any) => ({
+      userId: row.user_id,
+      displayName: row.display_name,
+      points: Number(row.points ?? 0),
+      equippedBorder: row.equipped_border,
+      rankChange: row.rank_change != null ? Number(row.rank_change) : 0,
+      previousRank: row.previous_rank != null ? Number(row.previous_rank) : null,
     }));
   } catch {
     return null;
   }
 }
 
-async function loadFromAttempts(): Promise<RankRow[]> {
+// 2. Ambil data langsung dari tabel profiles di Supabase
+async function loadFromProfiles(period: 'weekly' | 'monthly') {
   try {
-    const { data: profiles } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
-      .select('id, display_name, equipped_border')
+      .select('id, display_name, diamonds, weekly_points, monthly_points, total_points, previous_rank, equipped_border')
       .eq('role', 'student');
-
-    const { data: attempts } = await supabase
-      .from('attempts')
-      .select('student_id, score');
-
-    if (!profiles || profiles.length === 0) return DEFAULT_COHORT;
-
-    const points = new Map<string, number>();
-    for (const attempt of attempts || []) {
-      points.set(attempt.student_id, (points.get(attempt.student_id) || 0) + Number(attempt.score || 0));
-    }
-
-    return (profiles || []).map(profile => ({
-      userId: profile.id as string,
-      displayName: (profile.display_name as string) || 'Siswa',
-      points: points.get(profile.id as string) || 0,
-      equippedBorder: (profile.equipped_border as string) || undefined,
-    }));
+    if (error || !data || data.length === 0) return null;
+    return data.map((row: any) => {
+      let points = 0;
+      if (period === 'monthly') {
+        points = Number(row.monthly_points || row.total_points || (row.diamonds ? row.diamonds * 3 : 0));
+      } else {
+        points = Number(row.weekly_points || row.diamonds || 0);
+      }
+      return {
+        userId: row.id,
+        displayName: row.display_name || 'Siswa',
+        points,
+        equippedBorder: row.equipped_border || 'ice-dream',
+        previousRank: row.previous_rank != null ? Number(row.previous_rank) : null,
+      };
+    });
   } catch {
-    return DEFAULT_COHORT;
+    return null;
   }
 }
 
-router.get('/', authenticate, requireRole('student', 'teacher'), async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const period = req.query.period === 'monthly' ? 'monthly' : 'weekly';
-    const diamondRows = await loadFromDiamonds();
-    let rows = diamondRows ?? await loadFromAttempts();
-    if (!rows || rows.length < 3) {
-      // Merge with cohort if too few rows in database
-      const existingIds = new Set((rows || []).map(r => r.userId));
-      const remainingCohort = DEFAULT_COHORT.filter(c => !existingIds.has(c.userId));
-      rows = [...(rows || []), ...remainingCohort];
-    }
+
+    // Coba ambil data riil database (RPC -> Profiles Table -> Fallback)
+    const rpcRows = await loadFromRpc(period);
+    const profileRows = rpcRows ?? await loadFromProfiles(period);
+    const rows = profileRows && profileRows.length > 0 ? profileRows : DEFAULT_COHORT;
+
     const entries = toEntries(rows, period);
-    const currentUser = entries.find(entry => entry.userId === req.user!.id) || null;
+
+    // Cek auth header jika tersedia
+    let currentUserId: string | null = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.slice(7);
+        const { data: userRes } = await supabase.auth.getUser(token);
+        if (userRes?.user?.id) {
+          currentUserId = userRes.user.id;
+        }
+      } catch {}
+    }
+
+    const currentUser = currentUserId
+      ? entries.find(entry => entry.userId === currentUserId) || null
+      : null;
+
     return res.json({ data: { entries, currentUser } });
   } catch (error) {
     return res.status(500).json({ error: 'Could not load leaderboard' });

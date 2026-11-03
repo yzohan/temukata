@@ -8,6 +8,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { api } from '../lib/api';
 import { overlayCurrentUser } from '../lib/leaderboard';
 import { sound } from '../lib/sounds';
+import { supabase } from '../lib/supabase';
 import type { LeaderboardPayload } from '../types';
 
 type UiState = 'loading' | 'error' | 'empty' | 'ready';
@@ -184,7 +185,32 @@ export default function StudentLeaderboardPage() {
     setState('loading');
     setErrorMessage('');
     try {
-      const data = await api<LeaderboardPayload>(`/leaderboard?period=${selectedPeriod}`, session?.access_token);
+      let data: LeaderboardPayload | null = null;
+
+      // 1. Coba ambil langsung dari Supabase RPC jika koneksi klien tersedia
+      if (supabase) {
+        try {
+          const { data: rpcData, error: rpcErr } = await supabase.rpc('get_leaderboard', { p_period: selectedPeriod });
+          if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+            const entries = rpcData.map((r: any) => ({
+              userId: r.user_id,
+              displayName: r.display_name,
+              equippedBorder: r.equipped_border || 'ice-dream',
+              points: Number(r.points || 0),
+              rank: Number(r.rank),
+              rankChange: r.rank_change != null ? Number(r.rank_change) : 0,
+            }));
+            const me = profile ? entries.find(e => e.userId === profile.id) || null : null;
+            data = { entries, currentUser: me };
+          }
+        } catch {}
+      }
+
+      // 2. Jika belum, ambil dari Backend API
+      if (!data) {
+        data = await api<LeaderboardPayload>(`/leaderboard?period=${selectedPeriod}`, session?.access_token);
+      }
+
       const identity = profile
         ? { id: profile.id, displayName: profile.display_name }
         : null;
