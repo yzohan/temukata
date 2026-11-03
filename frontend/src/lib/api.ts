@@ -1,4 +1,5 @@
 import type { Lesson, StudentAttempt } from '../types';
+import { buildLocalLeaderboard } from './leaderboard';
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api');
 
@@ -399,7 +400,13 @@ async function mockApi<T>(path: string, init: RequestInit = {}): Promise<T> {
     return newAttempt as T;
   }
 
-  // 5. GET /teacher/overview
+  // 5. GET /leaderboard
+  if (path.startsWith('/leaderboard') && method === 'GET') {
+    const period = path.includes('period=monthly') ? 'monthly' : 'weekly';
+    return buildLocalLeaderboard(null, period) as T;
+  }
+
+  // 6. GET /teacher/overview
   if (path === '/teacher/overview' && method === 'GET') {
     const lessons = getStoredLessons();
     const attempts = getStoredAttempts();
