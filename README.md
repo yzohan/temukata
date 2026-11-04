@@ -78,15 +78,15 @@ Jika database Supabase baru dibuat atau direset:
 ```env
 PORT=4000
 FRONTEND_ORIGIN=http://localhost:5173
-SUPABASE_URL=https://xcsfdufhqckzntwvgrdn.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
 ```
 
 #### Frontend (`frontend/.env`):
 ```env
 VITE_API_URL=http://localhost:4000/api
-VITE_SUPABASE_URL=https://xcsfdufhqckzntwvgrdn.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 ```
 
 ---
@@ -132,9 +132,9 @@ Aplikasi **TemuKata** sudah dilengkapi arsitektur **Cloudflare Pages Full-Stack 
    - **Build output directory**: `dist`
 5. Pada **Environment variables**:
    - `NODE_VERSION` = `20`
-   - `SUPABASE_URL` = `https://xcsfdufhqckzntwvgrdn.supabase.co`
+   - `SUPABASE_URL` = ``
    - `SUPABASE_SERVICE_ROLE_KEY` = *(isi dengan Service Role Key Supabase Anda)*
-   - `VITE_SUPABASE_URL` = `https://xcsfdufhqckzntwvgrdn.supabase.co`
+   - `VITE_SUPABASE_URL` = ``
    - `VITE_SUPABASE_ANON_KEY` = *(isi dengan Anon Key Supabase Anda)*
 6. Klik **Save and Deploy**. Cloudflare akan mem-build frontend dan backend API sekaligus di domain `https://temukata.pages.dev`!
 
