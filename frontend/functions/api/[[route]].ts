@@ -246,7 +246,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       const { data: lesson, error: lErr } = await supabase
         .from('lessons')
-        .select('id,published')
+        .select('id,published,title')
         .eq('id', body.lessonId)
         .single();
 
@@ -287,7 +287,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         return errorResponse('Could not save attempt to database', 500, request);
       }
 
-      return jsonResponse({ data: attempt }, 201, request);
+      let pointsAwarded = 0;
+      try {
+        const earnedPoints = 50 + (score * 20);
+        const { data: pt } = await supabase.from('point_transactions').insert({
+          user_id: user.id,
+          points: earnedPoints,
+          reason: `Menyelesaikan bacaan: ${(lesson as any)?.title || 'Materi Literasi'}`,
+          source_type: 'lesson_completion',
+          source_id: body.lessonId,
+        }).select().maybeSingle();
+
+        if (pt) {
+          pointsAwarded = earnedPoints;
+          await supabase.rpc('award_lesson_points', {
+            p_user_id: user.id,
+            p_lesson_id: body.lessonId,
+            p_score: score,
+          });
+        }
+      } catch {}
+
+      return jsonResponse({ data: { ...attempt, pointsAwarded } }, 201, request);
     }
 
     // 6. GET /api/teacher/results (Teacher evaluation overview)
@@ -329,6 +350,82 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           totalLessons: totalLessons || 0,
           totalAttempts: attempts?.length || 0,
           recentAttempts: attempts || [],
+        },
+      }, 200, request);
+    }
+
+    // 8. GET /api/leaderboard
+    if (subpath === 'leaderboard' && request.method === 'GET') {
+      const period = url.searchParams.get('period') || 'weekly';
+
+      try {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('get_dynamic_leaderboard', {
+          p_period: period,
+          p_limit: 100,
+        });
+
+        if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+          const activeEntries: any[] = [];
+          const unstartedList: any[] = [];
+
+          for (const r of rpcData) {
+            const item = {
+              userId: r.user_id,
+              displayName: r.display_name,
+              equippedBorder: r.equipped_border || 'ice-dream',
+              points: Number(r.points || 0),
+              rank: Number(r.rank || 0),
+              rankChange: r.rank_change != null ? Number(r.rank_change) : 0,
+              status: (r.status === 'active' ? 'active' : 'not_started') as 'active' | 'not_started',
+            };
+            if (item.status === 'active') {
+              activeEntries.push(item);
+            } else {
+              unstartedList.push(item);
+            }
+          }
+
+          const currentUser = [...activeEntries, ...unstartedList].find(e => e.userId === user.id) || null;
+          return jsonResponse({
+            data: {
+              entries: activeEntries,
+              unstartedUsers: unstartedList,
+              currentUser,
+              period,
+            },
+          }, 200, request);
+        }
+      } catch {}
+
+      // Fallback: profiles table
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, display_name, diamonds, equipped_border')
+        .eq('role', 'student');
+
+      const rows = (profiles || []).map(p => ({
+        userId: p.id as string,
+        displayName: (p.display_name as string) || 'Siswa',
+        equippedBorder: (p as any).equipped_border || 'ice-dream',
+        points: Number((p as any).diamonds ?? 0),
+        rank: 0,
+        rankChange: 0,
+        status: (Number((p as any).diamonds ?? 0) > 0 ? 'active' : 'not_started') as 'active' | 'not_started',
+      }));
+
+      const active = rows
+        .filter(r => r.status === 'active')
+        .sort((a, b) => b.points - a.points)
+        .map((r, i) => ({ ...r, rank: i + 1 }));
+      const unstarted = rows.filter(r => r.status === 'not_started');
+      const currentUser = [...active, ...unstarted].find(e => e.userId === user.id) || null;
+
+      return jsonResponse({
+        data: {
+          entries: active,
+          unstartedUsers: unstarted,
+          currentUser,
+          period,
         },
       }, 200, request);
     }

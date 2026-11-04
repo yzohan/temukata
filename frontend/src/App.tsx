@@ -4,6 +4,7 @@ import { useAuth } from './auth/AuthProvider';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/StudentDashboard';
+import StudentLeaderboardPage from './pages/StudentLeaderboardPage';
 import StudentLessonPage from './pages/StudentLessonPage';
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherLessonEditor from './pages/TeacherLessonEditor';
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/student/toko" element={<StudentDashboard tab="toko" />} />
         <Route path="/student/koleksi" element={<StudentDashboard tab="koleksi" />} />
         <Route path="/student/progres" element={<StudentDashboard tab="progres" />} />
+        <Route path="/student/peringkat" element={<StudentLeaderboardPage />} />
         <Route path="/student/akun" element={<StudentDashboard tab="akun" />} />
         <Route path="/student/lessons/:id" element={<StudentLessonPage />} />
       </Route>

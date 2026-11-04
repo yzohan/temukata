@@ -92,7 +92,7 @@ function DuolingoShopIcon({ className = 'w-8 h-8' }: { className?: string }) {
   );
 }
 
-// 4. Golden Shield (Progres / Leaderboard)
+// 4. Golden Shield (Papan Peringkat)
 function DuolingoShieldIcon({ className = 'w-8 h-8' }: { className?: string }) {
   return (
     <svg className={`${className} shrink-0 transition-transform group-hover:scale-105`} viewBox="0 0 36 36" fill="none">
@@ -212,9 +212,20 @@ export default function AppShell({
       badge: 'BARU',
     },
     {
+      to: '/student/peringkat',
+      label: 'PERINGKAT',
+      icon: <DuolingoShieldIcon />,
+    },
+    {
       to: '/student/progres',
       label: 'PROGRES',
-      icon: <DuolingoShieldIcon />,
+      icon: (
+        <svg className="w-7 h-7 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 36 36" fill="none">
+          <rect x="6" y="20" width="6" height="10" rx="2" fill="#8DB4D8" />
+          <rect x="15" y="14" width="6" height="16" rx="2" fill="#DCEBFA" />
+          <rect x="24" y="8" width="6" height="22" rx="2" fill="#FFE8A8" />
+        </svg>
+      ),
     },
     {
       to: '/student/akun',
@@ -262,6 +273,7 @@ export default function AppShell({
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  end={item.end}
                   onClick={() => sound.playPop()}
                   className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${
                     active
@@ -450,15 +462,16 @@ export default function AppShell({
       {/* ============================================================== */}
       {/* MOBILE BOTTOM NAVIGATION BAR (DUOLINGO STYLE)                  */}
       {/* ============================================================== */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#111C2B]/95 backdrop-blur-lg border-t-2 border-[#E5E5E5] dark:border-[#223044] px-2 py-1.5 flex items-center justify-around shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#111C2B]/95 backdrop-blur-lg border-t-2 border-[#E5E5E5] dark:border-[#223044] px-1 py-1.5 flex items-center justify-around shadow-lg">
         {nav.map(item => {
           const active = isItemActive(item.to, item.end);
           return (
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.end}
               onClick={() => sound.playPop()}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-2xl transition-transform active:scale-95 ${
+              className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded-2xl transition-transform active:scale-95 ${
                 active ? 'text-[#1CB0F6] dark:text-[#38BDF8]' : 'text-[#7790A8] dark:text-[#8EA8C4]'
               }`}
             >

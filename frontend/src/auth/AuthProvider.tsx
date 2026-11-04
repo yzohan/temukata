@@ -3,6 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import type { PropsWithChildren } from 'react';
 import type { Profile, Role } from '../types';
 import { supabase, supabaseConfigured } from '../lib/supabase';
+import { recordRegisteredStudent } from '../lib/leaderboard';
 
 interface AuthContextValue {
   user: User | null;
@@ -33,9 +34,70 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const loadProfile = useCallback(async (user: User | null) => {
     if (!user || !supabase) { setProfile(null); return; }
-    const { data, error } = await supabase.from('profiles').select('id, role, display_name').eq('id', user.id).maybeSingle();
-    if (error) throw error;
-    setProfile(data as Profile | null);
+    try {
+      // Coba baca profil asli dari Supabase (kolom standar: id, role, display_name)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, role, display_name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setProfile(data as Profile);
+        if (data.role === 'student') {
+          recordRegisteredStudent({
+            id: data.id,
+            displayName: data.display_name || 'Siswa',
+            points: 0,
+            equippedBorder: 'ice-dream',
+          });
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn('Gagal membaca profil dari Supabase:', err);
+    }
+
+    // Jika baris profil belum ditemukan di database, gunakan data dari auth.users
+    const detectedRole: Role =
+      user.email === TEACHER_EMAIL || user.user_metadata?.role === 'teacher'
+        ? 'teacher'
+        : 'student';
+
+    const fallbackName =
+      user.user_metadata?.display_name ||
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.email?.split('@')[0] ||
+      (detectedRole === 'teacher' ? 'Guru' : 'Siswa');
+
+    const fallbackProfile: Profile = {
+      id: user.id,
+      role: detectedRole,
+      display_name: fallbackName,
+    };
+
+    setProfile(fallbackProfile);
+
+    if (detectedRole === 'student') {
+      recordRegisteredStudent({
+        id: user.id,
+        displayName: fallbackName,
+        points: 0,
+        equippedBorder: 'ice-dream',
+      });
+    }
+
+    // Upayakan auto-insert ke public.profiles di Supabase
+    try {
+      await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          role: detectedRole,
+          display_name: fallbackName,
+        });
+    } catch {}
   }, []);
 
   useEffect(() => {

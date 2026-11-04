@@ -74,3 +74,21 @@ export interface UserProgress {
   equippedBorder?: string;
   inventory?: string[];
 }
+
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  points: number;
+  rank: number;
+  equippedBorder?: string;
+  /** Positive = naik, negative = turun. null jika tidak ada riwayat. */
+  rankChange: number | null;
+  status?: 'active' | 'not_started';
+}
+
+export interface LeaderboardPayload {
+  entries: LeaderboardEntry[];
+  currentUser: LeaderboardEntry | null;
+  unstartedUsers?: LeaderboardEntry[];
+  period?: 'weekly' | 'monthly' | 'all_time';
+}

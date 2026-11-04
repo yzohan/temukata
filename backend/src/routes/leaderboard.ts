@@ -3,109 +3,159 @@ import { supabase } from '../lib/supabase.js';
 
 const router = Router();
 
-type RankRow = {
+type LeaderboardRow = {
   userId: string;
   displayName: string;
+  equippedBorder: string;
   points: number;
-  equippedBorder?: string;
-  rankChange?: number | null;
-  previousRank?: number | null;
+  rank: number;
+  rankChange: number;
+  status: 'active' | 'not_started';
 };
 
-const DEFAULT_COHORT: RankRow[] = [
-  { userId: 'student-aurelia', displayName: 'Aurelia', points: 1520, equippedBorder: 'flower-garden', rankChange: 0 },
-  { userId: 'student-raka', displayName: 'Raka', points: 1340, equippedBorder: 'ice-dream', rankChange: 1 },
-  { userId: 'student-nadine', displayName: 'Nadine', points: 1270, equippedBorder: 'cherry-blossom', rankChange: -1 },
-  { userId: 'student-jennifer', displayName: 'Jennifer', points: 1020, equippedBorder: 'midnight-blue', rankChange: 3 },
-  { userId: 'student-william', displayName: 'William', points: 1000, equippedBorder: 'golden-star', rankChange: 1 },
-  { userId: 'student-emory', displayName: 'Emory', points: 920, equippedBorder: 'aurora-night', rankChange: -1 },
-  { userId: 'student-lydia', displayName: 'Lydia', points: 900, equippedBorder: 'ocean-pulse', rankChange: 0 },
-  { userId: 'student-arvin', displayName: 'Arvin', points: 880, equippedBorder: 'moonlight', rankChange: 2 },
-  { userId: 'student-bianca', displayName: 'Bianca', points: 860, equippedBorder: 'flower-garden', rankChange: -1 },
-];
-
-function toEntries(rows: RankRow[], period: 'weekly' | 'monthly' = 'weekly') {
-  const sorted = [...rows].sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    return a.displayName.localeCompare(b.displayName, 'id');
-  });
-  return sorted.map((row, index) => {
-    const rank = index + 1;
-    const rankChange =
-      row.rankChange !== undefined && row.rankChange !== null
-        ? row.rankChange
-        : row.previousRank
-        ? row.previousRank - rank
-        : 0;
-    return {
-      userId: row.userId,
-      displayName: row.displayName,
-      points: row.points,
-      rank,
-      equippedBorder: row.equippedBorder || 'ice-dream',
-      rankChange,
-    };
-  });
-}
-
-// 1. Ambil data melalui RPC fungsi get_leaderboard di Supabase (jika sudah di-deploy)
-async function loadFromRpc(period: 'weekly' | 'monthly') {
+// 1. Ambil data melalui RPC fungsi get_dynamic_leaderboard di Supabase (dengan timeout 1.8 detik)
+async function loadFromDynamicRpc(period: 'weekly' | 'monthly' | 'all_time') {
   try {
-    const { data, error } = await supabase.rpc('get_leaderboard', { p_period: period });
-    if (error || !data || !Array.isArray(data) || data.length === 0) return null;
-    return data.map((row: any) => ({
-      userId: row.user_id,
-      displayName: row.display_name,
-      points: Number(row.points ?? 0),
-      equippedBorder: row.equipped_border,
-      rankChange: row.rank_change != null ? Number(row.rank_change) : 0,
-      previousRank: row.previous_rank != null ? Number(row.previous_rank) : null,
-    }));
+    const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 1800));
+    const query = (async () => {
+      const { data, error } = await supabase.rpc('get_dynamic_leaderboard', {
+        p_period: period,
+        p_limit: 100,
+      });
+      if (error || !data || !Array.isArray(data)) return null;
+
+      return data.map((row: any) => ({
+        userId: row.user_id,
+        displayName: row.display_name,
+        equippedBorder: row.equipped_border || 'ice-dream',
+        points: Number(row.points ?? 0),
+        rank: Number(row.rank ?? 0),
+        rankChange: Number(row.rank_change ?? 0),
+        status: (row.status === 'active' ? 'active' : 'not_started') as 'active' | 'not_started',
+      }));
+    })();
+
+    const result = await Promise.race([query, timeout]);
+    return result;
   } catch {
     return null;
   }
 }
 
-// 2. Ambil data langsung dari tabel profiles di Supabase
-async function loadFromProfiles(period: 'weekly' | 'monthly') {
+// 2. Query fallback langsung ke tabel point_transactions dan profiles (tanpa data fiktif)
+async function loadFromTables(period: 'weekly' | 'monthly' | 'all_time') {
   try {
-    const { data, error } = await supabase
+    // Ambil seluruh profil murid yang terdaftar
+    const { data: profiles, error: pErr } = await supabase
       .from('profiles')
-      .select('id, display_name, diamonds, weekly_points, monthly_points, total_points, previous_rank, equipped_border')
+      .select('id, display_name, equipped_border, diamonds')
       .eq('role', 'student');
-    if (error || !data || data.length === 0) return null;
-    return data.map((row: any) => {
-      let points = 0;
-      if (period === 'monthly') {
-        points = Number(row.monthly_points || row.total_points || (row.diamonds ? row.diamonds * 3 : 0));
+
+    if (pErr || !profiles) return [];
+
+    // Tentukan waktu awal periode
+    let periodStart: Date | null = null;
+    const now = new Date();
+    if (period === 'weekly') {
+      // Senin 00:00 WIB
+      const day = now.getDay();
+      const diffToMonday = (day === 0 ? -6 : 1) - day;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday);
+      monday.setHours(0, 0, 0, 0);
+      periodStart = monday;
+    } else if (period === 'monthly') {
+      // Tanggal 1 00:00 WIB
+      periodStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+    }
+
+    // Ambil transaksi poin
+    let query = supabase.from('point_transactions').select('user_id, points, created_at');
+    if (periodStart) {
+      query = query.gte('created_at', periodStart.toISOString());
+    }
+    const { data: transactions } = await query;
+
+    // Agregasikan poin per murid
+    const pointsMap = new Map<string, number>();
+    for (const tx of transactions || []) {
+      pointsMap.set(tx.user_id, (pointsMap.get(tx.user_id) || 0) + Number(tx.points || 0));
+    }
+
+    const activeList: LeaderboardRow[] = [];
+    const unstartedList: LeaderboardRow[] = [];
+
+    for (const p of profiles) {
+      // Jika belum ada point_transactions, gunakan diamonds jika murid sudah punya
+      const pts = pointsMap.get(p.id) ?? Number(p.diamonds || 0);
+      const studentName = p.display_name || 'Siswa';
+      const border = p.equipped_border || 'ice-dream';
+
+      if (pts > 0) {
+        activeList.push({
+          userId: p.id,
+          displayName: studentName,
+          equippedBorder: border,
+          points: pts,
+          rank: 0,
+          rankChange: 0,
+          status: 'active',
+        });
       } else {
-        points = Number(row.weekly_points || row.diamonds || 0);
+        unstartedList.push({
+          userId: p.id,
+          displayName: studentName,
+          equippedBorder: border,
+          points: 0,
+          rank: 0,
+          rankChange: 0,
+          status: 'not_started',
+        });
       }
-      return {
-        userId: row.id,
-        displayName: row.display_name || 'Siswa',
-        points,
-        equippedBorder: row.equipped_border || 'ice-dream',
-        previousRank: row.previous_rank != null ? Number(row.previous_rank) : null,
-      };
+    }
+
+    // Hitung DENSE_RANK() untuk peserta aktif
+    activeList.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      return a.displayName.localeCompare(b.displayName, 'id');
     });
+
+    let currentRank = 1;
+    for (let i = 0; i < activeList.length; i++) {
+      const curr = activeList[i];
+      const prev = activeList[i - 1];
+      if (curr) {
+        if (i > 0 && prev && curr.points < prev.points) {
+          currentRank = i + 1;
+        }
+        curr.rank = currentRank;
+      }
+    }
+
+    return [...activeList, ...unstartedList];
   } catch {
-    return null;
+    return [];
   }
 }
 
 router.get('/', async (req, res) => {
   try {
-    const period = req.query.period === 'monthly' ? 'monthly' : 'weekly';
+    const periodParam = (req.query.period as string) || 'weekly';
+    const period =
+      periodParam === 'monthly' ? 'monthly' : periodParam === 'all_time' ? 'all_time' : 'weekly';
 
-    // Coba ambil data riil database (RPC -> Profiles Table -> Fallback)
-    const rpcRows = await loadFromRpc(period);
-    const profileRows = rpcRows ?? await loadFromProfiles(period);
-    const rows = profileRows && profileRows.length > 0 ? profileRows : DEFAULT_COHORT;
+    // 1. Coba RPC get_dynamic_leaderboard
+    let allRows = await loadFromDynamicRpc(period);
 
-    const entries = toEntries(rows, period);
+    // 2. Jika RPC belum terpasang di database, gunakan query tabel langsung
+    if (!allRows || allRows.length === 0) {
+      allRows = await loadFromTables(period);
+    }
 
-    // Cek auth header jika tersedia
+    const entries = allRows.filter(r => r.status === 'active');
+    const unstartedUsers = allRows.filter(r => r.status === 'not_started');
+
+    // 3. Deteksi identitas pengguna yang sedang login
     let currentUserId: string | null = null;
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
@@ -118,13 +168,20 @@ router.get('/', async (req, res) => {
       } catch {}
     }
 
-    const currentUser = currentUserId
-      ? entries.find(entry => entry.userId === currentUserId) || null
+    let currentUser = currentUserId
+      ? allRows.find(entry => entry.userId === currentUserId) || null
       : null;
 
-    return res.json({ data: { entries, currentUser } });
+    return res.json({
+      data: {
+        entries,
+        unstartedUsers,
+        currentUser,
+        period,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ error: 'Could not load leaderboard' });
+    return res.status(500).json({ error: 'Could not load dynamic leaderboard' });
   }
 });
 

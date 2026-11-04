@@ -994,6 +994,14 @@ export default function StudentDashboard({ tab = 'beranda' }: StudentDashboardPr
                 <p className="text-xs sm:text-sm font-semibold text-[#5a7394] dark:text-[#9bb7d9] mt-0.5">
                   Lihat perkembangan petualangan membacamu di sini!
                 </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/student/peringkat')}
+                  className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 border border-[#DCEBFA] text-xs font-bold text-[#304D70] hover:bg-white"
+                >
+                  Buka Papan Peringkat
+                  <ChevronRight size={14} />
+                </button>
               </div>
 
               <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#1f2d3d] flex items-center justify-center shrink-0 text-3xl shadow-xs">
